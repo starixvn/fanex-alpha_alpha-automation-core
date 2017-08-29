@@ -7,7 +7,7 @@ Documentation     A resource file with reusable keywords and variables.
 Library           Selenium2Library
 
 *** Variables ***
-${SERVER}         10.19.10.52:7172
+${SERVER}         10.18.200.202:7426/LocalTest
 ${BROWSER}        Firefox
 ${DELAY}          0
 ${VALID USER}     demo
