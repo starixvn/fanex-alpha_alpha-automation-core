@@ -1,0 +1,1 @@
+call pybot --variablefile "%~dp0\config.py" --outputdir "%~dp0\Report" "%~dp0\Test_Modules\Bet_List\TM01_BetList_AccountInfo_Super.txt"

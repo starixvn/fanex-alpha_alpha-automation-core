@@ -1,0 +1,27 @@
+*** Variables ***
+## TOP RIGHT GROUP
+${in_tm_lnkLanguage}    //li[@class='hidden-mobile dropdown language']/a    #//li[@class='dropdown language']/a
+${in_tm_iconlogout}    //a[@class='icon icon-logout withripple']
+## Right Context Menu Icon [...]
+${in_tm_iconHeaderMenu}    //a[@id='btn-header-menu']
+${in_tm_iconNickName}    //*[@id='header-dropdown-menu']/li[2]/a[text()="Nickname"]/span[@class="icon icon-account-key"]
+${in_tm_iconProfilePicture}    //*[@id='header-dropdown-menu']/li[3]/a[text()="Profile picture"]/span[@class='icon icon-account-circle']
+${in_tm_iconPassword}    //*[@id='header-dropdown-menu']/li[4]/a[text()="Password"]/span[@class='icon icon-lock']
+${in_tm_iconSecurityCode}    //*[@id='header-dropdown-menu']/li[5]/a[text()="Security Code"]/span[@class='icon icon-sercuritycode']
+${in_tm_iconHelp}    //*[@id='header-dropdown-menu']/li[6]/a[text()="Help"]/span[@class='icon icon-help']
+${in_tm_iconOTP}    //*[@id='header-dropdown-menu']/li[7]/a[text()="OTP"]/span[@class='icon icon-otp']
+${in_tm_iconContactUs}    //*[@id='header-dropdown-menu']/li[8]/a[text()="Contact Us"]/span[@class='icon icon-contactus']
+## Left Options
+${in_tm_imgProfile}    //img[@id='logoProfileImg']
+${in_tm_spanUsername}    //span[@class='userName']
+${in_tm_lnkNickname}    //a[@id='linkNickNameID']
+${in_tm_lblSubAccName}    //div[@id='adminAndSubAcc']
+${in_tm_lnkOPT}    //*[@id='profile-content']/div/a[@class="otp"]
+${in_tm_iconHamburger}    //span[@id='hamburger-icon']
+${in_tm_dropdownHeadMenu}    //ul[@id='header-dropdown-menu']
+## Top Bar
+${in_tm_iconHome}    //span[@id='home-icon']
+${in_tm_labMarqueeMessage}    //div[@id="marqueeMessage"]
+${in_tm_scollTextMessage}    //span[@id="scroller"]//span[@id='liveMessage']
+${in_tm_iconSpecialMessage}    //*[@id='btnSpecialMessage']
+${in_tm_iconPrivateMessage}    //*[@id='btnPrivateMessage']/span[1]

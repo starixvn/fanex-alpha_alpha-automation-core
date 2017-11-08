@@ -1,0 +1,187 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../Interfaces/Main/in_m_DCS_Setting.txt
+Resource          ../../Actions/common_actions.txt
+
+*** Keywords ***
+Verify DCS Setting UI_AP_LossLimit
+    [Arguments]    ${iframe}    ${levelMode}    ${productName}    ${product}    ${sportType}    ${betType}
+    Unselect Frame
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}    ${cfWaitControl}    #Header
+    comment    Product Name
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following::div//*[text()='${productName}']    #Product Name
+    Comment    Maximum Loss textbox
+    Run Keyword If    '${levelMode}'=='SM' or '${levelMode}'=='MA' or '${levelMode}'=='AP'    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//div[text()='Maximum Loss']/following-sibling::div//input
+    ...    ELSE    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//div[text()='Maximum Loss']/following-sibling::div[@class='block__value w60-percent setting-field-wrapper ng-binding ng-scope']
+    Run Keyword If    '${levelMode}'=='SM' or '${levelMode}'=='MA' or '${levelMode}'=='AP'    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//div[text()='Maximum Loss']/following-sibling::div//span[contains(text(),'(')]
+    ...    ELSE    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//div[text()='Maximum Loss']/following-sibling::div//span[contains(text(),'(')]
+    Run Keyword If    '${levelMode}'=='SP' or '${levelMode}'=='MP' or '${levelMode}'=='AP'    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//*[text()='Current Loss Amount']/following-sibling::div/*[text()='Click to view Current Loss Amount']    #Click to view Current Loss Amount
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//*[text()=' Daily auto reset limit (at 12 noon GMT +8)']    #Daily auto reset limit
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//input[@type='checkbox']
+    Unselect Frame
+
+Verify DCS Setting UI_AP_ProductStatus
+    [Arguments]    ${iframe}    ${productName}    ${product}    ${sportType}    ${betType}
+    Unselect Frame
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}    ${cfWaitControl}    #Header
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}/following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']/span[text()='${productName}']    #Product Name
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}/following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']/following-sibling::div//label[text()=' Enable']/input    Enable checkbox
+    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}/following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']/following-sibling::div//label[text()=' Enable Downline']/input
+    Unselect Frame
+
+Verify DCS Setting UI_GeneralInfomation
+    [Arguments]    ${iframe}    ${username}=${EMPTY}    ${nickname}=${EMPTY}    ${firstName}=${EMPTY}    ${phone}=${EMPTY}    ${lastName}=${EMPTY}
+    ...    ${mobilePhone}=${EMPTY}    ${fax}=${EMPTY}
+    Unselect Frame
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_gi_labGenInfoGroupHeader}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labUsername}
+    Run Keyword And Continue On Failure    Run Keyword If    '${username}'=='${EMPTY}'    Element Should Be Visible    ${in_m_DCS_gi_labUsernameValue}
+    ...    ELSE    Element Text Should Be    ${username}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labUsernameValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labNickname}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labNicknameValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labFirstName}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labFirstNameValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labLastName}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labLastNameValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labPhone}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labPhoneValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labMobilePhone}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labMobilePhoneValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labFax}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_gi_labFaxValue}
+    Unselect Frame
+
+Verify DCS Setting UI_SMP_LossLimit
+    [Arguments]    ${iframe}    ${productName}    ${product}    ${sportType}    ${betType}
+    Unselect Frame
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}    ${cfWaitControl}    #Header
+    comment    Product Name
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following::div//*[text()='${productName}']    #Product Name
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//input[@data-field-name='lossLimit']    #Maximum Loss Text Box    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//*[text()='Maximum Loss']/following-Sibling::div//input
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//span[contains(text(),'-')]    #Maximum Loss Range    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//*[text()='Maximum Loss']/following-Sibling::div//span[contains(text(),'(')]
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//*[text()='Current Loss Amount']/following-sibling::div/*[text()='Click to view Current Loss Amount']    #Click to view Current Loss Amount
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//*[text()=' Daily auto reset limit (at 12 noon GMT +8)']    #Daily auto reset limit
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_lm_labLossLimitGroupHeader}//following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']//input[@type='checkbox']
+    Unselect Frame
+
+Verify DCS Setting UI_SMP_ProductStatus
+    [Arguments]    ${iframe}    ${productName}    ${product}    ${sportType}    ${betType}
+    Unselect Frame
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}    ${cfWaitControl}    #Header
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}/following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']/span[text()='${productName}']    #Product Name
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}/following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']/following-sibling::div//label[text()=' Enable']/input    Enable checkbox
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_DCS_ps_labProductStatusGroupHeader}/following-sibling::div//*[@data-bet-type='${betType}' and @data-sport-type='${sportType}' and @data-product='${product}']/following-sibling::div//label[text()=' Enable Downline']/input
+    Unselect Frame
+
+Verify DCS UI_Bet Setting_Edit
+    [Arguments]    ${iframe}    ${productId}    ${sportNames}    ${sportTypes}    ${betTypes}
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    ${in_m_DCS_bl_labBetSettingGroupHeader}    ${cfWaitControl}
+    ${n}    Get Length    ${betTypes}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${ProSpoBet}    Set variable    ${in_m_DCS_bl_labBetSettingGroupHeader}/following-sibling::div//div[@data-bet-type='@{betTypes}[${i}]' and@data-sport-type='@{sportTypes}[${i}]' and @data-product='${productId}']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}//span[text()='@{sportNames}[${i}]']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//*[@data-field-name='minBet']    #    //div[@data-bet-type="1201" and @data-sport-type="180" and @data-product="5"]/following-sibling::div//*[@data-field-name="minBet"]
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//*[@data-field-name='maxBet']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//*[@data-field-name='maxPerMatch']
+
+Verify DCS UI_Bet Setting_ReadOnly
+    [Arguments]    ${iframe}    ${productId}    ${sportNames}    ${sportTypes}    ${betTypes}
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    ${in_m_DCS_bl_labBetSettingGroupHeader}    ${cfWaitControl}
+    ${n}    Get Length    ${betTypes}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${ProSpoBet}    Set variable    ${in_m_DCS_bl_labBetSettingGroupHeader}/following-sibling::div//div[@data-bet-type='@{betTypes}[${i}]' and@data-sport-type='@{sportTypes}[${i}]' and @data-product='${productId}']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}//span[text()='@{sportNames}[${i}]']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//div[@class='align-center ng-scope']/div[1]
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//div[@class='align-center ng-scope']/div[2]
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//div[@class='align-center ng-scope']/div[3]
+
+Verify DCS UI_Position Taking_AgentMember
+    [Arguments]    ${iframe}    ${productId}    ${sportNames}    ${sportTypes}    ${betTypes}
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    ${in_m_DCS_pt_labPositionTaking}    ${cfWaitControl}
+    ${n}    Get Length    ${betTypes}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${ProSpoBet}    Set variable    ${in_m_DCS_pt_labPositionTaking} /following-sibling::div//div[@data-bet-type='@{betTypes}[${i}]' and@data-sport-type='@{sportTypes}[${i}]' and @data-product='${productId}']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}//span[text()='@{sportNames}[${i}]']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-ng-model="settingItem.a1"]    #    //div[@data-bet-type="1201" and @data-sport-type="180" and @data-product="5"]/following-sibling::div//*[@data-field-name="minBet"]
+
+Verify DCS UI_Position Taking_MasterAgent
+    [Arguments]    ${iframe}    ${productId}    ${sportNames}    ${sportTypes}    ${betTypes}
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    ${in_m_DCS_pt_labPositionTaking}    ${cfWaitControl}
+    ${n}    Get Length    ${betTypes}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${ProSpoBet}    Set variable    ${in_m_DCS_pt_labPositionTaking} /following-sibling::div//div[@data-bet-type='@{betTypes}[${i}]' and@data-sport-type='@{sportTypes}[${i}]' and @data-product='${productId}']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}//span[text()='@{sportNames}[${i}]']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-ng-model="settingItem.m2"]    #    //div[@data-bet-type="1201" and @data-sport-type="180" and @data-product="5"]/following-sibling::div//*[@data-field-name="minBet"]
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-ng-model="settingItem.a2"]
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-ng-model="settingItem.m2"]
+
+Verify DCS UI_Position Taking_MasterMember
+    [Arguments]    ${iframe}    ${productId}    ${sportNames}    ${sportTypes}    ${betTypes}
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    ${in_m_DCS_pt_labPositionTaking}    ${cfWaitControl}
+    ${n}    Get Length    ${betTypes}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${ProSpoBet}    Set variable    ${in_m_DCS_pt_labPositionTaking} /following-sibling::div//div[@data-bet-type='@{betTypes}[${i}]' and@data-sport-type='@{sportTypes}[${i}]' and @data-product='${productId}']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}//span[text()='@{sportNames}[${i}]']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-field-name='m1']    #
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//input[@data-field-name='iM1']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//div[@class='block__cell block__cell--no-border w42-percent ng-binding']
+
+Verify DCS UI_Position Taking_SuperMaster
+
+Verify DCS UI_Position Taking_SuperMember
+    [Arguments]    ${iframe}    ${productId}    ${sportNames}    ${sportTypes}    ${betTypes}
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Element Is Visible    ${in_m_DCS_pt_labPositionTaking}    ${cfWaitControl}
+    ${n}    Get Length    ${betTypes}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${ProSpoBet}    Set variable    ${in_m_DCS_pt_labPositionTaking} /following-sibling::div//div[@data-bet-type='@{betTypes}[${i}]' and@data-sport-type='@{sportTypes}[${i}]' and @data-product='${productId}']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}//span[text()='@{sportNames}[${i}]']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-field-name='s1']    #    //div[@data-bet-type="1201" and @data-sport-type="180" and @data-product="5"]/following-sibling::div//*[@data-field-name="minBet"]
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//input[@data-field-name='iS1']
+    \    Comment    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//select[@data-field-name='uS1']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//div[@class='block__cell w28-percent ng-binding']
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    ${ProSpoBet}/following-sibling::div//div[@class='block__cell block__cell--no-border w28-percent ng-binding']
+
+Verify DCS UI_Ticket Commission_SuperMaster
+    [Arguments]    ${iframe}    ${levelMode}    ${productName}    ${product}    ${sportType}    ${betType}
+    Unselect Frame
+    Select Frame    ${iframe}

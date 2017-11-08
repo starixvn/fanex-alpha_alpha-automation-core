@@ -1,0 +1,145 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01Login_S}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Super    Funct_Report
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../../Actions/account_info_general.txt
+Resource          ../../../Actions/common_actions.txt
+Resource          ../../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/Setting/status_actions.txt
+Resource          ../../../Interfaces/in_top_menu.txt
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Actions/PT/pt_sportsbook.txt
+Resource          ../../../Data_set/accounts.txt
+Resource          ../../../Actions/PT/pt_virtualsports.txt
+Resource          ../../../Interfaces/Main/in_m_transfer.txt
+Resource          ../../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../../Interfaces/Main/in_main_totalbet_report_forecast.txt
+Resource          ../../../Actions/reports_actions.txt
+Resource          ../../../Interfaces/Main/in_main_memberinfo.txt
+Resource          ../../../Actions/memberinfo.txt
+Resource          ../../../Interfaces/Main/in_main_new_totalbets_forecast.txt
+Resource          ../../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../../Interfaces/Main/in_m_edit_casino.txt
+Resource          ../../../Actions/PT/pt_racing.txt
+Resource          ../../../Interfaces/Main/in_m_securitycode_password.txt
+
+*** Test Cases ***
+TC_1_Super_Commission By Bet Type_Smartphone_Functional
+    [Documentation]    ***Step***
+    ...
+    ...    1. Navigate to *Commission by Bet Type* Report
+    ...
+    ...    2. Verify function Show/Hide Report filter
+    ...
+    ...    3. Smartphone Verify Report_Commission By BetType
+    ...
+    ...    - 1 Select date range fillter and submit
+    ...
+    ...    - 2 VP: Verify report title and calculate data by columns
+    ...
+    ...    - 3 VP: Check data exist or not and export excel file
+    ...
+    ...    - 4 VP: Check Breadcrumb
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    - Alpha-8313:Add Show/hide icon
+    ...    - Alpha-8332:[Submit] Button
+    ...    - Alpha-8287:Check default sort
+    ...    - Alpha-8293: Drilldown - Check breadcrumb
+    ...    - Alpha-8339:Export to excel
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Commission By Bet Type
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 5 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Close Announcement Popup
+    Smartphone Verify function Show/Hide Report filter
+    Smartphone Verify Report_Commission By BetType    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+
+TC_2_Super_Commission By Bet Type_Smartphone_Functional_Check Sort When Drill Down/Up
+    [Documentation]    ***Step***
+    ...
+    ...    1. Navigate to *Commission by Bet Type* Report
+    ...
+    ...    2. Smartphone Verify Report_CommissionByBetType_RacingCommission_Check Sort When Drill Down/Up
+    ...
+    ...    - VP: Verify report name
+    ...    - Select date range fillter and submit
+    ...    - VP: check default sort asc Username columns
+    ...    - Drill down to downline report and check sort function
+    ...    - Drill up to upline report and check sort function
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    - Alpha-8286:Check sort function when drilling down/up
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Commission By Bet Type
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 5 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_CommissionByBetType_RacingCommission_Check Sort When Drill Down/Up    COMMISSION BY BET TYPE    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+    ...    Username    1    asc    String
+    Smartphone Verify Report_CommissionByBetType_RacingCommission_Check Sort When Drill Down/Up    COMMISSION BY BET TYPE    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+    ...    Commission 1    2    asc    numberic
+    Smartphone Verify Report_CommissionByBetType_RacingCommission_Check Sort When Drill Down/Up    COMMISSION BY BET TYPE    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+    ...    Commission 2    3    desc    numberic
+    Smartphone Verify Report_CommissionByBetType_RacingCommission_Check Sort When Drill Down/Up    COMMISSION BY BET TYPE    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+    ...    Commission 3    4    asc    numberic
+    Smartphone Verify Report_CommissionByBetType_RacingCommission_Check Sort When Drill Down/Up    COMMISSION BY BET TYPE    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+    ...    Gaming    5    desc    numberic
+
+TC_3_Super_Commission By Bet Type_Check information icon
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss detail*
+    ...
+    ...    2. Return List offered Product or False if none of Casino, Macau Games, Allbet, Fishing World are offered
+    ...
+    ...    3. Navigate to Report *Commission by bettype*
+    ...
+    ...    4. Check info tooltip content report
+    ...    - Click on (i) icon
+    ...    - Tooltip must contain info if one of Casino, Macau Games, Allbet, Fishing World are offered
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    Alpha-8836:Rules for displaying info icon
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Commission By Bet Type
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 5 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    Win Loss Detail
+    ${ac_ListOfferedProduct}    Smartphone Verify Report_Check Offered Product    WIN LOSS DETAIL
+    TestSelect Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_Check Info Tooltip Content    ${ac_ListOfferedProduct}    ${tc_rptName}

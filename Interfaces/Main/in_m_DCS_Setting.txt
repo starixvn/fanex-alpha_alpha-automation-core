@@ -1,0 +1,74 @@
+*** Variables ***
+#----------------------------General Information-----------------------------
+${in_m_DCS_gi_labGenInfoGroupHeader}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']
+${in_m_DCS_gi_labUsername}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Username']
+${in_m_DCS_gi_labUsernameValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Username']/following-sibling::div
+${in_m_DCS_gi_labNickname}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Nickname']
+${in_m_DCS_gi_labNicknameValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Nickname']/following-sibling::div
+${in_m_DCS_gi_labFirstName}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='First Name']
+${in_m_DCS_gi_labFirstNameValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='First Name']/following-sibling::div
+${in_m_DCS_gi_labLastName}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Last Name']
+${in_m_DCS_gi_labLastNameValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Last Name']/following-sibling::div
+${in_m_DCS_gi_labPhone}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Phone']
+${in_m_DCS_gi_labPhoneValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Phone']/following-sibling::div
+${in_m_DCS_gi_labMobilePhone}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Mobile Phone']
+${in_m_DCS_gi_labMobilePhoneValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Mobile Phone']/following-sibling::div
+${in_m_DCS_gi_labFax}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Fax']
+${in_m_DCS_gi_labFaxValue}    //div[@class='customer-info ng-isolate-scope']//div[text()='General Information']/following-sibling::div/*[text()='Fax']/following-sibling::div
+#----------------------------Product Status-----------------------------
+${in_m_DCS_ps_labProductStatusGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Product Status']
+${in_m_DCS_ps_icoSavePartial}    //div[@class='ng-isolate-scope']//div[text()='Product Status']//*[@class="icon icon--update"]
+#----------------------------Commission-----------------------------
+${in_m_DCS_cm_labCommissionGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Commission']
+${in_m_DCS_cm_icoSavePartial}    //div[@class='ng-isolate-scope']//div[text()='Commission']//*[@class="icon icon--update"]
+#----------------------------Ticket Commission data-settingtype =14-----------------------------
+${in_m_DCS_cm_labTicketCommissionGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Ticket Commission']
+${in_m_DCS_cm_labTicketCommissionUplineGiven}    //div[@data-setting-type='14']/following-Sibling::div[1]//div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-Sibling::div//div[@class='block__cell w33-percent ng-binding']
+${in_m_DCS_cm_txtTicketCommissionUplineRemain}    //div[@data-setting-type='14']/following-Sibling::div[1]//div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-Sibling::div//div[@class='block__cell block__cell--no-border w33-percent w33-percent--last ng-binding']
+${in_m_DCS_cm_labTicketCommissionDownLineGiven}    //div[@data-setting-type='14']/following-Sibling::div[1]//div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-Sibling::div//input
+#----------------------------Winning Share Commission data-settingtype =15-----------------------------
+${in_m_DCS_cm_labWinningShareCommGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Winning Share Commission']
+${in_m_DCS_cm_labWinningShareCommUpline}    //div[@data-setting-type='15']/following-Sibling::div[1]//div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-Sibling::div/div[@class='text-field-wrapper ng-binding ng-scope']
+#----------------------------Win Loss Limit-----------------------------
+${in_m_DCS_wll_labWinLossLimitGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Win Loss Limit']
+${in_m_DCS_wll_icoSavePartial}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Win Loss Limit']//*[@class="icon icon--update"]
+#----------------------------Loss Limit-----------------------------
+${in_m_DCS_lm_labLossLimitGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Loss Limit']
+${in_m_DCS_lm_icoSavePartial}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Loss Limit']//*[@class="icon icon--update"]
+#----------------------------Bet Limit-----------------------------
+${in_m_DCS_bl_labBetlimitGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Bet Limit']
+${in_m_DCS_bl_icoSavePartial}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Bet Limit']//*[@class="icon icon--update"]
+${in_m_DCS_bl_labProductName}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Bet Limit']//following::label[@class="check-all-field-lbl ng-binding ng-scope"]
+${in_m_DCS_bl_labBetlimitName}    ///div[contains(@class,'ng-isolate-scope')]//div[text()='Bet Limit']//following::div[@class="col col--lbl w20-percent"]/div[@class="block__cell ng-binding ng-scope"]
+${in_m_DCS_bl_labBetlimitRange}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Bet Limit']//following::div[@class="col col--border-left scrollable-area w80-percent"]//div[@class="block__cell ng-binding ng-scope"]
+${in_m_DCS_bl_labViewMore}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Bet Limit']//following::*[text()='View More ...']
+#----------------------------Bet Limit-----------------------------
+${in_m_DCS_bl_labBetSettingGroupHeader}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Bet Setting']
+#----------------------------Position Taking-----------------------------
+${in_m_DCS_pt_labPositionTaking}    //setting-type-loader[@class='ng-isolate-scope']//div[text()='Position Taking']
+${in_m_DCS_pt_icoSavePartial}    //div[contains(@class,'ng-isolate-scope')]//div[text()='Position Taking']
+${in_m_DCS_pt_cboA1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div[1]/div/div/div/div/div/select[@data-ng-model='settingItem.a1']    # ***********************************Agent Edit Member
+${in_m_DCS_pt_cboM2}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='m2']/div/select    # ************************************Master Edit Agent
+${in_m_DCS_pt_cboIm2}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/label/input
+${in_m_DCS_pt_cboUm2}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='uM2']/div/select
+${in_m_DCS_pt_cboA2}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='a2']/div/select
+${in_m_DCS_pt_cboN2}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='n2']/div/select
+${in_m_DCS_pt_cboM1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='m1']/div/select    #*************************Master Edit Member
+${in_m_DCS_pt_cboIm1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/label/input
+${in_m_DCS_pt_cboUm1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='uM1']/div/select
+${in_m_DCS_pt_cboA1_view}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div[@class='block__cell block__cell--no-border w42-percent ng-binding']
+${in_m_DCS_pt_cboS3}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='s3']/div/select    # ************************************Master Edit Agent
+${in_m_DCS_pt_cboIs3}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/label/input
+${in_m_DCS_pt_cboUs3}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='uS3']/div/select
+${in_m_DCS_pt_cboM3}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='m2']/div/select
+${in_m_DCS_pt_cbon3}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='n3']/div/select
+${in_m_DCS_pt_cbos1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='s1']/div/select    #*************************Master Edit Member
+${in_m_DCS_pt_cboIs1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/label/input
+${in_m_DCS_pt_cboUs1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/div[@data-field-name='uS1']/div/select
+${in_m_DCS_pt_cboM1_view}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div[@class='block__cell w28-percent ng-binding']
+${in_m_DCS_pt_cboA1_view}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div[@class='block__cell block__cell--no-border w28-percent ng-binding']
+${in_m_DCS_pt_combobox}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div[1]/div/div/div/div/div/select[@data-ng-model='settingItem.uiFieldName']    # general define by FieldName
+${in_m_DCS_pt_checkbox}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div/label/input
+${in_m_DCS_pt_lblA1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div[@class='block__cell block__cell--no-border w28-percent ng-binding']    # a1 value as view only
+${in_m_DCS_pt_lblM1}    //*/div[@data-bet-type='uiBetType' and@data-sport-type='uiSportType' and @data-product='uiProduct']/following-sibling::div/div/div/div[@class='block__cell w28-percent ng-binding']    #m1 value as view only
+${in_m_DCS_pt_btnUpdate}    //*[@data-ng-click='ctrl.update()']

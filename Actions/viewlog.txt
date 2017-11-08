@@ -1,0 +1,1285 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../Interfaces/in_top_menu.txt    #**************************************************INTERFACES*****************************************
+Resource          ../Interfaces/Main/in_main.txt
+Resource          ../Interfaces/in_left_menu.txt
+Resource          ../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../Actions/reports_actions.txt
+Resource          ../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+Library           ExcelLibrary
+Library           xlrd
+
+*** Key Words ***
+Update Data 6 Columns with Title_deleted
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Check data that has 6 columns with title.
+    ...    - Test Title
+    ...    - Test Data
+    ...    This keyword will call Function Check Data 6 Columns with Title
+    ## Open Excel File
+    Open Excel    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Test Action Log
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ## Check Title of Detail Log
+    ${TitleWeb}    Get Text    ${ac_table_detail}/td[2]/div
+    ${TitleExcel}    Read Cell Data By Coordinates    ${ac_SheetName}    0    1
+    Should Contain    ${TitleWeb}    ${TitleExcel}
+    ## Check Detail Log
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+
+Parse String To List
+    [Arguments]    ${ac_str}
+    [Documentation]    This feature to parse value to list of string so that we can compare values between Excel and Web.
+    ...    ${ac_str}: value
+    ...    Return value as string to compare.
+    ${ac_outputLst}    Create List
+    ${ac_NoLines}    String.Get Line Count    ${ac_str}
+    : FOR    ${ac_index}    IN RANGE    0    ${ac_NoLines}
+    \    ${ac_linedata}    Get Line    ${ac_str}    ${ac_index}
+    \    Append To List    ${ac_outputLst}    ${ac_linedata}
+    [Return]    ${ac_outputLst}
+
+ViewLog_Verify Action Column
+    [Arguments]    ${ac_SheetName}
+    [Documentation]    This keyword is to check data on Action column
+    ...    Return variables: ${ac_table_detail} | ${ac_LogId}
+    ## Get Log Id
+    ${ac_LogId}    Read Cell Data By Coordinates    ${ac_SheetName}    0    0
+    ## Get Excel Action Log
+    ${ac_ExcelActionValue}    Read Cell Data By Coordinates    ${ac_SheetName}    1    0
+    ## Get Web Action Log
+    ${ac_table_detail}    Set Variable    //span[@class='logid' and text()='#${ac_LogID}']/parent::td/parent::tr
+    ${ac_col_Action}    Set Variable    //span[@class='logid' and text()='#${ac_LogID}']/parent::td/parent::tr/td
+    ${ac_WebActionValue}    Get Text    ${ac_col_Action}
+    ## Check Action Log
+    Should Be Equal As Strings    ${ac_ExcelActionValue}    ${ac_WebActionValue}
+    [Return]    ${ac_table_detail}    ${ac_LogId}
+
+Get Action And Value Excel
+    [Arguments]    ${ac_SheetName}    ${ac_ColNumAc}    ${ac_ColNumVal}    ${ac_rownum}
+    [Documentation]    Get Action and Value on Detail column from Excel file.
+    ...    ${ac_SheetName}: Excel Sheet
+    ...    ${ac_ColNumAc} : Column number of an action
+    ...    ${ac_ColNumVal}: Column number of a value belonged to an action
+    ...    ${ac_rownum}: Row number on table
+    ${ac_ExcelAction}    Read Cell Data By Coordinates    ${ac_SheetName}    ${ac_ColNumAc}    ${ac_rownum}
+    ${ac_temp}    Read Cell Data By Coordinates    ${ac_SheetName}    ${ac_ColNumVal}    ${ac_rownum}
+    ${ac_ExcelAction_Val}    Parse String To List    ${ac_temp}
+    [Return]    ${ac_ExcelAction}    ${ac_ExcelAction_Val}
+
+Get Action And Value Web
+    [Arguments]    ${ac_td}    ${ac_ColNumAc}    ${ac_ColNumVal}
+    [Documentation]    Get Action and Value on Detail column from Web.
+    ...    ${ac_td}: Row number on Web
+    ...    ${ac_ColNumAc}: Column number of an action
+    ...    ${ac_ColNumVal}: Column number of a value belonged to an action
+    ${ac_WebAction}    get text    ${ac_td}[${ac_ColNumAc}]
+    ${ac_temp}    get text    ${ac_td}[${ac_ColNumVal}]
+    ${ac_WebAction_Val}    Parse String To List    ${ac_temp}
+    [Return]    ${ac_WebAction}    ${ac_WebAction_Val}
+
+Update Data 6 Columns and 4 Last Rows 2 Columns
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Test data with format: 6 columns but for 4 last rows, there are only 2 columns
+    ...    This keyword will call Function Check Data 6 Columns and 4 Last Rows 2 Columns
+    ## Open Excel File
+    Open Excel    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Check Action Log
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ## Check Detail Log
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    3    1    5
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    1    6    9
+
+Func Check Data 6 Columns and 4 Last Rows 2 Columns
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: Automate add Live Casino betting limit for Master from existing master
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ## Get values from Web and Excel
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    ## Compare data
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    ## Skip column 3,4,5,6 from row 6 to the end
+    \    Continue For Loop If    ${ac_rownum} >= 6
+    \    ## Get values from Web and Excel
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    ## Compare data
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ## Get values from Web and Excel
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    ${ac_WebVal3}    Get Action And Value Web    ${ac_td}    5    6
+    \    ## Compare data
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Func Check Data 2 Columns and 4 Last Rows 6 Columns
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: \ Update Racing Commission
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ## Get values from Web and Excel
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    ## Compare data
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    ## Skip column 3,4,5,6 from row 1 to row 6
+    \    Continue For Loop If    ${ac_rownum} <= 6
+    \    ## Get values from Web and Excel
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    ## Compare data
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ## Get values from Web and Excel
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    ${ac_WebVal3}    Get Action And Value Web    ${ac_td}    5    6
+    \    ## Compare data
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Update Data 2 Columns and 2 Last Rows 6 Columns
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Test data with format: 2 columns but for 2 last rows, there are 6 columns
+    ...    This keyword will call Function Check Data 2 Columns and 4 Last Rows 6 Columns
+    ## Open Excel File
+    Open Excel    ${CURDIR}..${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    1    1    6
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    3    7    8
+
+Update Data 6 Columns and Skip Row 3
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Test data with format: 6 columns and dont check row 3
+    ...    This keyword will call Function Check Data 6 Columns and Skip Row 3
+    ## Open Excel File
+    Open Excel    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    3    1    2
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    3    4    4
+
+Func Check Data 6 Columns and Skip Row 3
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: \ Update Racing Bet Setting, etc
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    Continue For Loop If    ${ac_rownum} == 3
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    1    ${ac_rownum}
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    3    ${ac_rownum}
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    5    ${ac_rownum}
+
+Update Data 6 Columns with Title DCS
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}=${Empty}    ${ac_SheetName3}=${Empty}
+    [Documentation]    Check data that has 6 columns for DCS product only
+    ...    This keyword will call Function Check Data 6 Columns with Title DCS
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_isDisplayed2}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[2]
+    ${ac_table_detail2}    Run Keyword If    ${ac_isDisplayed2}==True    Set Variable    ${ac_table_detail}//table[2]
+    ${ac_isDisplayed3}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[3]
+    ${ac_table_detail3}    Run Keyword If    ${ac_isDisplayed3}==True    Set Variable    ${ac_table_detail}//table[3]
+    ## Check Title
+    ${TitleWeb}    Get Text    ${ac_table_detail}/td[2]/div
+    ${TitleExcel}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Contain    ${TitleWeb}    ${TitleExcel}
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed2}==True    ViewLog_Verify Items 3 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed3}==True    ViewLog_Verify Items 3 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+
+Add SBPT Master
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}
+    [Documentation]    This keyword is used for log "Add Sport Book Position Taking" only.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[6]
+    ## Check Title
+    Run Keyword And Continue On Failure    Func Check Data 6 Columns SBPT    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    Scroll Page To Location    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Run Keyword And Continue On Failure    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    Scroll Page To Location    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    Run Keyword And Continue On Failure    Func Check Data 6 Columns SBPT    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+
+Func Check Data 6 Columns SBPT
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    This function is used for Sport Book Position Taking only.
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}[1]
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    get text    ${ac_td}[1]
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}[2]
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_WebVal1}    get text    ${ac_td}[2]
+    \    ${ac_WebVal1}    Parse String To List    ${ac_WebVal1}
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}[3]
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    get text    ${ac_td}[3]
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}[4]
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_WebVal2}    get text    ${ac_td}[4]
+    \    ${ac_WebVal2}    Parse String To List    ${ac_WebVal2}
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}[5]
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    get text    ${ac_td}[5]
+    \    ${ac_isNull}    Run Keyword And Return Status    Element Should Not Be Visible    ${ac_td}[6]
+    \    Continue For Loop If    ${ac_isNull} == True
+    \    ${ac_WebVal3}    get text    ${ac_td}[6]
+    \    ${ac_WebVal3}    Parse String To List    ${ac_WebVal3}
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Update SBPT for Master
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Sport Book Position Taking for Master" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]//table[@class='tblDesc-2']
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]//table[@class='tblDesc']
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[6]//table[@class='tblDesc']
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[8]//table[@class='tblDesc']
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[10]//table[@class='tblDesc']
+    ## Check Data
+    ## Customer Information
+    Scroll To Element    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Super PT
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]/td
+    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]/td
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][3]/td
+    Func Check Data 6 Columns SBPT    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][3]/td
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][4]/td
+    Func Check Data 6 Columns SBPT    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Master PT
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][4]/td
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][5]/td
+    Func Check Data 6 Columns SBPT    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][5]/td
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][4]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][5]
+    Should Be Equal    ${TitleWeb5}    ${TitleExcel5}
+
+Update Race PT Master
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Racing Position Taking for Master" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call functions
+    ...    - Func Check Data 2 Columns and 4 Last Rows 6 Columns
+    ...    - Func Check Data 4 Columns
+    ## Open Excel File
+    Open Excel    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Verify Action column
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ## Set variable
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]//table[@class='tblDesc']
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[4]//table[@class='tblDesc']
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[6]//table[@class='tblDesc']
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[8]//table[@class='tblDesc']
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[10]//table[@class='tblDesc']
+    ## Check Data
+    ## Customer Information
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ViewLog_Verify Items    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}    1    1    6
+    ViewLog_Verify Items    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}    3    7    9
+    ## Super PT
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][1]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][2]
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][3]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Master PT
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][4]
+    Should Be Equal    ${TitleWeb5}    ${TitleExcel5}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+
+Scroll Page To Location
+    [Arguments]    ${ac_element}
+    [Documentation]    Scroll to needed element
+    ${vert_pos}    Get Vertical Position    ${ac_element}
+    ${horz_pos}    Get Horizontal Position    ${ac_element}
+    Log    ${vert_pos}
+    Log    ${horz_pos}
+    Run Keyword And Ignore Error    Execute Javascript    var x, y; x = ${horz_pos} + window.scrollX; y = ${vert_pos} + window.scrollY-200; window.scrollTo(x,y);
+
+Update SBPT for Agent
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Sport Book Position Taking for Agent" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//td[contains(text(),'Customer')]/parent::tr/parent::tbody//table[@class='tblDesc']
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//td[contains(text(),'Agent Po')]/parent::tr/parent::tbody//table[@class='tblDesc']
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//td[contains(text(),'Master Po')]/parent::tr/parent::tbody//table[@class='tblDesc']
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//table[4]//td[contains(text(),'Master Auto Po')]/parent::tr/parent::tbody//table[@class='tblDesc']
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//td[contains(text(),'Is Master')]/parent::tr/parent::tbody//table[@class='tblDesc']
+    ## Check Data
+    ## Customer Information
+    Click Element    ${ac_table_detail}//td[contains(text(),'Customer')]/parent::tr/parent::tbody//table[@class='tblDesc']
+    Click Element    ${ac_table_detail}//td[contains(text(),'Agent Po')]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Agent PT
+    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Master PT
+    Click Element    ${ac_table_detail}//td[contains(text(),'Agent Po')]
+    Click Element    ${ac_table_detail}//td[contains(text(),'Master Po')]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Master Auto PT
+    Click Element    ${ac_table_detail}//td[contains(text(),'Master Po')]
+    Click Element    ${ac_table_detail}//table[4]//td[contains(text(),'Master Auto Po')]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Is Master Auto PT On Agent
+    Click Element    ${ac_table_detail}//table[4]//td[contains(text(),'Master Auto Po')]
+    Click Element    ${ac_table_detail}//td[contains(text(),'Is Master')]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//td[contains(text(),'Customer')]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//td[contains(text(),'Agent Po')]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//td[contains(text(),'Master Po')]
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//table[4]//td[contains(text(),'Master Auto Po')]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//td[contains(text(),'Is Master')]
+    Should Be Equal    ${TitleWeb5}    ${TitleExcel5}
+
+Func Check Data 6 Columns and 1 Last Row 4 Columns
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    1    ${ac_rownum}
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    3    ${ac_rownum}
+    \    Continue For Loop If    ${ac_rownum} >=3
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    5    ${ac_rownum}
+
+Update Data 6 Columns and 1 Last Row 4 Columns
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Check data that has 6 columns and 1 Last Row 4 Columns
+    ...    This keyword will call Function Check Data 6 Columns and 1 Last Row 4 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    3    1    2
+    ViewLog_Verify Items    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    2    3    3
+
+Update Data 6 Columns and Row 3 2 Columns
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Check data that has 6 columns but row number 3 has only 2 Columns
+    ...    This keyword will call Function Check Data 6 Columns and Row 3 2 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    Func Check Data 6 Columns and Row 3 2 Columns    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+
+Func Check Data 6 Columns and Row 3 2 Columns
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: Update Sub-account's info, Open new sub-account
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    Continue For Loop If    ${ac_rownum} == 3
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    ${ac_WebVal3}    Get Action And Value Web    ${ac_td}    5    6
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Add SBPT Mem
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}
+    [Documentation]    This keyword is used for log "Add Sport Book Position Taking for member" only.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    Func Check Data 6 Columns SBPT    ${ac_SheetName1}    ${ac_table_detail}    ${ac_LogId}
+
+Func Check Data Add Initial Status Master
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    This keyword is used for checking log "Add Initial Status for Master" only
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    Continue For Loop If    ${ac_rownum} >= 11
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    ${ac_WebVal3}    Get Action And Value Web    ${ac_td}    5    6
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Add Initial Status Master
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    This keyword is used for log "Add Initial Status for Master" only.
+    ...    This keyword will call function "Func Check Data Add initial Status Master" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    Func Check Data Add Initial Status Master    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+
+Add Initial Status AgMem
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    This keyword is used for log "Add Initial Status for Member" only.
+    ...    This keyword will call function "Func Check Data Add initial Status AgMem" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    Func Check Data Add Initial Status AgMem    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+
+Func Check Data Add Initial Status AgMem
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    This keyword is used for checking log "Add Initial Status" for Agent and Member only
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    Continue For Loop If    ${ac_rownum} >= 10
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    ${ac_WebVal3}    Get Action And Value Web    ${ac_td}    5    6
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Super Update SBPT Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}
+    [Documentation]    This keyword is used for log "Update Super's Sportsbook Position Taking at member" only.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[3]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[5]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[7]
+    ## Check Data
+    ## Customer Information
+    Scroll Page To Location    ${ac_table_detail}
+    ${ExcelRow1}    Read Cell Data By Coordinates    ${ac_SheetName1}    1    1
+    ${ExcelRow1}    Parse String To List    ${ExcelRow1}
+    ${WebRow1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[1]
+    ${WebRow1}    Parse String To List    ${WebRow1}
+    Should Be Equal    ${ExcelRow1}    ${WebRow1}
+    ## Super PT
+    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[6]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    Should Contain    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[6]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+
+Super Update HRPT Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Super's Sportsbook Position Taking at member" only.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[4]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[6]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[8]
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[10]
+    ## Check Data
+    ## Customer Information
+    ${ExcelRow1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    ${WebRow1}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][1]
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    Should Be Equal    ${ExcelRow1}    ${WebRow1}
+    ## Super PT
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][3]
+    Should Contain    ${TitleWeb3}    ${TitleExcel3}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][4]
+    Should Contain    ${TitleWeb4}    ${TitleExcel4}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][5]
+    Should Contain    ${TitleWeb5}    ${TitleExcel5}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+
+Update SBPT for Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}
+    [Documentation]    This keyword is used for log "Update Sport Book Position Taking for member" only.
+    ...    There are 2 sections in Details log which are stimalte with 2 sheets on Excel.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    ## Check Data
+    ## Customer Information
+    Func Check Data 6 Columns SBPT    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Agent PT
+    Run Keyword If    '${ac_SheetName1}'=='UpdSbPtMem1'    Scroll Page To Location    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Run Keyword If    '${ac_SheetName1}'=='UpdSbPtMem1'    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Run Keyword If    '${ac_SheetName1}'=='UpdSbPtMem1'    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+
+Update Race PT Agent
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Racing Position Taking for Agent" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call functions
+    ...    - Func Check Data Cust Info of log Update Racing PT for agent
+    ...    - Func Check Data 4 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[4]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[6]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[8]
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[10]
+    ## Check Data
+    ## Customer Information
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    Func Check Data Cust Info of log Update Racing PT for agent    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Super PT
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][3]
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][4]
+    Should Contain    ${TitleWeb4}    ${TitleExcel4}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Master PT
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][5]
+    Should Contain    ${TitleWeb5}    ${TitleExcel5}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+
+Func Check Data Cust Info of log Update Racing PT for agent
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    This function is used to test Customer Information of log "Update Racing Position Taking for agent" only.
+    ...    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    Continue For Loop If    1 < ${ac_rownum} < 8
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+    \    ${ac_ExcelAction3}    ${ac_ExcelVal3}    Get Action And Value Excel    ${ac_SheetName}    5    6
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction3}    ${ac_WebVal3}    Get Action And Value Web    ${ac_td}    5    6
+    \    Should Be Equal As Strings    ${ac_ExcelAction3}    ${ac_WebAction3}
+    \    Should Be Equal As Strings    ${ac_ExcelVal3}    ${ac_WebVal3}
+
+Update Race PT Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}
+    [Documentation]    This keyword is used for log "Update Racing Position Taking for Member" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call functions
+    ...    - Func Check Data 6 Columns
+    ...    - Func Check Data 4 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[4]
+    ## Check Data
+    ## Customer Information
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Agent PT
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+
+Update Race Min Max PT
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}
+    [Documentation]    This keyword is used for log "Update Racing Min Max Position Taking" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call functions
+    ...    - Func Check Data 6 Columns
+    ...    - Func Check Data 4 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody
+    ## Check Data
+    ## Customer Information
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ViewLog_Verify Items    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}    4    1    3
+    ## Agent PT
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ViewLog_Verify Items    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}    2    4    9
+
+Func Check Data Upd Racing MinMax PT
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    This function is used to test log "Update Racing Min Max Position Taking" only.
+    ...    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    4    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ${ac_ExcelAction1}    ${ac_ExcelVal1}    Get Action And Value Excel    ${ac_SheetName}    1    2
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction1}    ${ac_WebVal1}    Get Action And Value Web    ${ac_td}    1    2
+    \    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    \    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    \    Continue For Loop If    1 < ${ac_rownum} < 8
+    \    ${ac_ExcelAction2}    ${ac_ExcelVal2}    Get Action And Value Excel    ${ac_SheetName}    3    4
+    \    ...    ${ac_rownum}
+    \    ${ac_WebAction2}    ${ac_WebVal2}    Get Action And Value Web    ${ac_td}    3    4
+    \    Should Be Equal As Strings    ${ac_ExcelAction2}    ${ac_WebAction2}
+    \    Should Be Equal As Strings    ${ac_ExcelVal2}    ${ac_WebVal2}
+
+Update DCS Status
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}=${Empty}    ${ac_SheetName3}=${Empty}
+    [Documentation]    Check data for Macau Games only
+    ...    This keyword will call Function Check Data 6 Columns with Title DCS
+    ## Open Excel File
+    Open Excel    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//table[2]
+    ${ac_isDisplayed3}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[3]
+    ${ac_table_detail3}    Run Keyword If    ${ac_isDisplayed3}==True    Set Variable    ${ac_table_detail}//table[3]
+    ## Check Title
+    ViewLog_Verify Detail Log Title of a Section    ${ac_table_detail}    ${ac_SheetName2}
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed3}==True    ViewLog_Verify Items 2 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+
+ViewLog_Get Item detail value on Web
+    [Arguments]    ${ac_tdItemName}    ${ac_colIndex}
+    ${ac_colIndex1}    Evaluate    ${ac_colIndex}+1
+    ${ac_ItemName}    get text    ${ac_tdItemName}[${ac_colIndex}]
+    ${ac_Itemvalue}    get text    ${ac_tdItemName}[${ac_colIndex1}]
+    ${ac_Itemvalue}    Parse String To List    ${ac_Itemvalue}
+    [Return]    ${ac_ItemName}    ${ac_Itemvalue}
+
+ViewLog_Get Item detail value on Excel
+    [Arguments]    ${ac_SheetName}    ${ac_ColIndex}    ${asc_rowIndex}
+    [Documentation]    Get Action and Value on Detail column from Excel file.
+    ...    ${ac_SheetName}: Excel Sheet
+    ...    ${ac_ColNumAc} : Column number of an action
+    ...    ${ac_ColNumVal}: Column number of a value belonged to an action
+    ...    ${ac_rownum}: Row number on table
+    ${ac_ColIndex1}    Evaluate    ${ac_ColIndex} +1
+    ${ac_ExcelItem}    Read Cell Data By Coordinates    ${ac_SheetName}    ${ac_ColIndex}    ${asc_rowIndex}
+    ${ac_ExcelValue}    Read Cell Data By Coordinates    ${ac_SheetName}    ${ac_ColIndex1}    ${asc_rowIndex}
+    ${ac_ExcelValue}    Parse String To List    ${ac_ExcelValue}
+    [Return]    ${ac_ExcelItem}    ${ac_ExcelValue}
+
+ViewLog_Verify Items 3 Pairs
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: log Add Commission, Update Live Casino Position Taking, etc
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ## Get values from Excel and Web
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    1    ${ac_rownum}
+    \    ${ac_IsNull}    Read Cell Data By Coordinates    ${ac_SheetName}    3    ${ac_rownum}
+    \    ${ac_Check}    Run Keyword And Return Status    Should Be Equal As Strings    ${ac_IsNull}    ${Empty}
+    \    Continue For Loop If    ${ac_Check} == True
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    3    ${ac_rownum}
+    \    ${ac_IsNull2}    Read Cell Data By Coordinates    ${ac_SheetName}    5    ${ac_rownum}
+    \    ${ac_Check2}    Run Keyword And Return Status    Should Be Equal As Strings    ${ac_IsNull2}    ${Empty}
+    \    Continue For Loop If    ${ac_Check2} == True
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    5    ${ac_rownum}
+
+ViewLog_Verify Item on Web and Excel
+    [Arguments]    ${ac_SheetName}    ${ac_colItem}    ${ac_ColIndex}    ${ac_RowIndex}
+    [Documentation]    ${ac_SheetName}: Sheet Name
+    ...    ${ac_colItem}: xpath to td of a row
+    ...    ${ac_ColIndex}: Column Index in Excel and Web
+    ...    ${ac_rownum}: Row position to get data from Excel and Web
+    ${ac_ExcelAction1}    ${ac_ExcelVal1}    ViewLog_Get Item detail value on Excel    ${ac_SheetName}    ${ac_ColIndex}    ${ac_RowIndex}
+    ${ac_WebAction1}    ${ac_WebVal1}    ViewLog_Get Item detail value on Web    ${ac_colItem}    ${ac_ColIndex}
+    ## Compare data
+    Should Be Equal As Strings    ${ac_ExcelAction1}    ${ac_WebAction1}
+    Should Be Equal As Strings    ${ac_ExcelVal1}    ${ac_WebVal1}
+    Log    Passed
+
+ViewLog_Verify Items By Row
+    [Arguments]    ${ac_SheetName}    ${ac_ColItem}    ${ac_rowID}    ${ac_ItemsInRow}
+    [Documentation]    ${ac_SheetName}:
+    ...    ${ac_ColItem}:
+    ...    ${ac_rowID}:
+    ...    ${ac_ItemsInRow}:
+    # Check data with Excel file
+    ${ac_step}    Set Variable    2
+    ${ac_ID}    Evaluate    1
+    : FOR    ${ac_ColID}    IN RANGE    1    ${ac_ItemsInRow}
+    \    ## Get values from Excel and Web
+    \    Log    Loop 2
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_ColItem}    ${ac_ID}    ${ac_rowID}
+    \    ${ac_ID}    Evaluate    ${ac_ID} + 2
+
+ViewLog_Verify Items
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}    ${ac_ItemInRow}    ${ac_RowStart}    ${ac_RowEnd}
+    [Documentation]    For example: log Add Commission, Update Live Casino Position Taking, etc
+    ...
+    ...    ${ac_SheetName}: Sheet Name
+    ...    ${ac_table_detail}: xpath to tr and td that contain detail name and detail value
+    ...    ${ac_LogId}: Log Id of an action log
+    ...    ${ac_ItemInRow}: Number of item (pair of action name and action value) in a row
+    ...    ${ac_RowStart}: First row position to start loop
+    ...    ${ac_RowEnd}: Final row position to end loop
+    # Check data with Excel file
+    ${ac_ItemInRow}    Evaluate    ${ac_ItemInRow} + 1
+    ${ac_RowEnd}    Evaluate    ${ac_RowEnd} + 1
+    : FOR    ${ac_rownum}    IN RANGE    ${ac_RowStart}    ${ac_RowEnd}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    Log    Loop 1
+    \    ## Get values from Excel and Web
+    \    ViewLog_Verify Items By Row    ${ac_SheetName}    ${ac_td}    ${ac_rownum}    ${ac_ItemInRow}
+
+ViewLog_Verify Log Update Race PT Master
+    [Arguments]    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Racing Position Taking for Master" only.
+    ...    There are 5 sections in Details log which are stimalte with 5 sheets on Excel.
+    ...    This keyword will call functions
+    ...    - Func Check Data 2 Columns and 4 Last Rows 6 Columns
+    ...    - Func Check Data 4 Columns
+    ## Verify Action column
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ## Set variable
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]//table[@class='tblDesc']
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[4]//table[@class='tblDesc']
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[6]//table[@class='tblDesc']
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[8]//table[@class='tblDesc']
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//tr[@class='headerDetailNormal']/parent::tbody/tr[10]//table[@class='tblDesc']
+    ## Check Data
+    ## Customer Information
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ViewLog_Verify Items    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}    1    1    6
+    ViewLog_Verify Items    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}    3    7    9
+    ## Super PT
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][1]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ViewLog_Verify Items    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}    2    1    6
+    ## Super Auto PT
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][2]
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+    ViewLog_Verify Items    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}    2    1    6
+    ## Is Super Auto PT On Master
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][3]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+    ViewLog_Verify Items    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}    2    1    6
+    ## Master PT
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//tr[@class='headerDetailNormal'][4]
+    Should Be Equal    ${TitleWeb5}    ${TitleExcel5}
+    ViewLog_Verify Items    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}    2    1    6
+
+Update DCS Betting Limit
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}=${Empty}    ${ac_SheetName3}=${Empty}
+    [Documentation]    Check data for Macau Games onlu
+    ...    This keyword will call Function Check Data 6 Columns with Title DCS
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//table[2]
+    ## Check Title
+    ${TitleWeb}    Get Text    ${ac_table_detail}/td[2]/div
+    ${TitleExcel}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Contain    ${TitleWeb}    ${TitleExcel}
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ViewLog_Verify Items 1 Pair    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+
+Master Update SBPT Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}
+    [Documentation]    This keyword is used for log "Update Master's Sportsbook Position Taking at member" only.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[3]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[5]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[7]
+    ## Check Data
+    ## Customer Information
+    ${ExcelRow1}    Read Cell Data By Coordinates    ${ac_SheetName1}    1    1
+    ${ExcelRow1}    Parse String To List    ${ExcelRow1}
+    ${WebRow1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[1]
+    ${WebRow1}    Parse String To List    ${WebRow1}
+    Should Be Equal    ${ExcelRow1}    ${WebRow1}
+    ## Master PT
+    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Master Auto PT
+    Scroll Page To Location    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[3]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    Should Contain    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[6]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+
+ViewLog_Verify Log Login
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    This keyword is used for checking log in Login tab.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Verify Action column
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ## Check Data
+    ${ac_td}    Set Variable    ${ac_table_detail}//td
+    ${ac_ExcelDetails}    Read Cell Data By Coordinates    ${ac_SheetName}    1    1
+    ${ac_WebDetails}    get text    ${ac_td}[2]
+    Should Be Equal As Strings    ${ac_ExcelDetails}    ${ac_WebDetails}
+    ${ac_ExceDomain}    Read Cell Data By Coordinates    ${ac_SheetName}    1    2
+    ${ac_WebDomain}    get text    ${ac_td}[3]
+    Should Be Equal As Strings    ${ac_ExceDomain}    ${ac_WebDomain}
+    ${ac_ExceBrowser}    Read Cell Data By Coordinates    ${ac_SheetName}    1    3
+    ${ac_WebBrowser}    get text    ${ac_td}[4]
+    Should Be Equal As Strings    ${ac_ExceBrowser}    ${ac_WebBrowser}
+    ${ac_ExceIp}    Read Cell Data By Coordinates    ${ac_SheetName}    1    4
+    ${ac_WebIp}    get text    ${ac_td}[5]
+    Should Be Equal As Strings    ${ac_ExceIp}    ${ac_WebIp}
+
+ViewLog_Verify Credit
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    This keyword is used for checking log in Credit tab.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ${ac_td}    Set Variable    ${ac_table_detail}//td
+    ${ac_ExcelDetails}    Read Cell Data By Coordinates    ${ac_SheetName}    1    1
+    ${ac_ExcelDetails}    Parse String To List    ${ac_ExcelDetails}
+    ${ac_WebDetails}    get text    ${ac_td}[2]
+    ${ac_WebDetails}    Parse String To List    ${ac_WebDetails}
+    Should Be Equal As Strings    ${ac_ExcelDetails}    ${ac_WebDetails}
+    ${ac_ExceIp}    Read Cell Data By Coordinates    ${ac_SheetName}    1    2
+    ${ac_WebIp}    get text    ${ac_td}[3]
+    Should Be Equal As Strings    ${ac_ExceIp}    ${ac_WebIp}
+
+ViewLog_Verify Log 3 Pairs Item
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}=${Empty}    ${ac_SheetName3}=${Empty}
+    [Documentation]    Check data that has 6 columns
+    ...    This keyword will call Function Check Data 6 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Check Action Log data
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_isDisplayed2}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[2]
+    ${ac_table_detail2}    Run Keyword If    ${ac_isDisplayed2}==True    Set Variable    ${ac_table_detail}//table[2]
+    ${ac_isDisplayed3}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[3]
+    ${ac_table_detail3}    Run Keyword If    ${ac_isDisplayed3}==True    Set Variable    ${ac_table_detail}//table[3]
+    ## Check Detail Log data
+    ${IsTitleExisted}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}/td[2]/div
+    Run Keyword If    ${IsTitleExisted} == True    ViewLog_Verify Detail Log Title of a Section    ${ac_table_detail}    ${ac_SheetName1}
+    Run Keyword If    ${ac_isDisplayed2}==False    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed2}==True    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed2}==True    ViewLog_Verify Items 3 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed3}==True    ViewLog_Verify Items 3 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+
+ViewLog_Verify Items 2 Pairs
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: log Add Commission, Update Live Casino Position Taking, etc
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ## Get values from Excel and Web
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    1    ${ac_rownum}
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    3    ${ac_rownum}
+
+ViewLog_Verify Items 1 Pair
+    [Arguments]    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+    [Documentation]    ${ac_table_detail}: Get from Func Action Log
+    ...    ${ac_LogId}: Get from Func Action Log
+    ...    For example: log Add Commission, Update Live Casino Position Taking, etc
+    # Check data with Excel file
+    ${ac_rowcount}    Get Row Count    ${ac_SheetName}
+    : FOR    ${ac_rownum}    IN RANGE    1    ${ac_rowcount}
+    \    Log    ${ac_rownum}
+    \    ${ac_td}    Set Variable    ${ac_table_detail}//tr[${ac_rownum}]/td
+    \    ## Get values from Excel and Web
+    \    ViewLog_Verify Item on Web and Excel    ${ac_SheetName}    ${ac_td}    1    ${ac_rownum}
+
+ViewLog_Verify Log 2 Pairs Item
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Check data that has 6 columns
+    ...    This keyword will call Function Check Data 6 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+
+ViewLog_Verify Log 1 Pair Item
+    [Arguments]    ${ac_FileName}    ${ac_SheetName}
+    [Documentation]    Check data that has 6 columns
+    ...    This keyword will call Function Check Data 6 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName}
+    ViewLog_Verify Items 1 Pair    ${ac_SheetName}    ${ac_table_detail}    ${ac_LogId}
+
+ViewLog_Verify Detail Log Title of a Section
+    [Arguments]    ${ac_table_detail}    ${ac_SheetName}
+    ${TitleWeb}    Get Text    ${ac_table_detail}/td[2]/div
+    ${TitleExcel}    Read Cell Data By Coordinates    ${ac_SheetName}    0    1
+    Should Contain    ${TitleWeb}    ${TitleExcel}
+
+Add SBPT Agent
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}
+    [Documentation]    This keyword is used for log "Add Sport Book Position Taking" only.
+    ...    This keyword will call function "Func Check Data 6 Columns SBPT" to check data.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[2]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[4]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[6]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//tr[@class='headerDetail']/parent::tbody/tr[8]
+    ## Check Title
+    Scroll Page To Location    ${ac_table_detail}
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    Click Element    ${ac_table_detail}//tr[@class='headerDetail'][4]
+    Func Check Data 6 Columns SBPT    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ${TitleWeb1}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][1]
+    ${TitleExcel1}    Read Cell Data By Coordinates    ${ac_SheetName1}    0    1
+    Should Be Equal    ${TitleWeb1}    ${TitleExcel1}
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][2]
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][3]
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    Should Be Equal    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//tr[@class='headerDetail'][4]
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+
+Super Update Cricket PT Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Super's Other Product Position Taking for member" only.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//table[2]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//table[3]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//table[4]
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//table[5]
+    ## Check Data
+    ## Customer Information
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Super PT
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][1]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][2]
+    Should Contain    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][3]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][4]
+    Should Be Equal    ${TitleWeb5}    ${TitleExcel5}
+
+ViewLog_Verify Log Charge Comm
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}
+    [Documentation]    Check data that has 6 columns
+    ...    This keyword will call Function Check Data 6 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Check Action Log data
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_isDisplayed2}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[2]
+    ${ac_table_detail2}    Run Keyword If    ${ac_isDisplayed2}==True    Set Variable    ${ac_table_detail}//table[2]
+    ## Check Detail Log data
+    ${IsTitleExisted}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}/td[2]/div
+    Run Keyword If    ${IsTitleExisted} == True    ViewLog_Verify Detail Log Title of a Section    ${ac_table_detail}    ${ac_SheetName1}
+    Run Keyword If    ${ac_isDisplayed2}==False    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed2}==True    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    Run Keyword If    ${ac_isDisplayed2}==True    ViewLog_Verify Items 1 Pair    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+
+Agent Update Cricket PT Member
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}    ${ac_SheetName3}    ${ac_SheetName4}    ${ac_SheetName5}
+    [Documentation]    This keyword is used for log "Update Super's Other Product Position Taking for member" only.
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_table_detail2}    Set Variable    ${ac_table_detail}//table[2]
+    ${ac_table_detail3}    Set Variable    ${ac_table_detail}//table[3]
+    ${ac_table_detail4}    Set Variable    ${ac_table_detail}//table[4]
+    ${ac_table_detail5}    Set Variable    ${ac_table_detail}//table[5]
+    ## Check Data
+    ## Customer Information
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}
+    ## Super PT
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName2}    ${ac_table_detail2}    ${ac_LogId}
+    ## Super Auto PT
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName3}    ${ac_table_detail3}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName4}    ${ac_table_detail4}    ${ac_LogId}
+    ## Is Super Auto PT On Master
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName5}    ${ac_table_detail5}    ${ac_LogId}
+    ${TitleExcel2}    Read Cell Data By Coordinates    ${ac_SheetName2}    0    1
+    ${TitleWeb2}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][1]
+    Should Be Equal    ${TitleWeb2}    ${TitleExcel2}
+    ${TitleExcel3}    Read Cell Data By Coordinates    ${ac_SheetName3}    0    1
+    ${TitleWeb3}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][2]
+    Should Contain    ${TitleWeb3}    ${TitleExcel3}
+    ${TitleExcel4}    Read Cell Data By Coordinates    ${ac_SheetName4}    0    1
+    ${TitleWeb4}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][3]
+    Should Be Equal    ${TitleWeb4}    ${TitleExcel4}
+    ${TitleExcel5}    Read Cell Data By Coordinates    ${ac_SheetName5}    0    1
+    ${TitleWeb5}    Get Text    ${ac_table_detail}//div[@class='headerSportTypeDetail'][4]
+    Should Be Equal    ${TitleWeb5}    ${TitleExcel5}
+
+ViewLog_Verify Allbet Commission
+    [Arguments]    ${ac_FileName}    ${ac_SheetName1}    ${ac_SheetName2}=${Empty}    ${ac_SheetName3}=${Empty}
+    [Documentation]    Check data that has 6 columns
+    ...    This keyword will call Function Check Data 6 Columns
+    ## Open Excel File
+    Open Excel Current Directory    ${CURDIR}${/}..${/}Data_set${/}${ac_FileName}
+    ## Check Action Log data
+    ${ac_table_detail}    ${ac_LogId}    ViewLog_Verify Action Column    ${ac_SheetName1}
+    ${ac_table_detail1}    Set Variable    ${ac_table_detail}//table[1]
+    ${ac_isDisplayed2}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[2]
+    ${ac_table_detail2}    Run Keyword If    ${ac_isDisplayed2}==True    Set Variable    ${ac_table_detail}//table[2]
+    ${ac_isDisplayed3}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//table[3]
+    ${ac_table_detail3}    Run Keyword If    ${ac_isDisplayed3}==True    Set Variable    ${ac_table_detail}//table[3]
+    ## Check Detail Log data
+    ${IsTitleExisted}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}/td[2]/div
+    Run Keyword If    ${IsTitleExisted} == True    ViewLog_Verify Detail Log Title of a Section    ${ac_table_detail}    ${ac_SheetName1}
+    ViewLog_Verify Items 3 Pairs    ${ac_SheetName1}    ${ac_table_detail}    ${ac_LogId}
+    ViewLog_Verify Items 2 Pairs    ${ac_SheetName1}    ${ac_table_detail1}    ${ac_LogId}

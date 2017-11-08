@@ -1,0 +1,9 @@
+Browser="ff"
+IsLogin=1
+SeCode="123457"
+Pwd="1234aaAA"
+Url="https://mbc.gatonic.com/"
+isLocal=0
+AType=1
+DsBetlistFile="Data_set\\BetList_rptWinLostDetail_Pro.xls"
+DsResultsPage="Data_set\\ResultsPage_Pro.xls"

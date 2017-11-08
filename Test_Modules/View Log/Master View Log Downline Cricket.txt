@@ -1,0 +1,239 @@
+*** Settings ***
+Suite Setup       Init    SupertestCR0101
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Agent    Funct_Report    NoRun
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../Interfaces/in_top_menu.txt    #**************************************************INTERFACES*****************************************
+Resource          ../../Interfaces/Main/in_main.txt
+Resource          ../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../Interfaces/in_left_menu.txt
+Resource          ../../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../Actions/reports_actions.txt
+Resource          ../../Actions/viewlog.txt    #**************************************************VIEW LOG ACTIONS*****************************************
+Resource          ../../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+Library           ExcelLibrary
+Library           xlrd
+
+*** Variables ***
+${ts_ViewLogFromDate}    2016-12-01
+${ts_ViewLogToDate}    2016-12-31
+
+*** Test Cases ***
+Cricket Position Taking Master
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Master    ##Super Upd PT Cricket Master
+    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRUpdDcsPtMast1    CRUpdDcsPtMast2    CRUpdDcsPtMast3    CRUpdDcsPtMast4    CRUpdDcsPtMast5
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Agent    ##Master Upd PT Cricket Agent
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRUpdDcsPtAgent1    CRUpdDcsPtAgent2    CRUpdDcsPtAgent3    CRUpdDcsPtAgent4
+    ...    CRUpdDcsPtAgent5
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SUPERTESTCR010101006    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Product Position Taking for member    ##Super Upd PT Cricket Mem
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRSupUpdPtDcsMem1    CRSupUpdPtDcsMem2    CRSupUpdPtDcsMem3    CRSupUpdPtDcsMem4
+    ...    CRSupUpdPtDcsMem5
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Products Position Taking for Member    ## Master Upd PT Cricket Mem
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRMastUpdPtDcsMem1    CRMastUpdPtDcsMem2    CRMastUpdPtDcsMem3    CRMastUpdPtDcsMem4
+    ...    CRMastUpdPtDcsMem5
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Member    ## Agent Upd PT Cricket Mem
+    Comment    Agent Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRAgeUpdPtDcsMem1    CRAgeUpdPtDcsMem2    CRAgeUpdPtDcsMem3    CRAgeUpdPtDcsMem4
+    ...    CRAgeUpdPtDcsMem5
+    Log    ********************************************* End PT *********************************************
+
+Cricket Position Taking Agent
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Master    ##Super Upd PT Cricket Master
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRUpdDcsPtMast1    CRUpdDcsPtMast2    CRUpdDcsPtMast3    CRUpdDcsPtMast4
+    ...    CRUpdDcsPtMast5
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Agent    ##Master Upd PT Cricket Agent
+    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRUpdDcsPtAgent1    CRUpdDcsPtAgent2    CRUpdDcsPtAgent3    CRUpdDcsPtAgent4    CRUpdDcsPtAgent5
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SUPERTESTCR010101006    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Product Position Taking for member    ##Super Upd PT Cricket Mem
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRSupUpdPtDcsMem1    CRSupUpdPtDcsMem2    CRSupUpdPtDcsMem3    CRSupUpdPtDcsMem4
+    ...    CRSupUpdPtDcsMem5
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Products Position Taking for Member    ## Master Upd PT Cricket Mem
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRMastUpdPtDcsMem1    CRMastUpdPtDcsMem2    CRMastUpdPtDcsMem3    CRMastUpdPtDcsMem4
+    ...    CRMastUpdPtDcsMem5
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Member    ## Agent Upd PT Cricket Mem
+    Comment    Agent Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRAgeUpdPtDcsMem1    CRAgeUpdPtDcsMem2    CRAgeUpdPtDcsMem3    CRAgeUpdPtDcsMem4
+    ...    CRAgeUpdPtDcsMem5
+    Log    ********************************************* End PT *********************************************
+
+Cricket Position Taking Member
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Master    ##Super Upd PT Cricket Master
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRUpdDcsPtMast1    CRUpdDcsPtMast2    CRUpdDcsPtMast3    CRUpdDcsPtMast4
+    ...    CRUpdDcsPtMast5
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Agent    ##Master Upd PT Cricket Agent
+    Comment    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRUpdDcsPtAgent1    CRUpdDcsPtAgent2    CRUpdDcsPtAgent3    CRUpdDcsPtAgent4
+    ...    CRUpdDcsPtAgent5
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SUPERTESTCR010101006    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Other Product Position Taking for member    ##Super Upd PT Cricket Mem
+    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRSupUpdPtDcsMem1    CRSupUpdPtDcsMem2    CRSupUpdPtDcsMem3    CRSupUpdPtDcsMem4    CRSupUpdPtDcsMem5
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Other Products Position Taking for Member    ## Master Upd PT Cricket Mem
+    Super Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRMastUpdPtDcsMem1    CRMastUpdPtDcsMem2    CRMastUpdPtDcsMem3    CRMastUpdPtDcsMem4    CRMastUpdPtDcsMem5
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Member    ## Agent Upd PT Cricket Mem
+    Agent Update Cricket PT Member    ViewLogPT${/}ViewLog_Setting_PT_Cricket.xls    CRAgeUpdPtDcsMem1    CRAgeUpdPtDcsMem2    CRAgeUpdPtDcsMem3    CRAgeUpdPtDcsMem4    CRAgeUpdPtDcsMem5
+    Log    ********************************************* End PT *********************************************
+
+Cricket Commission Master
+    [Setup]
+    Log    ********************************************* Start Comm *********************************************
+    ##Cricket Master
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Charge Commission for customers
+    ViewLog_Verify Log Charge Comm    ViewLogComm${/}ViewLog_Setting_Comm_Cricket.xls    CRUpdChargeCommDcsMast1    CRUpdChargeCommDcsMast2
+    Comment    ##Cricket Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Charge Commission for customers
+    Comment    ViewLog_Verify Log Charge Comm    ViewLogComm${/}ViewLog_Setting_Comm_Cricket.xls    CRUpdChargeCommDcsAge1    CRUpdChargeCommDcsAge2
+    Log    ********************************************* End Comm *********************************************
+
+Cricket Commission Agent
+    [Setup]
+    Log    ********************************************* Start Comm *********************************************
+    Comment    ##Cricket Master
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Charge Commission for customers
+    Comment    ViewLog_Verify Log Charge Comm    ViewLogComm${/}ViewLog_Setting_Comm_Cricket.xls    CRUpdChargeCommDcsMast1    CRUpdChargeCommDcsMast2
+    ##Cricket Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Charge Commission for customers    ##Cricket Agent
+    ViewLog_Verify Log Charge Comm    ViewLogComm${/}ViewLog_Setting_Comm_Cricket.xls    CRUpdChargeCommDcsAge1    CRUpdChargeCommDcsAge2
+    Log    ********************************************* End Comm *********************************************
+
+Cricket Bet Setting Master
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    ## Master Cricket
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Bet Setting for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsMast1    CRUpdDcsBsMast2
+    Comment    ## Agent Cricket
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Bet Setting for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsAge1    CRUpdDcsBsAge2
+    Comment    ## Member Cricket
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101006    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Bet Setting for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsMem1    CRUpdDcsBsMem2
+    Log    ********************************************* End BS *********************************************
+
+Cricket Bet Setting Agent
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    Comment    ## Master Cricket
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Bet Setting for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsMast1    CRUpdDcsBsMast2
+    ## Agent Cricket
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Bet Setting for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsAge1    CRUpdDcsBsAge2
+    Comment    ## Member Cricket
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101006    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Bet Setting for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsMem1    CRUpdDcsBsMem2
+    Log    ********************************************* End BS *********************************************
+
+Cricket Bet Setting Member
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    Comment    ## Master Cricket
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR0101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Bet Setting for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsMast1    CRUpdDcsBsMast2
+    Comment    ## Agent Cricket
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestCR010101    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Bet Setting for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsAge1    CRUpdDcsBsAge2
+    ## Member Cricket
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestCR010101006    All Types    ${ts_ViewLogFromDate}    ${ts_ViewLogToDate}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Bet Setting for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Cricket.xls    CRUpdDcsBsMem1    CRUpdDcsBsMem2
+    Log    ********************************************* End BS *********************************************

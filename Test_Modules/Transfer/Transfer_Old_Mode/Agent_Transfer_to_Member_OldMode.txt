@@ -1,0 +1,100 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01Login_A}
+Suite Teardown    Close All Browsers
+Force Tags        Level_Agent
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           DateTime
+Resource          ../../../Interfaces/Main/in_m_transfer.txt    #**************************************************INTERFACES*****************************************
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/transfer.txt
+Resource          ../../../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+
+*** Test Cases ***
+TC01_Super Transfer page behavior
+    [Documentation]    Manua TC Refer: 8886
+    ...    - ***Steps***
+    ...    - 1. Open Transfer Page: Main Menu > Transfer
+    ...    - 2. Verify Filter
+    ...    - 3. Verify Page Size
+    ...    - 4. Verify Transfer Button
+    ...    - 5. Verify Table Transfer (header name, footer, Sum(column Value)=Total Column Value)
+    ...
+    ...    **HISTORY**
+    ...    - Create by: Casey
+    [Tags]
+    [Setup]
+    Comment    Manua TC Refer: 8886
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member000}    Set variable    ${ds_View01_P00}
+    ${tc_member001}    Set variable    ${ds_View01_P02}
+    ${columsHeaderListExpect}    Create List    ${EMPTY}    ${EMPTY}#    Yesterday    Username    Yesterday Balance
+    ...    Balance    Outstanding    Given Credit    First Name    Last Name    Username
+    ${columsFooterListExpect}    Create List    ${EMPTY}    Total
+    ${sumColNames}    Set Variable    Yesterday Balance    Balance    Outstanding    Given Credit
+    ${sumColIndex}    Set Variable    4    5    6    7
+    ${totalColIndex}    Set Variable    2    3    4    5
+    ${boundaryValue}    Set Variable    0.01    ## The difference value allow for each value !=0
+    COMMENT    ==============================>    MAIN STEPS
+    Comment    - 1. Open Transfer Page: Main Menu > Transfer
+    Select Left Menu    TRANSFER
+    Verify Transfer Filter UI    old
+    Verify Transfer List UI    old    ${columsHeaderListExpect}    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${tc_member000}
+    ...    ${tc_member001}
+    Verify Transfer Total Values    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${boundaryValue}
+    COMMENT    ==============================>    POST-CONDITIONS
+    #N/A
+    [Teardown]
+
+TC03_Agent Trasnfer_Transfer Yesterday Balance
+    ${tc_agent}    Set variable    ${ds_View01_A}
+    ${tc_member}    Set variable    ${ds_View01_P02}
+    # Go to Home Page and Get data Before Transfer
+    Unselect Frame
+    Click Element By Xpath js    ${in_tm_iconHome}
+    Select frame    main
+    ${agentCash}    get text    ${in_m_hom_balInfo_cash}
+    ${agentCash}    Replace String    ${agentCash}    ,    ${EMPTY}
+    # Search Account and Get Bet Credit
+    Comment    Search Account    ${ds_View01_P}
+    ## OPEN TRANSFER LIST
+    Reload page
+    Select Left Menu    TRANSFER
+    # Get Data Before transfer
+    unselect frame
+    Select Frame    main
+    ${memberYesBalance}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[4]
+    ${memberYesBalance}    Replace String    ${memberYesBalance}    ,    ${EMPTY}
+    ${memberBalance}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[5]
+    ${memberBalance}    Replace String    ${memberBalance}    ,    ${EMPTY}
+    ${memberOutstanding}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[6]
+    ${memberOutstanding}    Replace String    ${memberOutstanding}    ,    ${EMPTY}
+    Open Transfer Yesterday Balance Of User    ${tc_member}
+    Verify Transfer YB Member Popup UI    ${tc_agent}    ${tc_member}
+    ${expectedDefaultValue}    evaluate    (-1)*${memberYesBalance}
+    ${valueDefault1}    Get Value    ${in_m_transferYB_txtAmount}
+    ${valueDefault}    Replace String    ${valueDefault1}    ,    ${EMPTY}
+    # Verify Default Transfer value
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${valueDefault}    ${expectedDefaultValue}    0.1
+    #Verify Transfer Range Message
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_m_transferYB_lblRangeTransferMessage}    You can transfer up to ${valueDefault1}
+    ## Do Transfer
+    ${transferredAmount}    Get Text    ${in_m_transferYB_lblTransferredAmountValue}
+    ${transferValue}    evaluate    (abs(${valueDefault})/${valueDefault})*0.1
+    Transfer Yesterday Balance Member    save    ${transferValue}
+    Wait Until Element Contains    ${in_m_transferYB_lblErrorMessage}    ransfer
+    ${errMsg}    Get Text    ${in_m_transferYB_lblErrorMessage}
+    ${isSuccess}    Run Keyword And Return Status    Should be equal    ${errMsg}    Transfer Successfully
+    ${isTranserOnePerDay}    Run Keyword And Return Status    Should Contain    ${errMsg}    You can only transfer one per everyday
+    ${isDataProcessing}    Run Keyword And Return Status    Should Contain    ${errMsg}    To ensure the accuracy of data while being processed, all transfer transaction cannot be executed.
+    ${observedResult}    evaluate    ${isSuccess}+${isTranserOnePerDay}+${isDataProcessing}
+    ${expectedResult}    evaluate    1
+    Should Be Equal    ${observedResult}    ${expectedResult}    ${errMsg}

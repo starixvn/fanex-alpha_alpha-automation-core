@@ -1,0 +1,521 @@
+*** Settings ***
+Documentation     Test Module is used to verify Setting Status of:
+...               - Product Status
+...               - Double Comm
+...               - OutRight
+Suite Setup       Init    ${ds_Line01_A0101}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Agent    Funct_Setting
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../Actions/common_actions.txt
+Resource          ../../Actions/setting/status_actions.txt
+Resource          ../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../Interfaces/in_top_menu.txt
+Resource          ../../Interfaces/Main/in_main.txt
+Resource          ../../Interfaces/in_left_menu.txt
+Resource          ../../Data_set/accounts.txt
+
+*** Test Cases ***
+TC_AP_DC01_Disable DoubleComm
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    DoubleComm
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    uncheck    message
+    #    VP00    Member is Closed
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    uncheck
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_DC02_Enable DoubleComm
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    DoubleComm
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    check    message
+    #    VP00    Member is Closed
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    check
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_OR01_Disable Outright
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    Outright
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    uncheck    message
+    #    VP00    Member is not allowed doubleComm
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    uncheck
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_OR02_Enalbe Outright
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    Outright
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    check    message
+    #    VP00    Member is allowed doubleComm
+    Search Account    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    check
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_CS01_Disable Casino
+    [Tags]
+    [Setup]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Casino
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_CS02_Enable Casino
+    [Tags]
+    [Setup]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Casino
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_LC01_Disable LiveCasino
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    LiveCasino
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    uncheck    message
+    #    VP00    Member is disable liveCasino
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    uncheck
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_LC02_Enable LiveCasino
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    LiveCasino
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    check    message
+    #    VP00    Member is is enable liveCasino
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    check
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_HF01_Disable HRFixedOdds
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    HRFixedOdds
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    uncheck    message
+    #    VP00    Member is disable HRfixedOdds
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    uncheck
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_HF02_Enable HRFixedOdds
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_status}    set variable    HRFixedOdds
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    check    message
+    #    VP00    Member is is enable HRfixedOdds
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    check
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_VS01_Disable VirtualSport
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Virtual Sports
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_VS02_Enable VirtualSport
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Virtual Sports
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_LT01_Disable Lottery
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Lottery
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_LT02_Enable Lottery
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Lottery
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_RC01_Disable Racing
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Racing    #${statusValue}    Create List    Racing-SA Tote \ \ \    Racing-UK/Irish Tote \ \ \
+    ...    # Racing-Aust Tote \ \ \    Greyhounds-UK/Irish Tote \ \    Greyhounds-Aust Tote \ \    # \ Harness-Aust Tote
+    ${tc_statusValue}    Create List    uncheck    check    uncheck    check    uncheck
+    ...    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable    enable    enable    enable    enable
+    ...    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_RC02_Enable Racing
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Racing    #${statusValue}    Create List    Racing-SA Tote \ \ \    Racing-UK/Irish Tote \ \ \
+    ...    # Racing-Aust Tote \ \ \    Greyhounds-UK/Irish Tote \ \    Greyhounds-Aust Tote \ \    # \ Harness-Aust Tote
+    ${tc_statusValue}    Create List    check    uncheck    check    uncheck    check
+    ...    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable    enable    enable    enable    enable
+    ...    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_KN01_Disable Keno
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Keno
+    Comment    #${statusValue}    Create List    Australia    Slovakia    # Canada    West Canada
+    ...    # Ohio    # Kentucky    Michigan    Korea    # Max Keno    Max Keno 2
+    ${tc_statusValue}    Create List    uncheck    check    uncheck    check    uncheck
+    ...    check    uncheck    check    uncheck    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable    enable    enable    enable    enable
+    ...    enable    enable    enable    enable    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_KN02_Enable Keno
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Keno    #${statusValue}    Create List    Australia    Slovakia
+    ...    # Canada    West Canada    Ohio    # Kentucky    Michigan    Korea
+    ...    # Max Keno    Max Keno 2
+    ${tc_statusValue}    Create List    check    uncheck    check    uncheck    check
+    ...    uncheck    check    uncheck    check    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable    enable    enable    enable    enable
+    ...    enable    enable    enable    enable    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_CB01_Disable ColossusBets
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Colossus Bets
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_CB02_Enable ColossusBets
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Colossus Bets
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_SP01_Suspend
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101002}
+    ${tc_status}    set variable    suspended
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    check    message
+    #    VP00    Member is suspended
+    Search Account    ${tc_member}
+    Verify Setting Status    ${tc_status}    check
+    # Un-suspend
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    uncheck    message
+    #    VP00    Member is un-suspended
+    Search Account    ${tc_member}
+    Verify Setting Status    ${tc_status}    uncheck
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_CL01_Close
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101002}
+    ${tc_status}    set variable    closed
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    check    message
+    #    VP00    Member is Closed
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    check
+    COMMENT    -----------------------    POST-CONDITIONS
+    # Open account
+    Reload Search Account Info    ${tc_member}    #    Go to Edit Status
+    Update Setting Status    save    ${tc_status}    uncheck    message
+    #    VP00    Member is Opened
+    Reload Search Account Info    ${tc_member}
+    Verify Setting Status    ${tc_status}    ${EMPTY}    enable    uncheck
+
+TC_AP_MC01_Disable Macau Games
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Macau Games
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_MC02_Enable Macau Games
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Macau Games
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_FW01_Disable Fishing World
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Fishing World
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_FW02_Enable Fishing World
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Fishing World
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_AB01_Disable Allbet
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Allbet
+    Comment    ${tc_statusValue}    Baccarat, Roulette, Sic Bo, Dragon Tiger    VIP Baccarat
+    ${tc_statusValue}    Create List    uncheck    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_AB02_Enable Allbet
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Allbet
+    ${tc_statusValue}    Create List    check    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_LK01_Disable Lucky 3
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Lucky 3
+    ${tc_statusValue}    Create List    uncheck
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A
+
+TC_AP_LK02_Enable Lucky 3
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member}    set variable    ${ds_Line01_P0101001}
+    ${tc_product}    set variable    Lucky 3
+    ${tc_statusValue}    Create List    check
+    ${tc_statusDLValue}    Create List    ${EMPTY}
+    ${tc_isStatusControlEnable}    Create List    enable
+    ${tc_isStatusControlDLEnable}    Create List    ${EMPTY}
+    COMMENT    -----------------------    MAIN STEPS
+    Search Account    ${tc_member}    #    Go to Edit Status
+    Update Product Status    save    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}
+    Verify Product Status    ${tc_product}    ${tc_statusValue}    ${tc_statusDLValue}    ${tc_isStatusControlEnable}    ${tc_isStatusControlDLEnable}
+    COMMENT    -----------------------    POST-CONDITIONS
+    #N/A

@@ -1,0 +1,134 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01_A}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Agent    Funct_Report
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../../Interfaces/in_top_menu.txt    #**************************************************INTERFACES*****************************************
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Interfaces/Main/in_m_transfer.txt
+Resource          ../../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../../Interfaces/Main/in_main_totalbet_report_forecast.txt
+Resource          ../../../Interfaces/Main/in_main_memberinfo.txt
+Resource          ../../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../../Interfaces/Main/in_m_edit_casino.txt
+Resource          ../../../Interfaces/Main/in_m_securitycode_password.txt
+Resource          ../../../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/Setting/status_actions.txt
+Resource          ../../../Actions/PT/pt_sportsbook.txt
+Resource          ../../../Actions/reports_actions.txt
+Resource          ../../../Actions/memberinfo.txt
+Resource          ../../../Actions/account_info_general.txt
+Resource          ../../../Actions/PT/pt_racing.txt
+Resource          ../../../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+Resource          ../../../Interfaces/Main/in_main_new_totalbets_forecast.txt
+
+*** Test Cases ***
+TC_1_Agent_Member Win Loss_Smartphone_Functional_NormalMode
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Member Win Loss
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_Win Loss_NormalMode    Member    Current    ${tc_fromDate}    ${tc_toDate}    ${EMPTY}    ${EMPTY}
+    ...    ${tc_member}    username
+
+TC_2_Agent_Member Win Loss_Smartphone_Functional_StackMode
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Member Win Loss
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_Win Loss_StackMode    Member    Current    ${tc_fromDate}    ${tc_toDate}    ${EMPTY}    ${EMPTY}
+    ...    ${tc_member}    username
+
+TC_3_Agent_Member Win Loss_Smartphone_Functional_NormalMode_History
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Member Win Loss
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_Win Loss_StackMode    Member    History    ${tc_fromDate}    ${tc_toDate}    ${EMPTY}    ${EMPTY}
+    ...    ${tc_member}    username
+
+TC_4_Agent_Member Win Loss_Smartphone_Functional_StackMode_History
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Member Win Loss
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 30 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_Win Loss_StackMode    Member    History    ${tc_fromDate}    ${tc_toDate}    ${EMPTY}    ${EMPTY}
+    ...    ${tc_member}    username
+
+TC_5_Agent_Member Win Loss_Check information icon
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss detail*
+    ...
+    ...    2. Return List offered Product or False if none of Casino, Macau Games, Allbet, Fishing World are offered
+    ...
+    ...    3. Navigate to Report *Win Loss*
+    ...
+    ...    4. Check info tooltip content report
+    ...    - Click on (i) icon
+    ...    - Tooltip must contain info if one of Casino, Macau Games, Allbet, Fishing World are offered
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    Alpha-8833:Rules for displaying info icon
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Member Win Loss
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    Win Loss Detail
+    ${ac_ListOfferedProduct}    Smartphone Verify Report_Check Offered Product    WIN LOSS DETAIL
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Comment    *******Navigate to report Win Loss*********
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    10s    #Wait until BlockUI end
+    Comment    *****Close Announcement Popup*****
+    Close Announcement Popup
+    select frame    main
+    # click submit
+    Click Element    ${in_m_btnSubmit}
+    Comment    *******End Navigate to report Win Loss*********
+    Smartphone Verify Report_Check Info Tooltip Content    ${ac_ListOfferedProduct}    ${tc_rptName}

@@ -1,0 +1,2 @@
+*** Settings ***
+Resource          ../../Interfaces/Main/in_m_transfer.txt

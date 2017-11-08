@@ -1,0 +1,63 @@
+*** Variables ***
+${in_m_transfer_tblTransfer}    //table[@id='tblTransferList']
+${in_m_transfer_labUsername}    //td[text()="Username"]
+${in_m_transfer_txtUsername}    //input[@id='txtUserName']
+${in_m_transfer_labStatus}    //td[text()="Status"]
+${in_m_transfer_ddlStatus}    //select[@id='statusFilter']
+${in_m_transfer_chkYesterdayBal}    //input[@id='chkYesterdayBalance']
+${in_m_transfer_btnSubmit}    //input[@id='dSubmit']
+${in_m_transfer_icoInfo}    //a[@class="infoIco"]
+${in_m_transfer_btnTransfer}    //div[@id='bttTransfer']
+${in_m_transfer_icoTransferArrow}    //*[@id='bttTransfer']/div[@class="arrowIco"]
+${in_m_transfer_btnTransferOnlyThisPage}	//a[@id='transfer']
+${in_m_transfer_btnTransferAllPage}	//a[@id='transferAll']
+${in_m_transfer_lblPageSize}    //td[@class="bgright"]
+${in_m_transfer_cboPageSizeList}    //select[@id="sel_PagingTop"]
+${in_m_transfer_iconPrint}    //*[@id='header_main']/a[@class="icon-print"]
+${in_m_transfer_trTableHeader}    //tr[@class="RptHeader"]
+${in_m_transfer_chkHeaderYesterday}    //input[@id="chkall"]
+${in_m_transfer_trTableFooter}    //table[@id="tblTransferList"]//tr[@class="RptFooter"]
+${in_m_transferCash_lblloginCashBalance}    //div[contains(text(),' Cash Balance:')]
+${in_m_transferCash_lblloginCashBalanceValue}    //div[contains(text(),' Cash Balance:')]/following-sibling::div
+${in_m_transferCash_lblInformation}    //div[contains(text(),' Information')]
+${in_m_transferCash_lblUsername}    //div[text()='Username']
+${in_m_transferCash_lblUsernameValue}    //div[text()='Username']/following-sibling::div
+${in_m_transferCash_lblCashBalance}    //div[text()='Cash Balance']
+${in_m_transferCash_lblCashBalanceValue}    //div[text()='Cash Balance']/following-sibling::div
+${in_m_transferCash_lblOutStanding}    //div[text()='Out. Txn']
+${in_m_transferCash_lblOutStandingValue}    //div[text()='Out. Txn']/following-sibling::div
+${in_m_transferCash_lblGiveCredit}    //div[text()='Given Credit']
+${in_m_transferCash_lblGiveCreditValue}    //div[text()='Given Credit']/following-sibling::div
+${in_m_transferCash_lblAmount}    //label[@for="amount"]
+${in_m_transferCash_txtAmount}    //input[@id="amount"]
+${in_m_transferCash_btnTransfer}    //button[@class="btn-submit"]
+${in_m_transferCash_lblRangeTransferMessage}    //div[@class="col-xs-12 note"]
+${in_m_transferCash_lblTransferMessage}    //div[@id="status-message-content"]
+${in_m_transferYB_lblAmount}    //td[text()="Amount"]	#Transfer Yesterday Balance 
+${in_m_transferYB_txtAmount}	//*[@id='txtamount']
+${in_m_transferYB_btnCancel}	//input[@value="Cancel"]
+${in_m_transferYB_btnSubmit}	//input[@value="Submit"]
+${in_m_transferYB_lblTransferTitle}	//td[@class="b transfer-title"]
+${in_m_transferYB_lblCustomer}	//td[text()="Customer"]
+${in_m_transferYB_lblCustomerValue}	//td[text()="Customer"]/following-sibling::td
+${in_m_transferYB_lblCashBalance}	//td[text()="Cash Balance"]
+${in_m_transferYB_lblCashBalanceValue}	//td[text()="Cash Balance"]/following-sibling::td
+${in_m_transferYB_lblOut.Txn}	//td[text()="Out. Txn"]
+${in_m_transferYB_lblOut.TxnValue}	//td[text()="Out. Txn"]/following-sibling::td
+${in_m_transferYB_lblGivenCredit}	//td[text()="Given Credit"]
+${in_m_transferYB_lblGivenCreditValue}	//td[text()="Given Credit"]/following-sibling::td
+${in_m_transferYB_lblBetCredit}	//td[text()="Bet Credit"]
+${in_m_transferYB_lblBetCreditValue}	//td[text()="Bet Credit"]/following-sibling::td
+${in_m_transferYB_lblTransferredAmount}	//td[text()="Transferred Amount"]
+${in_m_transferYB_lblTransferredAmountValue}	//td[text()="Transferred Amount"]/following-sibling::td
+${in_m_transferYB_lblLastLogin}	//td[text()="Last Login"]
+${in_m_transferYB_lblLastLoginValue}	//td[text()="Last Login"]/following-sibling::td
+${in_m_transferYB_lblLastTxn}	//td[text()="Last Txn"]
+${in_m_transferYB_lblLastTxnValue}	//td[text()="Last Txn"]/following-sibling::td
+${in_m_transferYB_lblFrom}	//td[text()="From:"]
+${in_m_transferYB_lblFromValue}	//td[text()="From:"]/following-sibling::td[1]
+${in_m_transferYB_lblTo}	//td[text()="To:"]
+${in_m_transferYB_lblToValue}	//td[text()="To:"]/following-sibling::td[1]
+${in_m_transferYB_btnTransfer}	//input[@value="Transfer"]
+${in_m_transferYB_lblRangeTransferMessage}	//*[@id='frForm']/table/tbody/tr[3]/td
+${in_m_transferYB_lblErrorMessage}	//*[@id='spmsgerr']

@@ -1,0 +1,154 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../Interfaces/Main/in_m_edit_commission.txt
+Resource          ../../Interfaces/Main/in_m_edit_colossusbets.txt
+Resource          ../../Interfaces/Main/in_m_DCS_Setting.txt
+Resource          ../../Actions/common_actions.txt
+
+*** Keywords ***
+Edit Commission
+    [Arguments]    ${action}=${EMPTY}    ${GroupA}=${EMPTY}
+    [Documentation]    This action is used to Edit Commission Info for Level Login: Super, Master
+    ...    - ${GroupA}: updated value
+    ...    - ${action}: 'save'
+    unselect frame
+    select frame    main
+    Run Keyword If    '${GroupA}'!='${EMPTY}'    Select From List By Label    ${in_m_eco_cboGroupA}    ${GroupA}
+    Run Keyword If    '${action}'=='save'    Click Element    ${in_m_eco_btnUpdate}
+    unselect frame
+
+Verify Commission
+    [Arguments]    ${expGroupA}=${EMPTY}
+    [Documentation]    This action is used to verify Commission
+    # Check GroupA value
+    unselect frame
+    select frame    main
+    ${ac_actGroupA}    Run Keyword If    '${expGroupA}'!='${EMPTY}'    Get Selected List Label    ${in_m_eco_cboGroupA}
+    Run Keyword If    '${expGroupA}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${ac_actGroupA}    ${expGroupA}
+    unselect frame
+
+Edit Commission_AgentMember
+    [Arguments]    ${action}    ${asian}
+    [Documentation]    This action is used to Edit Commission Info for Level Login: Super, Master
+    ...    - ${action}: 'save'
+    ...    - ${asian}: updated value
+    ...    - ${action}: 'save'
+    unselect frame
+    select frame    main
+    Run Keyword If    '${asian}'!='${EMPTY}'    Select From List By Label    ${in_m_eco_cboAsian}    ${asian}
+    Run Keyword If    '${action}'=='save'    Click Element    ${in_m_eco_btnUpdate}
+    unselect frame
+
+Verify Commission_AgentMember
+    [Arguments]    ${expAsian}
+    [Documentation]    This action is used to Edit Commission Info for Level Login: Super, Master
+    ...    - ${action}: 'save'
+    ...    - ${asian}: updated value
+    ...    - ${action}: 'save'
+    # Verify 'Comm for Member' Asian
+    unselect frame
+    select frame    main
+    ${ac_actAsian}    Run Keyword If    '${expAsian}'!='${EMPTY}'    Get Selected List Label    ${in_m_eco_cboAsian}
+    Run Keyword If    '${expAsian}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${ac_actAsian}    ${expAsian}
+    unselect frame
+
+Edit DCS Ticket Commision
+    [Arguments]    ${action}    ${iframe}    ${product}    ${sportType}    ${betType}    ${value}=${EMPTY}
+    [Documentation]    *Summary:* This Action is use to verify Dcs Setting - Ticket Commission (Data-type Setting = 14)
+    ...
+    ...    *Steps: *
+    ...    - 1. Input Value
+    ...    - 2. Click Save button
+    ${ac_txtDLCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//input
+    ## Check Popup Title
+    Unselect Frame
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${ac_txtDLCommission}    ${cfWaitControl}
+    Run Keyword If    '${value}'!='${EMPTY}'    Input Text    ${ac_txtDLCommission}    ${value}
+    Run Keyword If    ${action}==1    Click Element By Xpath js    ${in_m_DCS_pt_btnUpdate}
+    Run Keyword If    ${action}==1    Wait Data Processing
+
+Verify DCS Ticket Commission_AgentMember
+    [Arguments]    ${iframe}    ${product}    ${sportType}    ${betType}    ${agentGivenCommValue}=${EMPTY}    ${memberCommValue}=${EMPTY}
+    ...    ${errMsg}=${EMPTY}
+    ${ac_lblAgentGivenCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell w50-percent ng-binding']
+    ${ac_lblMemberCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell block__cell--no-border w50-percent ng-binding']
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_cm_labTicketCommissionGroupHeader}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${ac_lblAgentGivenCommission}    ${cfWaitControl}
+    Run Keyword If    '${agentGivenCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblAgentGivenCommission}    ${agentGivenCommValue}    ${errMsg}
+    Run Keyword If    '${memberCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblMemberCommission}    ${memberCommValue}    ${errMsg}
+
+Verify DCS Ticket Commission_MasterAgent
+    [Arguments]    ${iframe}    ${product}    ${sportType}    ${betType}    ${masterGivenCommValue}=${EMPTY}    ${agentCommValue}=${EMPTY}
+    ...    ${masterRemainCommValue}=${EMPTY}    ${errMsg}=${EMPTY}
+    ${ac_lblMasterGivenCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell w33-percent ng-binding']
+    ${ac_txtAgentCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//input
+    ${ac_lblMasterRemainCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell block__cell--no-border w33-percent w33-percent--last ng-binding']
+    ## Check Popup Title
+    Unselect Frame
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_cm_labTicketCommissionGroupHeader}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${ac_lblMasterGivenCommission}    ${cfWaitControl}
+    Run Keyword If    '${masterGivenCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblMasterGivenCommission}    ${masterGivenCommValue}
+    ${ac_actualValue}    Run Keyword If    '${agentCommValue}'!='${EMPTY}'    Get Value    ${ac_txtAgentCommission}
+    Run Keyword And Continue On Failure    Should Be Equal    ${ac_actualValue}    ${agentCommValue}
+    Run Keyword If    '${masterRemainCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblMasterRemainCommission}    ${masterRemainCommValue}
+
+Verify DCS Ticket Commission_MasterMember
+    [Arguments]    ${iframe}    ${product}    ${sportType}    ${betType}    ${agentCommValue}=${EMPTY}    ${errMsg}=${EMPTY}
+    ${ac_lblAgentCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell block__cell--no-border ng-binding']
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_cm_labTicketCommissionGroupHeader}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${ac_lblAgentCommission}    ${cfWaitControl}
+    Run Keyword If    '${agentCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblAgentCommission}    ${agentCommValue}    ${errMsg}
+
+Verify DCS Ticket Commission_SuperMaster
+    [Arguments]    ${iframe}    ${product}    ${sportType}    ${betType}    ${agentGivenCommValue}=${EMPTY}    ${memberCommValue}=${EMPTY}
+    ...    ${errMsg}=${EMPTY}
+    ${ac_identifyLocator}    Set Variable    div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']
+    ${ac_lblAgentGivenCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell w50-percent ng-binding']    #    //div[@data-setting-type='14']/..//div[@data-bet-type='1601' and @data-sport-type='160' and @data-product='26']/..//div[@class='block__cell w50-percent ng-binding']    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='1601' and @data-sport-type='160' and @data-product='26']/..//div[@class='block__cell w50-percent ng-binding']
+    ${ac_lblMemberCommission}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell block__cell--no-border w50-percent ng-binding']    #    //div[@data-setting-type='14']/..//div[@data-bet-type='1601' and @data-sport-type='160' and @data-product='26']/..//div[@class='block__cell block__cell--no-border w50-percent ng-binding']
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_cm_labTicketCommissionGroupHeader}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${ac_lblAgentGivenCommission}    ${cfWaitControl}
+    Run Keyword If    '${agentGivenCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblAgentGivenCommission}    ${agentGivenCommValue}    ${errMsg}
+    Run Keyword If    '${memberCommValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblMemberCommission}    ${memberCommValue}    ${errMsg}
+
+Verify DCS Ticket Commission_SuperMember
+    [Arguments]    ${iframe}    ${product}    ${sportType}    ${betType}    ${expCommForMasterValue}=${EMPTY}    ${expCommForAgentValue}=${EMPTY}
+    ...    ${errMsg}=${EMPTY}
+    ${ac_lblCommForMasterValue}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell w50-percent ng-binding']
+    ${ac_lblCommForAgentValue}    Set Variable    //div[@data-setting-type='14']/following-sibling::div//div[@data-bet-type='${bettype}' and @data-sport-type='${sporttype}' and @data-product='${product}']/following-sibling::div//div[@class='block__cell block__cell--no-border w50-percent ng-binding']
+    ## Check Popup Title
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${iframe}    ${cfWaitControl}
+    ## Select Popup Frame
+    Select Frame    ${iframe}
+    #Verify Group Header Text    General Information
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_DCS_cm_labTicketCommissionGroupHeader}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${ac_lblCommForMasterValue}    ${cfWaitControl}
+    Run Keyword If    '${expCommForMasterValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblCommForMasterValue}    ${expCommForMasterValue}    ${errMsg}
+    Run Keyword If    '${expCommForAgentValue}'!='${EMPTY}'    Element Text Should Be    ${ac_lblCommForAgentValue}    ${expCommForAgentValue}    ${errMsg}

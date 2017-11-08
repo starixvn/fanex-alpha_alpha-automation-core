@@ -1,0 +1,1979 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           ExcelLibrary
+Library           ../Libary/Selenium2Extend.py
+Resource          ../Interfaces/in_login.txt
+Resource          ../Interfaces/in_top_menu.txt
+Resource          ../Interfaces/Main/in_main.txt
+Resource          ../Interfaces/in_left_menu.txt
+Resource          ../Interfaces/Main/in_m_edit_sportsbook.txt
+Resource          ../Interfaces/Main/in_m_edit_racing.txt
+Resource          ../Interfaces/Main/in_m_securitycode_password.txt
+Resource          ../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../Actions/login.txt
+Resource          ../Interfaces/Header/header.txt
+Resource          config.txt
+Resource          announcement.txt
+Resource          change_password.txt
+Resource          ../Interfaces/Main/in_m_report_smartphone.txt
+Resource          betlist.txt
+
+*** Keywords ***
+Accounting Change Password
+    [Arguments]    ${newpwd}
+    Select Frame    content
+    Select Frame    leftPanel
+    #click login tab
+    Click Element    xpath=//*[@id='left_tab2_3']/a/span
+    #click change password link
+    Click Element    xpath=//*[contains(@href,'/ChangePassword.aspx')]
+    sleep    2s
+    #update password
+    Unselect Frame
+    Select Frame    content
+    Select Frame    centerFr
+    Input Password    xpath=//*[@name='txtPass']    ${newpwd}
+    Input Password    xpath=//*[@name='txtConfirmPass']    ${newpwd}
+    Click Element    xpath=//*[@value='Submit']
+    sleep    3s
+    Unselect Frame
+
+Accounting Search Username
+    [Arguments]    ${username}
+    Select Frame    content
+    Input Text    txtuserName    ${username}
+    Click Element    id=btnSendMsg
+    sleep    3s    wait for searching user
+    Unselect Frame
+
+Check Checkbox
+    [Arguments]    ${xpath}
+    Execute Javascript    var x =document.evaluate("${xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked = true;
+
+Check Data
+    [Arguments]    ${locator}    ${expect}
+    Comment    ${ac_temp}=    Get Value    ${locator}
+    ${ac_temp}=    Run Keyword If    '${expect}'!='${EMPTY}'    Get Value    ${locator}
+    Run Keyword And Continue On Failure    Should Be Equal    ${ac_temp}    ${expect}
+
+Check DropDown List Values In Range
+    [Arguments]    ${lstlocator}    ${start}    ${end}    ${step}    ${expand_value}=${EMPTY}
+    [Documentation]    This action is used to check all items in list in specific range. This action just support value in range 0 -1
+    ...
+    ...    ${lstlocator}: the list locator
+    ...
+    ...    ${start}: the starting number of the sequence
+    ...
+    ...    ${end}: the ending number of the sequence
+    ...
+    ...    ${step}: the different between each number in the sequence
+    ...
+    ...    ${expand_value}: previous value
+    ${ac_selected}    Get Selected List Label    ${lstlocator}
+    ${ac_expandvalue}    Set Variable If    '${ac_selected}' > '${end}'    ${ac_selected}    ${EMPTY}
+    ## Get all items in list
+    ${lstcurrent}    Get List Text    ${lstlocator}    \n
+    ## Create range
+    ${lstchecked}    Create List in Range 0-1    ${start}    ${end}    ${step}
+    ## Check list items
+    Run Keyword If    '${expand_value}'!='${EMPTY}'    Append To List    ${lstchecked}    ${ac_expandvalue}
+    Compare Lists    ${lstchecked}    ${lstcurrent}    The ${lstlocator} list items are not in range [${start},${end}]
+
+Check Icon Exist
+    [Arguments]    ${icon}
+    Unselect Frame
+    Select Frame    main
+    Page Should Contain Element    ${icon}
+    Unselect Frame
+
+Check Sort Column Function NormalMode
+    [Arguments]    ${ColumnLocatorSorted}    ${ColumnIndex}    ${SortType}=asc    ${DataType}=numberic
+    [Documentation]    This action to check Sort Column Function for Normal Mode
+    ...
+    ...
+    ...    *****History**********
+    ...
+    ...    2017-02-18: Kingsley created
+    ...
+    ...    ${ColumnLocatorSorted}: Xpath of Table that contains report data
+    ...
+    ...    ${ColumnIndex}: Column need to check
+    ...
+    ...    ${SortType}: asc/desc
+    ...
+    ...    ${DataType}: String/numberic
+    ## Set variable
+    ${ListExpected}    Create List
+    ${ac_row_num}    Get Matching Xpath Count    ${ColumnLocatorSorted}/tr
+    ${ac_StartRow}=    Set Variable    1
+    ${ac_EndRow}    Evaluate    ${ac_row_num}+1
+    : FOR    ${ac_Row}    IN RANGE    ${ac_StartRow}    ${ac_EndRow}
+    \    ## Set variable
+    \    ${ac_tr_value}    Get Text    //table[@id='tbl-report']/tbody/tr[${ac_Row}]/td[${ColumnIndex}]
+    \    ${ac_tr_value}    Replace String    ${ac_tr_value}    ,    ${EMPTY}
+    \    ${ac_tr_value}    Evaluate    "${ac_tr_value}".upper()
+    \    ${ac_tr_value}    Run Keyword If    '${DataType}'=='numberic'    Convert To Number    ${ac_tr_value}
+    \    ...    ELSE    Convert To String    ${ac_tr_value}
+    \    Append To List    ${ListExpected}    ${ac_tr_value}
+    \    log    ${ListExpected}
+    log    ${ListExpected}
+    ${ListSorted}    Copy List    ${ListExpected}
+    Sort List    ${ListSorted}
+    Run Keyword If    '${SortType}'=='desc'    Reverse List    ${ListSorted}
+    log    ${ListSorted}
+    Lists Should Be Equal    ${ListExpected}    ${ListSorted}    Sort are not correct.
+
+Check Sort Column Function StackMode
+    [Arguments]    ${ColumnLocatorSorted}    ${ColumnIndexByXpath}    ${RowData}    ${SortType}=asc    ${DataType}=numberic
+    [Documentation]    This action to check Sort Column Function for Report having StackMode
+    ...
+    ...    *****History**********
+    ...
+    ...    2017-02-20: Kingsley created
+    ...
+    ...    ${ColumnLocatorSorted}: Xpath of Table that contains report data
+    ...
+    ...    ${ColumnIndexByXpath}: Column need to check (Ex: @class='visible-stack-mode combinedcell text-right col-turnover-combined')
+    ...
+    ...    ${RowData}: Row data need to get in combined column
+    ...
+    ...    ${SortType}: asc/desc
+    ...
+    ...    ${DataType}: String/numberic
+    ## Set variable
+    ${ListExpected}    Create List
+    ${ac_row_num}    Get Matching Xpath Count    ${ColumnLocatorSorted}/tr
+    ${ac_StartRow}=    Set Variable    1
+    ${ac_EndRow}    Evaluate    ${ac_row_num}+1
+    : FOR    ${ac_Row}    IN RANGE    ${ac_StartRow}    ${ac_EndRow}
+    \    ## Set variable
+    \    ${ac_tr_value}    Get Text    //table[@id='tbl-report']/tbody/tr[${ac_Row}]/td[${ColumnIndexByXpath}]//li[${RowData}]
+    \    ${ac_tr_value}    Replace String    ${ac_tr_value}    ,    ${EMPTY}
+    \    ${ac_tr_value}    Run Keyword If    '${DataType}'=='numberic'    Convert To Number    ${ac_tr_value}
+    \    ...    ELSE    Convert To String    ${ac_tr_value}
+    \    Append To List    ${ListExpected}    ${ac_tr_value}
+    \    log    ${ListExpected}
+    log    ${ListExpected}
+    ${ListSorted}    Copy List    ${ListExpected}
+    Sort List    ${ListSorted}
+    Run Keyword If    '${SortType}'=='desc'    Reverse List    ${ListSorted}
+    log    ${ListSorted}
+    Lists Should Be Equal    ${ListExpected}    ${ListSorted}    Sort are not correct.
+
+Click Control
+    [Arguments]    ${controlLocator}    ${waitControl}=${cfWaitControl}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${controlLocator}    ${waitControl}
+    Run Keyword And Continue On Failure    Click Element    ${controlLocator}
+
+Click Element A and Wait Element B Appear
+    [Arguments]    ${iframeA}=${EMPTY}    ${elementA}=${EMPTY}    ${iframeB}=${EMPTY}    ${elementB}=${EMPTY}    ${waitTime}=1
+    Unselect Frame
+    Run Keyword If    '${iframeA}'!='${EMPTY}'    Select Frame    ${iframeA}
+    Click Element    ${elementA}
+    Unselect Frame
+    Run Keyword If    '${iframeB}'!='${EMPTY}'    Select Frame    ${iframeB}
+    Wait Until Element Is Visible    ${elementB}    ${waitTime}
+    Unselect Frame
+
+Click Element By Xpath js
+    [Arguments]    ${locator}
+    Comment    Execute Javascript    var x =document.getElementByXpath("${locator}").children[0]; x.click();
+    Execute Javascript    var x =document.evaluate("${locator}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; x.click();
+
+Close All Popups
+    [Documentation]    *Summary:* This action is used to close all popups that are openning
+    ...
+    ...    *History*
+    ...    - [2017-09-12] Casey: Created
+    Unselect Frame
+    Set Selenium Implicit Wait    0.01
+    Comment    ${existPopup}    Run Keyword And Return Status    Get Element Attribute    //*[contains(@id,'page-popup-')][last()]//button[@class='icon icon-close close']@class
+    ${existPopup}    Run Keyword And Return Status    Get Text    //*[contains(@id,'page-popup-')][last()]//button[@class='icon icon-close close']
+    Return From Keyword If    ${existPopup}==False
+    ${ac_closesButtonLocator}    Get Webelements    //*[contains(@id,'page-popup-')][last()]//button[@class='icon icon-close close']
+    : FOR    ${i}    IN    @{ac_closesButtonLocator}
+    \    Close Popup By JS
+    Set Selenium Implicit Wait    ${cfWaitTime}
+
+Close Announcement Popup
+    [Arguments]    ${waitTime}=10s
+    [Documentation]    This action is used to close announcement popup. This popup is showed when user login
+    ...
+    ...    *****History********
+    ...
+    ...    2016-12-19: Kingsley
+    Unselect Frame
+    Set Selenium Implicit Wait    0.01
+    ${ac_IsAnounment}    Run Keyword And Return Status    Wait Until Element Is Visible    //div[contains(@id,'popup-container-') and @style='display: block;']//button[@class='icon icon-close close']    ${waitTime}
+    Run Keyword If    ${ac_IsAnounment}    Click Element    //div[contains(@id,'popup-container-') and @style='display: block;']//button[@class='icon icon-close close']
+    Set Selenium Implicit Wait    ${cfWaitTime}
+
+Close Net TurnOver Tool tip
+    [Documentation]    This action to close NetTurnOver Tool tip in Winloss Detail report
+    ...
+    ...    ******History*********
+    ...
+    ...    2016-12-19: Kingsley
+    Unselect Frame
+    Select Frame    main
+    Wait Until Keyword Succeeds    1m    1s    Wait Until Page Does Not Contain Element    ${in_m_report_blockUI}
+    #check and close tooltip
+    ${ac_IsNetTurnOver_Tooltips}    Run Keyword And Return Status    Wait Until Element Is Visible    //div[@id='netturnovertooltip']    5s
+    Run Keyword If    ${ac_IsNetTurnOver_Tooltips}    Click Element    //div[@id='netturnovertooltip']//input[@id='close-netturnover-tooltip']
+
+Close Popup By JS
+    [Documentation]    This action is used to close popup (the popup displayed in window not in frame) by javascript
+    Unselect Frame
+    Execute Javascript    var x; \ \ \ x = document.querySelector('div[id^="page-popup-"]').getElementsByClassName("icon icon-close close")[0]; \ \ x.click();
+
+Compare Lists
+    [Arguments]    ${lst1}    ${lst2}    ${errmsg}=NONE
+    [Documentation]    This action is used to check 2 list are equal
+    ...
+    ...    ${lst1}
+    ...
+    ...    ${lst2}
+    Sort List    ${lst1}
+    Sort List    ${lst2}
+    Run Keyword And Continue On Failure    Lists Should Be Equal    ${lst1}    ${lst2}    ${errmsg}
+
+Config System
+    [Documentation]    This action is used to define init values
+    ################    Set Setting valuee
+    Set Global Variable    ${cfWaitTime}    1
+    Set Selenium Implicit Wait    ${cfWaitTime}
+    Set Global Variable    ${cfSpeed}    0.01
+    Set Selenium Speed    ${cfSpeed}
+    Set Global Variable    ${cfWaitControlLong}    90
+    Set Global Variable    ${cfWaitControl}    60
+    # Get Workplace path
+    ${ac_CurDir}    Set variable    ${CURDIR}
+    ${ac_worksSpace}    Replace String    ${ac_CurDir}    \Actions    ${EMPTY}
+    Set Global Variable    ${init_gbWorksSpace}    ${ac_worksSpace}
+    #################    Get config variable from Config.py file
+    Set Global Variable    ${cfUrl}    ${Url}    #    ${Url}    https://mb.gatonic.com/site-main/
+    Set Global Variable    ${cfBrowser}    ${Browser}    #    ${Browser}    ff
+    Set Global Variable    ${cfSeCode}    ${SeCode}    #    ${SeCode}    123457
+    Set Global Variable    ${cfPwd}    ${Pwd}    #    ${Pwd}    1234aaAA
+    Set Global Variable    ${cfReportDate}    Now -2 day    #    Now -2 day    Now -2 day
+    Set Global Variable    ${cfDBTime}    UTC - 4 hour    #    UTC - 4 hour    UTC - 4 hour
+    Set Global Variable    ${cfisLocal}    ${isLocal}    #    ${isLocal}    1
+    Set Global Variable    ${cfDsBetlistFile}    ${DsBetlistFile}    #    ${DsBetlistFile}    Data_set\\BetList_rptWinLostDetail_Pro_Betlist.xls
+    Set Global Variable    ${cfDsResultsPage}    ${DsResultsPage}    #    ${DsResultsPage}    Data_set\\ResultsPage_Local.xls
+    Set Global Variable    ${cfReportDownloadFolder}    C:\\reportfolder    #    C:\\reportfolder    C:\\reportfolder
+    Set Global Variable    ${cfProductFilterList}    All Products (13),Select all,Sportsbook,Racing,Number Game,Live Casino,Virtual Sports,Casino,Keno,Gold Deluxe,Colossus Bets,Allbet,Macau Games,Fishing World,Lottery    #    All products of System Alpha    All products of System Alpha
+    Set Global Variable    ${cfDateRangeList}    Today,Yesterday,This Week,Last Week,This Month,Last Month,Since Last Month,Specific Dates    #    Today,Yesterday,This Week,Last Week,This Month,Last Month,Since Last Month,Specific Dates    Today,Yesterday,This Week,Last Week,This Month,Last Month,Since Last Month,Specific Dates
+    Set Global Variable    ${cfAType}    ${AType}
+    Create Sporttype Bettype Tote Dictionary
+    Define Status Color Vairables
+
+Confirm Security Code
+    Select Frame    main
+    Input Text    ${in_m_SE_txtSE}    ${cfSeCode}
+    click element    ${in_m_SE_btnSubmit}
+    Unselect Frame
+
+Convert Date Time with Format
+    [Arguments]    ${inputDateTime}    ${returnFormat}=yyyymmdd
+    [Documentation]    This is the function return ${inputDateTime} with ${returnFormat}
+    ...
+    ...    ${inputDateTime}:
+    ...
+    ...    By default this keyword returns the current local time, but that can be altered using `time` argument as explained below. Note that all checks involving strings are case-insensitive.
+    ...
+    ...    - 1) If `time` is a number, or a string that can be converted to a number, it is interpreted as seconds since the UNIX epoch. This documentation was originally written about 1177654467 seconds after the epoch.
+    ...    -
+    ...    2) If `time` is a timestamp, that time will be used. Valid timestamp formats are 'YYYY-MM-DD hh:mm:ss' and 'YYYYMMDD hhmmss'.
+    ...    -
+    ...    3) If `time` is equal to 'NOW' (default), the current local time is used. This time is got using Python's 'time.time()' function.
+    ...    -
+    ...    4) If `time` is equal to 'UTC', the current time in UTC is used. This time is got using 'time.time() + time.altzone' in Python.
+    ...
+    ...    - 5) If `time` is in the format like 'NOW - 1 day' or 'UTC + 1 hour 30 min', the current local/UTC time plus/minus the time specified with the time string is used. The time string format is described in an appendix of Robot Framework User Guide.
+    ...
+    ...    Return Format:
+    ...    - yyyymmdd
+    ...
+    ...
+    ...
+    ...    -----HISTORY--------------------
+    ...    - [20150824]: Casey-Created
+    ${yyyy}    ${mm}    ${dd}    Get time    year,month,day    ${inputDateTime}
+    ${m}    run keyword if    '${mm}' < '10'    Fetch From Right    ${mm}    0
+    ...    ELSE    set variable    ${mm}
+    ${d}    run keyword if    '${dd}' < '10'    Fetch From Right    ${dd}    0
+    ...    ELSE    set variable    ${dd}
+    ${returnDay}    Run Keyword If    '${returnFormat}'=='yyyymmdd'    set variable    ${yyyy}${mm}${dd}
+    ${returnDay}    Run Keyword If    '${returnFormat}'=='mm/dd/yyyy'    set variable    ${mm}/${dd}/${yyyy}
+    ...    ELSE    Set variable    ${returnDay}
+    ${returnDay}    Run Keyword If    '${returnFormat}'=='m/d/yyyy'    set variable    ${m}/${d}/${yyyy}
+    ...    ELSE    Set variable    ${returnDay}
+    ${returnDay}    Run Keyword If    '${returnFormat}'=='mm_dd_yyyy'    set variable    ${mm}_${dd}_${yyyy}
+    ...    ELSE    Set variable    ${returnDay}
+    [Return]    ${returnDay}
+
+Convert Format Time
+    [Arguments]    ${input_time}
+    [Documentation]    This action is used to convert input time (format 24hrs) into 12hrs
+    ...
+    ...    EX:
+    ...    {inputtime}= 2014-09-24 00:50:11
+    ...    ${output_time} = 2014-09-24 12:50:11
+    ${day}    ${ac_time}    Split String    ${input_time}    ${SPACE}
+    ${ac_hour}    ${ac_min}    ${ac_sec}=    Split String    ${ac_time}    :
+    ${ac_hour}    Convert To Integer    ${ac_hour}
+    ${ac_hour}    Set Variable If    '${ac_hour}'=='0'    12    '${ac_hour}'>'12'    ${ac_hour-12}    ${ac_hour}
+    ${output_time}    Set Variable    ${day}${SPACE}${ac_hour}:${ac_min}:${ac_sec}
+    [Return]    ${output_time}
+
+Create List in Range 0-1
+    [Arguments]    ${start}    ${end}    ${step}
+    [Documentation]    This action is used to create a list of number (in string) in range 0 -1
+    ...
+    ...    ${start}: the starting number of the sequence
+    ...
+    ...    ${end}: the ending number of the sequence
+    ...
+    ...    ${step}: the different between each number in the sequence
+    ...
+    ...    ${outputlist}: the output list that containg list of string number
+    ${tmpN}    Evaluate    int(1/${step})
+    ${tmpStart}    Evaluate    int(${start} * ${tmpN})
+    ${tmpEnd}    Evaluate    int(${end} * ${tmpN} +1)
+    ${outputlist}    Evaluate    [str(x*${step}) for x in range(${tmpStart}, ${tmpEnd})]
+    Run Keyword If    '${outputlist[0]}' == '0.0'    Set List Value    ${outputlist}    0    0
+    Run Keyword If    int(${outputlist[-1]}) == 1    Set List Value    ${outputlist}    -1    1
+    [Return]    ${outputlist}
+
+Create Sport Betype
+    # set value for Sporttype Dict
+    ${tmpSporttypeDict}=    Create Dictionary    Soccer=1
+    Set To Dictionary    ${tmpSporttypeDict}    Basketball    2
+    Set To Dictionary    ${tmpSporttypeDict}    Football    3
+    Set To Dictionary    ${tmpSporttypeDict}    Tennis    5
+    Set To Dictionary    ${tmpSporttypeDict}    Baseball    8
+    Set To Dictionary    ${tmpSporttypeDict}    Golf    10
+    Set To Dictionary    ${tmpSporttypeDict}    Motorsports    11
+    Set To Dictionary    ${tmpSporttypeDict}    Other Sports    99
+    Set To Dictionary    ${tmpSporttypeDict}    Mix Sports Parlay    99
+    Set To Dictionary    ${tmpSporttypeDict}    Racing    151
+    Set To Dictionary    ${tmpSporttypeDict}    Greyhounds    152
+    Set To Dictionary    ${tmpSporttypeDict}    Harness    153
+    Set To Dictionary    ${tmpSporttypeDict}    Number Game    161
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Soccer    180
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Horse Racing    181
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Tennis    186
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Greyhounds    182
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Motor Racing    184
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Speedway    183
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Cycling    185
+    # set global
+    Set Global Variable    ${SporttypeDict}    ${tmpSporttypeDict}
+    # set value for bettype Dict
+    ${tmpBettypeDict}=    Create Dictionary    Handicap=1
+    Set To Dictionary    ${tmpBettypeDict}    Odd/Even    2
+    Set To Dictionary    ${tmpBettypeDict}    Over/Under    3
+    Set To Dictionary    ${tmpBettypeDict}    1x2    5
+    Set To Dictionary    ${tmpBettypeDict}    1st Handicap    7
+    Set To Dictionary    ${tmpBettypeDict}    1st Odd/Even    12
+    Set To Dictionary    ${tmpBettypeDict}    1st Over/Under    8
+    Set To Dictionary    ${tmpBettypeDict}    1st 1x2    15
+    Set To Dictionary    ${tmpBettypeDict}    Correct Score    4
+    Set To Dictionary    ${tmpBettypeDict}    Total Goal    6
+    Set To Dictionary    ${tmpBettypeDict}    Mix Parlay    9
+    Set To Dictionary    ${tmpBettypeDict}    Outright    10
+    Set To Dictionary    ${tmpBettypeDict}    Number Game 1st Last Over/Under    81
+    Set To Dictionary    ${tmpBettypeDict}    Number Game 1st Last Odd/Event    83
+    Set To Dictionary    ${tmpBettypeDict}    Number Game Warrior    88
+    Set To Dictionary    ${tmpBettypeDict}    Australia Acttab    1501
+    Set To Dictionary    ${tmpBettypeDict}    Bejing Keno 8    1502
+    Set To Dictionary    ${tmpBettypeDict}    Slovakia Eklub    1503
+    Set To Dictionary    ${tmpBettypeDict}    Canada Keno    1504
+    Set To Dictionary    ${tmpBettypeDict}    West Canada Keno    1505
+    Set To Dictionary    ${tmpBettypeDict}    Taiwan Bingo Bingo    1506
+    Set To Dictionary    ${tmpBettypeDict}    Massac    1507
+    Set To Dictionary    ${tmpBettypeDict}    Ohio    1508
+    Set To Dictionary    ${tmpBettypeDict}    Malta    1509
+    Set To Dictionary    ${tmpBettypeDict}    Kentucky    1511
+    Set To Dictionary    ${tmpBettypeDict}    Michigan    1513
+    # set global
+    Set Global Variable    ${BettypeDict}    ${tmpBettypeDict}
+    # set value for Tote Dict Win
+    ${tmpToteDictWin}=    Create Dictionary    SA=31
+    Set To Dictionary    ${tmpToteDictWin}    UK/Irish    41
+    Set To Dictionary    ${tmpToteDictWin}    Aust    51
+    # set global
+    Set Global Variable    ${ToteDictWin}    ${tmpToteDictWin}
+    # set value for Tote Dict Place
+    ${tmpToteDictPlace}=    Create Dictionary    SA=42    32
+    Set To Dictionary    ${tmpToteDictPlace}    UK/Irish    42
+    Set To Dictionary    ${tmpToteDictPlace}    Aust    52
+    # set global
+    Set Global Variable    ${ToteDictPlace}    ${tmpToteDictPlace}
+
+Create Sporttype Bettype Tote Dictionary
+    [Documentation]    This action is used to create global Dictionary variable to store sporttype, bettype and Tote
+    # set value for Sporttype Dict
+    ${tmpSporttypeDict}=    Create Dictionary    Soccer=1
+    Set To Dictionary    ${tmpSporttypeDict}    Basketball    2
+    Set To Dictionary    ${tmpSporttypeDict}    Football    3
+    Set To Dictionary    ${tmpSporttypeDict}    Tennis    5
+    Set To Dictionary    ${tmpSporttypeDict}    Baseball    8
+    Set To Dictionary    ${tmpSporttypeDict}    Golf    10
+    Set To Dictionary    ${tmpSporttypeDict}    Motorsports    11
+    Set To Dictionary    ${tmpSporttypeDict}    Other Sports    99
+    Set To Dictionary    ${tmpSporttypeDict}    Mix Sports Parlay    99
+    Set To Dictionary    ${tmpSporttypeDict}    Racing    151
+    Set To Dictionary    ${tmpSporttypeDict}    Greyhounds    152
+    Set To Dictionary    ${tmpSporttypeDict}    Harness    153
+    Set To Dictionary    ${tmpSporttypeDict}    Number Game    161
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Soccer    180
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Horse Racing    181
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Tennis    186
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Greyhounds    182
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Motor Racing    184
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Speedway    183
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Motorsports    184
+    Set To Dictionary    ${tmpSporttypeDict}    Virtual Cycling    185
+    # set global
+    Set Global Variable    ${SporttypeDict}    ${tmpSporttypeDict}
+    # set value for bettype Dict
+    ${tmpBettypeDict}=    Create Dictionary    Handicap=1
+    Set To Dictionary    ${tmpBettypeDict}    Odd/Even    2
+    Set To Dictionary    ${tmpBettypeDict}    Over/Under    3
+    Set To Dictionary    ${tmpBettypeDict}    1x2    5
+    Set To Dictionary    ${tmpBettypeDict}    1st Handicap    7
+    Set To Dictionary    ${tmpBettypeDict}    1st Odd/Even    12
+    Set To Dictionary    ${tmpBettypeDict}    1st Over/Under    8
+    Set To Dictionary    ${tmpBettypeDict}    1st 1x2    15
+    Set To Dictionary    ${tmpBettypeDict}    Correct Score    4
+    Set To Dictionary    ${tmpBettypeDict}    Total Goal    6
+    Set To Dictionary    ${tmpBettypeDict}    Mix Parlay    9
+    Set To Dictionary    ${tmpBettypeDict}    Outright    10
+    Set To Dictionary    ${tmpBettypeDict}    Number Game 1st Last Over/Under    81
+    Set To Dictionary    ${tmpBettypeDict}    Number Game 1st Last Odd/Event    83
+    Set To Dictionary    ${tmpBettypeDict}    Number Game Warrior    88
+    Set To Dictionary    ${tmpBettypeDict}    Australia Acttab    1501
+    Set To Dictionary    ${tmpBettypeDict}    Bejing Keno 8    1502
+    Set To Dictionary    ${tmpBettypeDict}    Slovakia Eklub    1503
+    Set To Dictionary    ${tmpBettypeDict}    Canada Keno    1504
+    Set To Dictionary    ${tmpBettypeDict}    West Canada Keno    1505
+    Set To Dictionary    ${tmpBettypeDict}    Taiwan Bingo Bingo    1506
+    Set To Dictionary    ${tmpBettypeDict}    Massac    1507
+    Set To Dictionary    ${tmpBettypeDict}    Ohio    1508
+    Set To Dictionary    ${tmpBettypeDict}    Malta    1509
+    Set To Dictionary    ${tmpBettypeDict}    Kentucky    1511
+    Set To Dictionary    ${tmpBettypeDict}    Michigan    1513
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Soccer    1201
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Horse Racing    1231
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Greyhounds    1231
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Speedway    1231
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Motorsports    1231
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Cycling    1231
+    Set To Dictionary    ${tmpBettypeDict}    Virtual Tennis    1220
+    # set global
+    Set Global Variable    ${BettypeDict}    ${tmpBettypeDict}
+    # set value for Tote Dict Win
+    ${tmpToteDictWin}=    Create Dictionary    SA=31
+    Set To Dictionary    ${tmpToteDictWin}    UK/Irish    41
+    Set To Dictionary    ${tmpToteDictWin}    Aust    51
+    # set global
+    Set Global Variable    ${ToteDictWin}    ${tmpToteDictWin}
+    # set value for Tote Dict Place
+    ${tmpToteDictPlace}=    Create Dictionary    SA=32
+    Set To Dictionary    ${tmpToteDictPlace}    UK/Irish    42
+    Set To Dictionary    ${tmpToteDictPlace}    Aust    52
+    # set global
+    Set Global Variable    ${ToteDictPlace}    ${tmpToteDictPlace}
+
+Define Product List
+
+Define Status Color Vairables
+    Set Global Variable    ${cfClosedColorNAP}    rgb(179, 162, 199)
+    Set Global Variable    ${cfClosedColorAlpha}    rgb(247, 150, 70)
+    Set Global Variable    ${cfClosedColorSCOTP}    rgb(134, 197, 228)
+    Set Global Variable    ${cfClosedColorPwOthers}    rgb(204, 199, 186)
+    Set Global Variable    ${cfClosedClassNAP}    closed-byAdmin    # Class Content Text
+    Set Global Variable    ${cfClosedClassAlpha}    closed-byUpline    # Class Content Text
+    Set Global Variable    ${cfClosedClassSCOTP}    closed-wrongOTPSC    # Class Content Text
+    Set Global Variable    ${cfClosedClassPwOthers}    closed-wrongPwdOthers    # Class Content Text
+
+Edit Control value
+    [Arguments]    ${control}    ${action}    ${value}
+    [Documentation]    This action is used to edit control value. ${EMPTY} value means not edit control
+    ...
+    ...    ${control}: the locator of control
+    ...
+    ...    ${action}: the action to edit control (Select checkbox,Select list value,..)
+    ...
+    ...    ${value}: the new value of control
+    ${tmpvalue}    Evaluate    str("${value}")
+    ${len1}    Evaluate    len(str('${action}'))
+    ${len2}    Evaluate    len(str('${value}'))
+    Run Keyword Unless    ${len1} == 0 or ${len2} == 0    ${action}    ${control}    ${tmpvalue}
+
+Execute SQL Update PT
+    [Arguments]    ${lineID}    ${groupID}
+    ${ac_sqlString}    Set Variable    Exec QC_Update_AccountInfo @lineID = ${lineID}
+    Execute Sql String    Exec QC_Update_AccountInfo @lineIDs = ${lineID}
+
+Expand SportType of SBPT
+    [Arguments]    ${ac_SportName}
+    Unselect Frame
+    Select Frame    main
+    Wait Until Element Is Visible    //div[@class='PTGrid']//div[text()='Soccer']    30s
+    Focus    //div[@class='PTGrid']//div[text()='${ac_SportName}']
+    ${ac_temp}    Set Variable    //div[@class='PTGrid']//div[text()='${ac_SportName}']/parent::div/div[@class='PTGroupSet2']
+    ${ac_IsDisplay}    Run Keyword And Return Status    Element Should Be Visible    ${ac_temp}
+    Run Keyword If    ${ac_IsDisplay} == False    Click Element By Xpath js    //div[@class='PTGrid']//div[text()='${ac_SportName}']
+
+Fetch List From Left
+    [Arguments]    ${list}    ${maker}
+    : FOR    ${i}    IN    @{list}
+    \    ${i1}=    Fetch From Left    ${i}    ${maker}
+    \    Remove Values From List    ${list}    ${i}
+    \    Append To List    ${list}    ${i1}${maker}
+    [Return]    ${list}
+
+Get Background Color
+    [Arguments]    ${locator_id}
+    ${ac_temp}=    Set Variable    document.getElementById('${locator_id}')
+    ${ac_returnvalue}=    Execute Javascript    alert(window.getComputedStyle(${ac_temp},null).getPropertyValue("background-color"))
+    [Return]    ${ac_returnvalue}
+
+Get Background Color JS
+    [Arguments]    ${xpath}
+    [Documentation]    This action will return the color backgroud of element by format
+    ...    - ${xpath}: locator of element
+    ${bgColor}    Execute Javascript    var x = document.evaluate("${xpath}", document, null,9, null).singleNodeValue; \ var styleProp ="background-color"; \ var bgColor; \ if (x.currentStyle) \ \ \ \ \ \ \ \ bgColor = x.currentStyle[styleProp]; \ else if (window.getComputedStyle) \ \ \ \ \ \ \ \ \ bgColor =document.defaultView.getComputedStyle(x,null).getPropertyValue(styleProp); \ return bgColor;
+    [Return]    ${bgColor}
+
+Get Controls Quantity
+    [Arguments]    ${ac_SectionLocator}
+    ${ac_CountInput} =    Get Matching Xpath Count    ${ac_SectionLocator}//input
+    ${ac_CountSelect} =    Get Matching Xpath Count    ${ac_SectionLocator}//select
+    ${ac_CountSpan} =    Get Matching Xpath Count    ${ac_SectionLocator}//span
+    ${quantity}    Evaluate    ${ac_CountInput} + ${ac_CountSelect} + ${ac_CountSpan}
+    [Return]    ${quantity}
+
+Get Keys From Dictionary By Key name
+    [Arguments]    ${dct}    ${value}
+    [Documentation]    This action is used to get all Keys have searched key name from Dictionary
+    ...
+    ...    ${dct}: the dictionary that need to get values
+    ...
+    ...    ${Keyname}: the string value
+    ...
+    ...    ${output}: the output list contain keys
+    ${lstKeys}    Get Dictionary Keys    ${dct}
+    ${len}    Get Length    ${lstKeys}
+    ${output}    Create List
+    : FOR    ${i}    IN RANGE    0    ${len}
+    \    ${iKey}    Get From List    ${lstKeys}    ${i}
+    \    @{data}    String.Split String    ${iKey}    ^
+    \    Run Keyword If    '@{data}[0]'=='${Value}'    Append To List    ${output}    @{data}[1]
+    [Return]    ${output}
+
+Get Keys From Dictionary By Value
+    [Arguments]    ${dct}    ${value}
+    [Documentation]    This action is used to get all Keys have searched value from Dictionary
+    ...
+    ...    ${dct}: the dictionary that need to get values
+    ...
+    ...    ${value}: the string value
+    ...
+    ...    ${output}: the output list contain keys
+    ${lstKeys}    Get Dictionary Keys    ${dct}
+    ${len}    Get Length    ${lstKeys}
+    ${output}    Create List
+    : FOR    ${i}    IN RANGE    0    ${len}
+    \    ${iKey}    Get From List    ${lstKeys}    ${i}
+    \    ${iValue}    Get From Dictionary    ${dct}    ${iKey}
+    \    Run Keyword If    '${value}'=='${iValue}'    Append To List    ${output}    ${iKey}
+    [Return]    ${output}
+
+Get List Text
+    [Arguments]    ${lstLocator}    ${separator}
+    [Documentation]    This action is used to get all text belong to list control
+    ...
+    ...    ${lstLocator}: the locator of list control
+    ...
+    ...    ${separator} : the string separate each item in list
+    ...
+    ...    ${outputlst}: the list contain all item text
+    ${outputlst}    Get text    ${lstLocator}
+    ${outputlst}    Split String    ${outputlst}    ${separator}
+    [Return]    ${outputlst}
+
+Get Range Excel In Row
+    [Arguments]    ${excelSheet}    ${row}    ${fromCol}    ${toCol}
+    ${value}    Create List
+    : FOR    ${ac_i}    IN RANGE    ${fromCol}    ${toCol}
+    \    ${ac_value}    Read Cell Data By Coordinates    ${excelSheet}    ${ac_i}    ${row}
+    \    Append To List    ${value}    ${ac_value}
+    [Return]    ${value}
+
+Get System Time
+    [Documentation]    This action is used to get ibc system time (NOW -14h + 1d)
+    ${output_time}    Get Time    \    NOW + 14h -1d
+    [Return]    ${output_time}
+
+Get Table Header
+    [Arguments]    ${headerMask}
+    ${n}    Get Matching Xpath Count    ${headerMask}
+    ${n}    Evaluate    ${n}+1
+    ${returnList}    Create List
+    : FOR    ${i}    IN RANGE    1    ${n}
+    \    ${colName}    Get Text    ${headerMask}[${i}]
+    \    Append To List    ${returnList}    ${colName}
+    [Return]    ${returnList}
+
+Get Table Row by RowID
+    [Arguments]    ${rowId}    ${startCol}    ${endCol}    ${returnList}
+    : FOR    ${ac_i}    IN RANGE    ${startCol}    ${endCol}
+    \    ${ac_value}    Get Text    //*[contains(@id,'${rowId}')]/td[${ac_i}]
+    \    ${ac_value}    replace string    ${ac_value}    \n\n    \n
+    \    ${ac_value}    replace string    ${ac_value}    \n\n    \n
+    \    ${ac_value}    replace string    ${ac_value}    ${SPACE}${SPACE}${SPACE}    ${SPACE}    -1
+    \    ${ac_value}    replace string    ${ac_value}    ${SPACE}${SPACE}    ${SPACE}    -1
+    \    ${ac_value}    replace string    ${ac_value}    ${SPACE}${SPACE}    ${SPACE}    -1
+    \    Append To List    ${returnList}    ${ac_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_RunningTicket
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Running Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[2]/div[@class='time']
+    #get value column Choice
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[3]
+    ${locator}    Get Locator by TransId    ${bl_lblChoiceScoreMap}    ${TransId}
+    ${isExits}    Run Keyword And Return Status    Get Text    ${locator}
+    ${ac_Choice_IsScoreMap}=    Set Variable If    '${isExits}'=='True'    1    0
+    ${ac_Is_Choice_HDPvalue}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Run Keyword If    ${ac_Is_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Convert To String    ${ac_Choice_HDPvalue}
+    ${ac_IsChoice_Livescore}    Run Keyword And Return Status    Page Should Contain Element    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ${ac_Choice_Livescore}    Run Keyword If    ${ac_IsChoice_Livescore}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Livescore}    Convert To String    ${ac_Choice_Livescore}
+    # Get betteam text
+    ${ac_Index_span_betteam}=    Set Variable If    '${ac_Choice_IsScoreMap}'=='1'    2    1
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[${ac_Index_span_betteam}]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    # get Excluding score when betteam has AOS (bettype 151,416)
+    ${ac_Choice_Excluding_choice}    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable    False
+    ${ac_IsChoice_Excluding_CS_AOS}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    Excluding
+    ${ac_Choice_Excluding_CS_AOS}    Run Keyword If    ${ac_IsChoice_Excluding_CS_AOS}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS HT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_HT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_HT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS HT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_FT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS FT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_FT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_FT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_FT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS FT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT_FT}    ${ac_Choice_Excluding_choice_HT}${ac_Choice_Excluding_choice_FT}    ${ac_Choice_Excluding_CS_AOS}
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_VSBetradarSeasionName}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsVSBetradar}    ${ac_VSBetradarSeasionName}${ac_Choice_Excluding_choice}    ${ac_Choice_Excluding_choice}
+    # Cut Livescore, HDPvalue, Excluding Score in betteam if any
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Livescore}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_HT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_FT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_CS_AOS}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    \n    ${EMPTY}    -1
+    ${ac_Choice_HDPvalue}    Evaluate    "${ac_Choice_HDPvalue}".strip()
+    ${ac_Choice_Livescore}    Evaluate    "${ac_Choice_Livescore}".strip()
+    ${ac_Choice_betteam}    Evaluate    "${ac_Choice_betteam}".strip()
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    ${ac_Choice_hometeam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_awayteam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_EventStatus}    Betlist_Get Event Status    ${TransId}
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[4]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[4]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[5]/div[@class='stake']
+    #Set value for winloss
+    ${ac_Winloss}    Set Variable    -
+    ${ac_Comm}    Set Variable    ${EMPTY}
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[6]/div[@class='status']
+    ${ac_Isac_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[6]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Isac_Status_Results}    Get Text    ${ac_tr}/td[6]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[6]/div[@class='ip']
+    #Get value SuperPT/Comm if any
+    ${ac_IsSuperPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'SuperPT')]
+    ${ac_SuperPT_String}    Run Keyword If    ${ac_IsSuperPT_Col}    Get Text    ${ac_tr}/td[7]
+    ...    ELSE    0
+    ${ac_SuperPT}    ${ac_SuperComm}=    Split String    ${ac_SuperPT_String}    \n
+    ${ac_SuperPT_value}    Set Variable    0.00
+    ${ac_SuperComm_value}    Set Variable    0.00
+    #Get value MasterPT/Comm if any
+    ${ac_IsMasterPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'MasterPT')]
+    ${ac_MasterPT_String}    Run Keyword If    ${ac_IsMasterPT_Col}    Get Text    ${ac_tr}/td[8]
+    ...    ELSE    0
+    ${ac_MasterPT}    ${ac_MasterComm}=    Split String    ${ac_MasterPT_String}    \n
+    ${ac_MasterPT_value}    Set Variable    0.00
+    ${ac_MasterComm_value}    Set Variable    0.00
+    #Get value AgentPT/Comm if any
+    ${ac_IsAgentPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'AgentPT')]
+    ${ac_AgentPT_String}    Run Keyword If    ${ac_IsAgentPT_Col}    Get Text    ${ac_tr}/td[9]
+    ...    ELSE    0
+    ${ac_AgentPT}    ${ac_AgentComm}=    Split String    ${ac_AgentPT_String}    \n
+    ${ac_AgentPT_value}    Set Variable    0.00
+    ${ac_AgentComm_value}    Set Variable    0.00
+    Append To List    ${returnList}    ${TransId}    ${ac_transtime}    ${ac_Choice_IsScoreMap}    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}
+    ...    ${ac_Choice_Livescore}    ${ac_Choice_Excluding_choice}    ${ac_Choice_bettype}    ${ac_Choice_hometeam}    ${ac_Choice_awayteam}    ${ac_Choice_EventStatus}
+    ...    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}    ${ac_Winloss}
+    ...    ${ac_Comm}    ${ac_Status}    ${ac_Status_Results}    ${ac_Status_IP}    ${ac_SuperPT}    ${ac_SuperPT_value}
+    ...    ${ac_SuperComm}    ${ac_SuperComm_value}    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}
+    ...    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_RunningTicket_microsite
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Running Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[2]/div[@class='time']
+    #get value column Choice
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[3]
+    ${locator}    Get Locator by TransId    ${bl_lblChoiceScoreMap}    ${TransId}
+    ${isExits}    Run Keyword And Return Status    Get Text    ${locator}
+    ${ac_Choice_IsScoreMap}=    Set Variable If    '${isExits}'=='True'    1    0
+    ${ac_Is_Choice_HDPvalue}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Run Keyword If    ${ac_Is_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Convert To String    ${ac_Choice_HDPvalue}
+    ${ac_IsChoice_Livescore}    Run Keyword And Return Status    Page Should Contain Element    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ${ac_Choice_Livescore}    Run Keyword If    ${ac_IsChoice_Livescore}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Livescore}    Convert To String    ${ac_Choice_Livescore}
+    # Get betteam text
+    ${ac_Index_span_betteam}=    Set Variable If    '${ac_Choice_IsScoreMap}'=='1'    2    1
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[${ac_Index_span_betteam}]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    # get Excluding score when betteam has AOS (bettype 151,416)
+    ${ac_Choice_Excluding_choice}    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable    False
+    ${ac_IsChoice_Excluding_CS_AOS}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    Excluding
+    ${ac_Choice_Excluding_CS_AOS}    Run Keyword If    ${ac_IsChoice_Excluding_CS_AOS}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS HT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_HT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_HT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS HT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_FT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS FT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_FT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_FT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_FT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS FT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT_FT}    ${ac_Choice_Excluding_choice_HT}${ac_Choice_Excluding_choice_FT}    ${ac_Choice_Excluding_CS_AOS}
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_VSBetradarSeasionName}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsVSBetradar}    ${ac_VSBetradarSeasionName}${ac_Choice_Excluding_choice}    ${ac_Choice_Excluding_choice}
+    # Cut Livescore, HDPvalue, Excluding Score in betteam if any
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Livescore}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_HT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_FT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_CS_AOS}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    \n    ${EMPTY}    -1
+    ${ac_Choice_HDPvalue}    Evaluate    "${ac_Choice_HDPvalue}".strip()
+    ${ac_Choice_Livescore}    Evaluate    "${ac_Choice_Livescore}".strip()
+    ${ac_Choice_betteam}    Evaluate    "${ac_Choice_betteam}".strip()
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    ${isExits_hometeam}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_hometeam}    Run Keyword If    '${isExits_hometeam}'=='True'    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_hometeam}    Run Keyword If    '${isExits_hometeam}'=='True'    Convert To String    ${ac_Choice_hometeam}
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${isExits_awayteam}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_awayteam}    Run Keyword If    '${isExits_awayteam}'=='True'    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_awayteam}    Run Keyword If    '${isExits_awayteam}'=='True'    Convert To String    ${ac_Choice_awayteam}
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_hometeam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    Comment    ${ac_Choice_awayteam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_EventStatus}    Betlist_Get Event Status_microsite    ${TransId}
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[4]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[4]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[5]/div[@class='stake']
+    #Set value for winloss
+    ${ac_Winloss}    Set Variable    -
+    ${ac_Comm}    Set Variable    ${EMPTY}
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[6]/div[@class='status']
+    ${ac_Isac_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[7]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Isac_Status_Results}    Get Text    ${ac_tr}/td[7]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[6]/div[@class='ip']
+    #Get value SuperPT/Comm if any
+    ${ac_IsSuperPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Super PT')]
+    ${ac_SuperPT_String}    Run Keyword If    ${ac_IsSuperPT_Col}    Get Text    ${ac_tr}/td[7]
+    ...    ELSE    0
+    ${ac_SuperPT}    ${ac_SuperComm}=    Split String    ${ac_SuperPT_String}    \n
+    ${ac_SuperPT_value}    Set Variable    0.00
+    ${ac_SuperComm_value}    Set Variable    0.00
+    #Get value MasterPT/Comm if any
+    ${ac_IsMasterPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Master PT')]
+    ${ac_MasterPT_String}    Run Keyword If    ${ac_IsMasterPT_Col}    Get Text    ${ac_tr}/td[8]
+    ...    ELSE    0
+    ${ac_MasterPT}    ${ac_MasterComm}=    Split String    ${ac_MasterPT_String}    \n
+    ${ac_MasterPT_value}    Set Variable    0.00
+    ${ac_MasterComm_value}    Set Variable    0.00
+    #Get value AgentPT/Comm if any
+    ${ac_IsAgentPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Agent PT')]
+    ${ac_AgentPT_String}    Run Keyword If    ${ac_IsAgentPT_Col}    Get Text    ${ac_tr}/td[9]
+    ...    ELSE    0
+    ${ac_AgentPT}    ${ac_AgentComm}=    Split String    ${ac_AgentPT_String}    \n
+    ${ac_AgentPT_value}    Set Variable    0.00
+    ${ac_AgentComm_value}    Set Variable    0.00
+    Append To List    ${returnList}    ${TransId}    ${ac_transtime}    ${ac_Choice_IsScoreMap}    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}
+    ...    ${ac_Choice_Livescore}    ${ac_Choice_Excluding_choice}    ${ac_Choice_bettype}    ${ac_Choice_hometeam}    ${ac_Choice_awayteam}    ${ac_Choice_EventStatus}
+    ...    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}    ${ac_Winloss}
+    ...    ${ac_Comm}    ${ac_Status}    ${ac_Status_Results}    ${ac_Status_IP}    ${ac_SuperPT}    ${ac_SuperPT_value}
+    ...    ${ac_SuperComm}    ${ac_SuperComm_value}    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}
+    ...    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_SettledTicket
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Settled Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[2]/div[@class='time']
+    #get value column Choice
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[3]
+    ${ac_Is_Choice_HDPvalue}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Run Keyword If    ${ac_Is_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Convert To String    ${ac_Choice_HDPvalue}
+    ${ac_IsChoice_Livescore}    Run Keyword And Return Status    Page Should Contain Element    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ${ac_Choice_Livescore}    Run Keyword If    ${ac_IsChoice_Livescore}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Livescore}    Convert To String    ${ac_Choice_Livescore}
+    # Get betteam text
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[1]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    # get Excluding score when betteam has AOS (bettype 151,416)
+    ${ac_Choice_Excluding_choice}    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable    False
+    ${ac_IsChoice_Excluding_CS_AOS}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    Excluding
+    ${ac_Choice_Excluding_CS_AOS}    Run Keyword If    ${ac_IsChoice_Excluding_CS_AOS}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS HT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_HT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_HT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS HT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_FT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS FT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_FT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_FT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_FT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS FT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT_FT}    ${ac_Choice_Excluding_choice_HT}${ac_Choice_Excluding_choice_FT}    ${ac_Choice_Excluding_CS_AOS}
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_VSBetradarSeasionName}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsVSBetradar}    ${ac_VSBetradarSeasionName}${ac_Choice_Excluding_choice}    ${ac_Choice_Excluding_choice}
+    # Cut Livescore, HDPvalue, Excluding Score in betteam if any
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Livescore}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_HT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_FT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_CS_AOS}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    \n    ${EMPTY}    -1
+    ${ac_Choice_HDPvalue}    Evaluate    "${ac_Choice_HDPvalue}".strip()
+    ${ac_Choice_Livescore}    Evaluate    "${ac_Choice_Livescore}".strip()
+    ${ac_Choice_betteam}    Evaluate    "${ac_Choice_betteam}".strip()
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    ${isExits}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_hometeam}    Run Keyword If    '${isExits}'=='True'    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_hometeam}    Run Keyword If    '${isExits}'=='True'    Convert To String    ${ac_Choice_hometeam}
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${isExits}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_awayteam}    Run Keyword If    '${isExits}'=='True'    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_awayteam}    Run Keyword If    '${isExits}'=='True'    Convert To String    ${ac_Choice_awayteam}
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_hometeam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    Comment    ${ac_Choice_awayteam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_EventStatus}    Betlist_Get Event Status    ${TransId}
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[4]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[4]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[5]/div[@class='stake']
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[7]/div[@class='status']
+    ${ac_Is_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[7]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Is_Status_Results}    Get Text    ${ac_tr}/td[7]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[7]/div[@class='ip']
+    #get value column Winloss
+    ${ac_Winloss}    Get Text    ${ac_tr}/td[6]/div[1]/span[1]
+    ${ac_Comm}    Get Text    ${ac_tr}/td[6]/div[2]
+    #Get value SuperPT/Comm if any
+    ${ac_IsSuperPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'SuperPT')]
+    ${ac_SuperPT_String}    Run Keyword If    ${ac_IsSuperPT_Col}    Get Text    ${ac_tr}/td[8]
+    ...    ELSE    Set Variable    0
+    ${ac_SuperPT}    ${ac_SuperPT_value}    ${ac_SuperComm}    ${ac_SuperComm_value}=    Split String    ${ac_SuperPT_String}    \n
+    #Get value MasterPT/Comm if any
+    ${ac_IsMasterPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'MasterPT')]
+    ${ac_MasterPT_String}    Run Keyword If    ${ac_IsMasterPT_Col}    Get Text    ${ac_tr}/td[9]
+    ...    ELSE    Set Variable    0
+    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}=    Split String    ${ac_MasterPT_String}    \n
+    #Get value AgentPT/Comm if any
+    ${ac_IsAgentPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'AgentPT')]
+    ${ac_AgentPT_String}    Run Keyword If    ${ac_IsAgentPT_Col}    Get Text    ${ac_tr}/td[10]
+    ...    ELSE    Set Variable    0
+    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}=    Split String    ${ac_AgentPT_String}    \n
+    Append To List    ${returnList}    ${TransId}    ${ac_transtime}    0    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}
+    ...    ${ac_Choice_Livescore}    ${ac_Choice_Excluding_choice}    ${ac_Choice_bettype}    ${ac_Choice_hometeam}    ${ac_Choice_awayteam}    ${ac_Choice_EventStatus}
+    ...    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}    ${ac_Winloss}
+    ...    ${ac_Comm}    ${ac_Status}    ${ac_Status_Results}    ${ac_Status_IP}    ${ac_SuperPT}    ${ac_SuperPT_value}
+    ...    ${ac_SuperComm}    ${ac_SuperComm_value}    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}
+    ...    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_SettledTicket_VSRacing
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Settled Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[2]/div[@class='time']
+    Comment    ****Get value column Choice*****
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[3]
+    # Get betteam text
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[1]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    #get bettype
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']
+    ${ac_VSRacing_ShowTime}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match']
+    #get sport
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    #get leagueName
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[4]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[4]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[5]/div[@class='stake']
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[7]/div[@class='status']
+    ${ac_Is_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[7]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Is_Status_Results}    Get Text    ${ac_tr}/td[7]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[7]/div[@class='ip']
+    #get value column Winloss
+    ${ac_Winloss}    Get Text    ${ac_tr}/td[6]/div[1]/span[1]
+    ${ac_Comm}    Get Text    ${ac_tr}/td[6]/div[2]
+    #Get value SuperPT/Comm if any
+    ${ac_IsSuperPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'SuperPT')]
+    ${ac_SuperPT_String}    Run Keyword If    ${ac_IsSuperPT_Col}    Get Text    ${ac_tr}/td[8]
+    ...    ELSE    Set Variable    0
+    ${ac_SuperPT}    ${ac_SuperPT_value}    ${ac_SuperComm}    ${ac_SuperComm_value}=    Split String    ${ac_SuperPT_String}    \n
+    #Get value MasterPT/Comm if any
+    ${ac_IsMasterPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'MasterPT')]
+    ${ac_MasterPT_String}    Run Keyword If    ${ac_IsMasterPT_Col}    Get Text    ${ac_tr}/td[9]
+    ...    ELSE    Set Variable    0
+    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}=    Split String    ${ac_MasterPT_String}    \n
+    #Get value AgentPT/Comm if any
+    ${ac_IsAgentPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[@id='hor-minimalist-a']/thead/tr/th[contains(text(),'AgentPT')]
+    ${ac_AgentPT_String}    Run Keyword If    ${ac_IsAgentPT_Col}    Get Text    ${ac_tr}/td[10]
+    ...    ELSE    Set Variable    0
+    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}=    Split String    ${ac_AgentPT_String}    \n
+    Append To List    ${returnList}    ${TransId}    ${ac_transtime}    ${ac_Choice_betteam}    ${ac_Choice_bettype}    ${ac_VSRacing_ShowTime}
+    ...    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}    ${ac_Winloss}
+    ...    ${ac_Comm}    ${ac_Status}    ${ac_Status_Results}    ${ac_Status_IP}    ${ac_SuperPT}    ${ac_SuperPT_value}
+    ...    ${ac_SuperComm}    ${ac_SuperComm_value}    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}
+    ...    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_SettledTicket_VSRacing_micosite
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Settled Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[2]/div[@class='time']
+    Comment    ****Get value column Choice*****
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[3]
+    # Get betteam text
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[1]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    #get bettype
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']
+    ${ac_VSRacing_ShowTime}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match']
+    #get sport
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    #get leagueName
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[4]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[4]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[5]/div[@class='stake']
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[7]/div[@class='status']
+    ${ac_Is_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[7]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Is_Status_Results}    Get Text    ${ac_tr}/td[7]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[7]/div[@class='ip']
+    #get value column Winloss
+    ${ac_Winloss}    Get Text    ${ac_tr}/td[6]/div[1]/span[1]
+    ${ac_Comm}    Get Text    ${ac_tr}/td[6]/div[2]
+    #Get value SuperPT/Comm if any
+    ${ac_IsSuperPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Super PT')]
+    ${ac_SuperPT_String}    Run Keyword If    ${ac_IsSuperPT_Col}    Get Text    ${ac_tr}/td[8]
+    ...    ELSE    Set Variable    0
+    ${ac_SuperPT}    ${ac_SuperPT_value}    ${ac_SuperComm}    ${ac_SuperComm_value}=    Split String    ${ac_SuperPT_String}    \n
+    #Get value MasterPT/Comm if any
+    ${ac_IsMasterPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Master PT')]
+    ${ac_MasterPT_String}    Run Keyword If    ${ac_IsMasterPT_Col}    Get Text    ${ac_tr}/td[9]
+    ...    ELSE    Set Variable    0
+    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}=    Split String    ${ac_MasterPT_String}    \n
+    #Get value AgentPT/Comm if any
+    ${ac_IsAgentPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Agent PT')]
+    ${ac_AgentPT_String}    Run Keyword If    ${ac_IsAgentPT_Col}    Get Text    ${ac_tr}/td[10]
+    ...    ELSE    Set Variable    0
+    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}=    Split String    ${ac_AgentPT_String}    \n
+    Append To List    ${returnList}    ${TransId}    ${ac_transtime}    ${ac_Choice_betteam}    ${ac_Choice_bettype}    ${ac_VSRacing_ShowTime}
+    ...    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}    ${ac_Winloss}
+    ...    ${ac_Comm}    ${ac_Status}    ${ac_Status_Results}    ${ac_Status_IP}    ${ac_SuperPT}    ${ac_SuperPT_value}
+    ...    ${ac_SuperComm}    ${ac_SuperComm_value}    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}
+    ...    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_SettledTicket_micosite
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Settled Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[2]/div[@class='time']
+    #get value column Choice
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[3]
+    ${ac_Is_Choice_HDPvalue}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Run Keyword If    ${ac_Is_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Convert To String    ${ac_Choice_HDPvalue}
+    ${ac_IsChoice_Livescore}    Run Keyword And Return Status    Page Should Contain Element    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ${ac_Choice_Livescore}    Run Keyword If    ${ac_IsChoice_Livescore}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Livescore}    Convert To String    ${ac_Choice_Livescore}
+    # Get betteam text
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[1]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    # get Excluding score when betteam has AOS (bettype 151,416)
+    ${ac_Choice_Excluding_choice}    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable    False
+    ${ac_IsChoice_Excluding_CS_AOS}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    Excluding
+    ${ac_Choice_Excluding_CS_AOS}    Run Keyword If    ${ac_IsChoice_Excluding_CS_AOS}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS HT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_HT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_HT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS HT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_FT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS FT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_FT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_FT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_FT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS FT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT_FT}    ${ac_Choice_Excluding_choice_HT}${ac_Choice_Excluding_choice_FT}    ${ac_Choice_Excluding_CS_AOS}
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_VSBetradarSeasionName}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsVSBetradar}    ${ac_VSBetradarSeasionName}${ac_Choice_Excluding_choice}    ${ac_Choice_Excluding_choice}
+    # Cut Livescore, HDPvalue, Excluding Score in betteam if any
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Livescore}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_HT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_FT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_CS_AOS}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    \n    ${EMPTY}    -1
+    ${ac_Choice_HDPvalue}    Evaluate    "${ac_Choice_HDPvalue}".strip()
+    ${ac_Choice_Livescore}    Evaluate    "${ac_Choice_Livescore}".strip()
+    ${ac_Choice_betteam}    Evaluate    "${ac_Choice_betteam}".strip()
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    ${isExits_hometeam}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_hometeam}    Run Keyword If    '${isExits_hometeam}'=='True'    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_hometeam}    Run Keyword If    '${isExits_hometeam}'=='True'    Convert To String    ${ac_Choice_hometeam}
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${isExits_awayteam}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_awayteam}    Run Keyword If    '${isExits_awayteam}'=='True'    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_awayteam}    Run Keyword If    '${isExits_awayteam}'=='True'    Convert To String    ${ac_Choice_awayteam}
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_hometeam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    Comment    ${ac_Choice_awayteam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_EventStatus}    Betlist_Get Event Status_microsite    ${TransId}
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[4]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[4]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[5]/div[@class='stake']
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[7]/div[@class='status']
+    ${ac_Is_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[7]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Is_Status_Results}    Get Text    ${ac_tr}/td[7]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[7]/div[@class='ip']
+    #get value column Winloss
+    ${ac_Winloss}    Get Text    ${ac_tr}/td[6]/div[1]/span[1]
+    ${ac_Comm}    Get Text    ${ac_tr}/td[6]/div[2]
+    #Get value SuperPT/Comm if any
+    ${ac_IsSuperPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Super PT')]
+    ${ac_SuperPT_String}    Run Keyword If    ${ac_IsSuperPT_Col}    Get Text    ${ac_tr}/td[8]
+    ...    ELSE    Set Variable    0
+    ${ac_SuperPT}    ${ac_SuperPT_value}    ${ac_SuperComm}    ${ac_SuperComm_value}=    Split String    ${ac_SuperPT_String}    \n
+    #Get value MasterPT/Comm if any
+    ${ac_IsMasterPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Master PT')]
+    ${ac_MasterPT_String}    Run Keyword If    ${ac_IsMasterPT_Col}    Get Text    ${ac_tr}/td[9]
+    ...    ELSE    Set Variable    0
+    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}=    Split String    ${ac_MasterPT_String}    \n
+    #Get value AgentPT/Comm if any
+    ${ac_IsAgentPT_Col}    Run Keyword And Return Status    Page Should Contain Element    //table[contains(@class,'tbl-betlist')]/thead/tr/th[contains(text(),'Agent PT')]
+    ${ac_AgentPT_String}    Run Keyword If    ${ac_IsAgentPT_Col}    Get Text    ${ac_tr}/td[10]
+    ...    ELSE    Set Variable    0
+    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}=    Split String    ${ac_AgentPT_String}    \n
+    Append To List    ${returnList}    ${TransId}    ${ac_transtime}    0    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}
+    ...    ${ac_Choice_Livescore}    ${ac_Choice_Excluding_choice}    ${ac_Choice_bettype}    ${ac_Choice_hometeam}    ${ac_Choice_awayteam}    ${ac_Choice_EventStatus}
+    ...    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}    ${ac_Winloss}
+    ...    ${ac_Comm}    ${ac_Status}    ${ac_Status_Results}    ${ac_Status_IP}    ${ac_SuperPT}    ${ac_SuperPT_value}
+    ...    ${ac_SuperComm}    ${ac_SuperComm_value}    ${ac_MasterPT}    ${ac_MasterPT_value}    ${ac_MasterComm}    ${ac_MasterComm_value}
+    ...    ${ac_AgentPT}    ${ac_AgentPT_value}    ${ac_AgentComm}    ${ac_AgentComm_value}
+    [Return]    ${returnList}
+
+Get Table Row value by RowID_VoidRejectTicket_Cancelled_LastBets_micosite
+    [Arguments]    ${TransId}    ${returnList}
+    [Documentation]    This action to get *Settled Ticket* from web by input TransID and output List contains values of ticket.
+    ${ac_tr}    Set Variable    //tr[contains(@id,'${TransId}')]
+    #get value column Member
+    ${ac_Member}    Get Text    ${ac_tr}/td[2]
+    #get value column Transtime
+    ${ac_transtime}    Get Text    ${ac_tr}/td[3]/div[@class='time']
+    #get value column Choice
+    ${ac_Choice_td}    Set Variable    ${ac_tr}/td[4]
+    ${locator}    Get Locator by TransId    ${bl_lblChoiceScoreMap}    ${TransId}
+    ${isExits}    Run Keyword And Return Status    Get Text    ${locator}
+    ${ac_Choice_IsScoreMap}=    Set Variable If    '${isExits}'=='True'    1    0
+    ${ac_Is_Choice_HDPvalue}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Run Keyword If    ${ac_Is_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ...    ELSE    Set Variable    ${EMPTY}
+    Comment    ${ac_Choice_HDPvalue}    Get Text    ${ac_Choice_td}//span[@class='handicap']
+    ${ac_Choice_HDPvalue}    Convert To String    ${ac_Choice_HDPvalue}
+    ${ac_IsChoice_Livescore}    Run Keyword And Return Status    Page Should Contain Element    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ${ac_Choice_Livescore}    Run Keyword If    ${ac_IsChoice_Livescore}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::span[@class='favorite']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Livescore}    Convert To String    ${ac_Choice_Livescore}
+    # Get betteam text
+    ${ac_Index_span_betteam}=    Set Variable If    '${ac_Choice_IsScoreMap}'=='1'    2    1
+    ${ac_Choice_betteam}    Get Text    ${ac_Choice_td}//span[${ac_Index_span_betteam}]
+    ${ac_Choice_betteam}    Convert To String    ${ac_Choice_betteam}
+    # get Excluding score when betteam has AOS (bettype 151,416)
+    ${ac_Choice_Excluding_choice}    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable    False
+    ${ac_IsChoice_Excluding_CS_AOS}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    Excluding
+    ${ac_Choice_Excluding_CS_AOS}    Run Keyword If    ${ac_IsChoice_Excluding_CS_AOS}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_HT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS HT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_HT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_HT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS HT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_IsChoice_Excluding_choice_FT}    Run Keyword And Return Status    Should Contain    ${ac_Choice_betteam}    AOS FT Excluding
+    ${ac_IsChoice_Excluding_choice_HT_FT}    Set Variable If    ${ac_IsChoice_Excluding_choice_FT}    True    ${ac_IsChoice_Excluding_choice_HT_FT}
+    ${ac_Choice_Excluding_choice_FT}    Run Keyword If    ${ac_IsChoice_Excluding_choice_FT}    Get Text    ${ac_Choice_td}//span[@class='handicap']/following-sibling::div[contains(text(),'AOS FT Excluding')]
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsChoice_Excluding_choice_HT_FT}    ${ac_Choice_Excluding_choice_HT}${ac_Choice_Excluding_choice_FT}    ${ac_Choice_Excluding_CS_AOS}
+    #check league name of VS betradar
+    ${ac_IsVSBetradar}    Run Keyword And Return Status    Element Should Be Visible    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_VSBetradarSeasionName}    Run Keyword If    ${ac_IsVSBetradar}    Get Text    ${ac_Choice_td}//div[@class='match'][2]
+    ${ac_Choice_Excluding_choice}    Set Variable If    ${ac_IsVSBetradar}    ${ac_VSBetradarSeasionName}${ac_Choice_Excluding_choice}    ${ac_Choice_Excluding_choice}
+    # Cut Livescore, HDPvalue, Excluding Score in betteam if any
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Livescore}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_HDPvalue}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_HT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_choice_FT}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    ${ac_Choice_Excluding_CS_AOS}    ${EMPTY}
+    ${ac_Choice_betteam}    replace string    ${ac_Choice_betteam}    \n    ${EMPTY}    -1
+    ${ac_Choice_HDPvalue}    Evaluate    "${ac_Choice_HDPvalue}".strip()
+    ${ac_Choice_Livescore}    Evaluate    "${ac_Choice_Livescore}".strip()
+    ${ac_Choice_betteam}    Evaluate    "${ac_Choice_betteam}".strip()
+    ${ac_Choice_bettype}    Get Text    ${ac_Choice_td}//div[@class='bettype']
+    ${ac_Choice_bettype}    Evaluate    "${ac_Choice_bettype}".strip()
+    ${ac_Choice_hometeam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[1]
+    ${ac_Choice_awayteam}    Get Text    ${ac_Choice_td}//div[@class='match']/span[3]
+    ${ac_Choice_EventStatus}    Betlist_Get Event Status_microsite    ${TransId}
+    ${ac_Choice_sport}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='sport']
+    ${ac_Choice_LeagueName}    Get Text    ${ac_Choice_td}//div[@class='league']/span[@class='leagueName']
+    ${ac_Choice_LeagueName}    Evaluate    "${ac_Choice_LeagueName}".strip()
+    #get value column Odds
+    ${ac_odds_value}    Get Text    ${ac_tr}/td[5]/span[1]
+    ${ac_odds_type}    Get Text    ${ac_tr}/td[5]/span[@class='oddstype']
+    #get value column Stake
+    ${ac_stake}    Get Text    ${ac_tr}/td[6]/div[@class='stake']
+    #get value column Status
+    ${ac_Status}    Get Text    ${ac_tr}/td[7]/div[@class='status']
+    ${ac_Is_Status_Results}    Run Keyword And Return Status    Page Should Contain Element    ${ac_tr}/td[7]/div[@class='result']
+    ${ac_Status_Results}    Run Keyword If    ${ac_Is_Status_Results}    Get Text    ${ac_tr}/td[7]/div[@class='result']
+    ...    ELSE    Set Variable    ${EMPTY}
+    ${ac_Status_IP}    Get Text    ${ac_tr}/td[7]/div[@class='ip']
+    Append To List    ${returnList}    ${TransId}    ${ac_Member}    ${ac_transtime}    ${ac_Choice_IsScoreMap}    ${ac_Choice_betteam}
+    ...    ${ac_Choice_HDPvalue}    ${ac_Choice_Livescore}    ${ac_Choice_Excluding_choice}    ${ac_Choice_bettype}    ${ac_Choice_hometeam}    ${ac_Choice_awayteam}
+    ...    ${ac_Choice_EventStatus}    ${ac_Choice_sport}    ${ac_Choice_LeagueName}    ${ac_odds_value}    ${ac_odds_type}    ${ac_stake}
+    ...    ${ac_Status}    ${ac_Status_IP}
+    [Return]    ${returnList}
+
+IBC select left menu
+    [Arguments]    ${from}    ${main}    ${sub}    # ${from}= early/today
+    sleep    3s
+    Select Frame    leftFrame
+    Run Keyword If    '${from}'=='Early'    Click Element    id=market_E_text
+    ...    ELSE    Click Element    id=market_T_head
+    Run Keyword If    '${main}'=='Racing'    Click Element    id=lnkHorse
+    ...    ELSE    Click Element    //*/div[contains(text(),'${main}')]
+    Run Keyword If    '${sub}'!='${EMPTY}'    Click Element    xpath=//*/span[contains(text(),'${sub}')]
+    Unselect Frame
+    sleep    5s
+    #    Comment    Double Click Element    id=menu_all    #ALL Sports
+
+IBC submit stake
+    [Arguments]    ${sporttype}    ${ammount}
+    Select Frame    leftFrame
+    ${ac_bp}    Run Keyword And Return Status    Element Should Be Visible    id=BPstake
+    ${ac_bingobp}    Run Keyword And Return Status    Element Should Be Visible    id=Bingo_BPstake
+    ${ac_horsebp}    Run Keyword And Return Status    Element Should Be Visible    id=HorseBPstake
+    #soccer
+    Run Keyword If    '${sporttype}'=='Soccer' and '${ac_bp}'=='True'    run keywords    Input Text    id=BPstake    ${ammount}
+    ...    AND    Click Element    xpath=//*[@id='btnBPSubmit']/span
+    #NG
+    Run Keyword If    '${sporttype}'=='NG' and '${ac_bingobp}'=='True'    run keywords    Input Text    id=Bingo_BPstake    ${ammount}
+    ...    AND    Click Element    xpath=//*[@id='Bingo_btnBPSubmit']/span
+    #RC
+    Run Keyword If    '${sporttype}'=='RC' and '${ac_horsebp}'=='True'    run keywords    Input Text    id=HorseBPstake    ${ammount}
+    ...    AND    Click Element    xpath=//*[@id='Race_btnBPSubmit']/span
+    : FOR    ${index}    IN    ${ac_bp}    ${ac_bingobp}    ${ac_horsebp}
+    \    Run Keyword If    '${index}'=='True'    Run Keywords    sleep    2s
+    \    ...    AND    Confirm Action
+    \    ...    AND    sleep    2s
+    \    ...    AND    Confirm Action
+    \    ...    AND    sleep    1s
+    Unselect Frame
+
+Init
+    [Arguments]    ${username}=${EMPTY}
+    Config System
+    #################    Open Browser and navigate to login page
+    Open Browser    about:blank    ${cfBrowser}    ff_profile_dir=${init_gbWorksSpace}\\firefox_profile
+    Delete All Cookies
+    Go To    ${cfUrl}
+    Maximize Browser Window
+    Run Keyword And Ignore Error    Log    \nURL= ${cfUrl}    console='yes'
+    #################    Login
+    Run Keyword Unless    '${username}'=='${EMPTY}'    Login    ${username}    ${cfPwd}
+    ##    Go To    ${cfUrl}
+    ##    Run Keyword Unless    '${username}'=='${EMPTY}'    Login    ${username}    ${cfPwd}
+    ## Stop Exec If Login Failed
+    Stop Execute If Element Not Appear    ${EMPTY}    //*[@id='profile-content']    ${cfWaitControlLong}    LOGIN FAIL
+    ${ac_IsAnounment}    Run Keyword And Return Status    Wait Until Element Is Visible    //div[@id='popup-container-text']    10s
+    Run Keyword If    ${ac_IsAnounment}    Click Element    //div[@id='popup-container-text']//button[@class='icon icon-close close']
+    Expand Collapse Left Menu Side bar
+    ################
+    Select Personal Menu    Password
+    Confirm Security Code
+
+Init Test Case
+    [Arguments]    ${browserNo}    ${username}
+    [Documentation]    This action is used to int test case:
+    ...    > Swtich to Browser > Login by username if user has not login
+    ...
+    ...    *****History*******
+    ...
+    ...    Date-Updated by: 07/27/2015-Casey Huynh: call login function
+    ...
+    ...    Date-Created by: Casey Huynh
+    # Login
+    switch browser    ${browserNo}
+    Login to Main Page    ${cfUrl}    ${username}    ${cfPwd}    ${cfSeCode}
+
+Init Test Suite
+    [Arguments]    ${agent}=${EMPTY}    ${master}=${EMPTY}    ${super}=${EMPTY}
+    [Documentation]    - ${LocalSuper}: Super Name to set data local for a line
+    ...    - ${agentLogin}: agent's username if login by Agent
+    ...    - ${masterLogin}: master's username if login by master
+    ...    - ${superLogin}: super's username if login by super
+    Config System
+    # Local Login Account Reset Data
+    Run Keyword if    '${cfisLocal}'=='1'    Set Local Data_Account    ${super}${master}${agent}
+    #################    Login by super
+    Run Keyword If    '${super}'!='${EMPTY}'    Open Browser    ${cfUrl}    ${cfBrowser}    ${super}    ff_profile_dir=C:\\firefox_profile
+    Run Keyword If    '${super}'!='${EMPTY}'    Maximize Browser Window
+    Run Keyword If    '${super}'!='${EMPTY}'    Login to Main    ${super}    ${cfPwd}    ${cfSeCode}
+    #################    Login by master
+    Run Keyword If    '${master}'!='${EMPTY}'    Open Browser    ${cfUrl}    ${cfBrowser}    ${master}    ff_profile_dir=C:\\firefox_profile
+    Run Keyword If    '${master}'!='${EMPTY}'    Maximize Browser Window
+    Run Keyword If    '${master}'!='${EMPTY}'    Login to Main    ${master}    ${cfPwd}    ${cfSeCode}
+    #################    Login by agent
+    Run Keyword If    '${agent}'!='${EMPTY}'    Open Browser    ${cfUrl}    ${cfBrowser}    ${agent}    ff_profile_dir=C:\\firefox_profile
+    Run Keyword If    '${agent}'!='${EMPTY}'    Maximize Browser Window
+    Run Keyword If    '${agent}'!='${EMPTY}'    Login to Main    ${agent}    ${cfPwd}    ${cfSeCode}
+
+Init for login function
+    [Arguments]    ${username}=${EMPTY}
+    Set Selenium Implicit Wait    1
+    Set Selenium Speed    0.5
+    #################    Get config variable from Config.py file
+    #################    Set Global variable
+    Set Global Variable    ${cfUrl}    ${Url}
+    Set Global Variable    ${cfBrowser}    ${Browser}
+    Set Global Variable    ${cfSeCode}    ${SeCode}
+    Set Global Variable    ${cfPwd}    ${Pwd}
+    Set Global Variable    ${cfReportDate}    Now -2 day
+    Set Global Variable    ${cfDBTime}    UTC - 4 hour
+    #################    Open Browser and navigate to login page
+    Open Browser    ${cfUrl}    ${cfBrowser}
+    Maximize Browser Window
+
+Input Security Code After Login
+    [Arguments]    ${SecurityCode}
+    #input security code
+    Stop Execute If Element Not Appear    main    ${in_login_secode}    ${cfWaitControl}    LOGIN FAIL
+    Unselect Frame
+    Select Frame    main
+    Input Text    ${in_login_secode}    ${SecurityCode}
+    Click Element    ${in_login_se_btnsubmit}
+    Run Keyword And Continue On Failure    Wait Until Page Not Contains Element    ${in_login_secode}    ${cfWaitControl}
+
+Is Login
+    [Arguments]    ${userName}
+    [Documentation]    This action is used to check ${username} whether login:
+    ...
+    ...    Returns: 0-Not yet logined; 1-Logined;
+    ${isLogin}    Set Variable    0
+    Select frame    frheader
+    ${ac_userName}=    Run Keyword And Return Status    Get Value    ${hd_lblLoginName}
+    ${isLogin}    Set Variable If    '${ac_userName}=='${username}'    1
+    Unselect Frame
+    [Return]    ${isLogin}
+
+Login
+    [Arguments]    ${username}    ${password}
+    [Documentation]    *This Action is used to Login*
+    ...
+    ...    *===Arguments========*
+    ...    - ${username}=${EMTPTY} | ${password} = ${EMPTY}| ${isStopExeIfFail}=${EMPTY}
+    ...    - Note: ${isStopExeIfFail} = Yes: Execution will stop if Login not successfull (Security Page is not loaded)
+    ...
+    ...
+    ...    *===History========*
+    ...    - 10/16/2015: updated. Remove Security Code Arguments Add checking for stop execution if Login Fail
+    Log    ${SPACE}${SPACE}${SPACE}Username: ${username}    console='yes'
+    Wait Until Element Is Enabled    ${in_login_user}    ${cfWaitControl}
+    Wait Until Element Is Enabled    ${in_login_pass}    ${cfWaitControl}
+    Wait Until Element Is Enabled    ${in_login_btnLogin}    ${cfWaitControl}
+    Focus    ${in_login_user}
+    Input Text    ${in_login_user}    ${username}
+    sleep    1s
+    Focus    ${in_login_pass}
+    Input Password    ${in_login_pass}    ${password}
+    sleep    1s
+    Focus    ${in_login_btnLogin}
+    Click Element    ${in_login_btnLogin}
+
+Login Security Announcement
+    [Arguments]    ${username}    ${password}    ${secCode}=${EMPTY}    ${isClosedAnnoun}=Yes
+    # Login: Enter Username and Password
+    Wait Until Element Is Visible    id=txtPassWord
+    Focus    ${in_login_user}
+    Input Text    ${in_login_user}    ${username}
+    Focus    id=txtPassWord
+    Input Password    id=txtPassWord    ${password}
+    Click Element    ${in_login_btnLogin}
+    Close Announcement Popup
+    # Enter Security Code
+    Run Keyword If    '${secCode}'!='${EMPTY}'    Input Security Code After Login    ${secCode}
+    # Close Announcement
+    Run Keyword If    '${isClosedAnnoun}'=='Yes'    Run Keywords    Close Announcement Popup    #closed announcement
+
+Login to Main
+    [Arguments]    ${username}=${EMPTY}    ${password}=${EMPTY}    ${securityCode}=${EMPTY}
+    [Documentation]    This action is used to Login to Alpha: Enter Login page > Enter Security Code > Close Announcement
+    ...
+    ...    ------------HISTORY--------------
+    ...    - 09-01-2015: Created - Casey
+    Login    ${username}    ${password}
+    Input Security Code After Login    ${securityCode}
+    Close Announcement Popup
+
+Login to Main Page
+    [Arguments]    ${url}    ${username}    ${password}    ${secCode}=${EMPTY}    ${isClosedAnnoun}=Yes
+    [Documentation]    This action: Login if user are not in system
+    Switch Browser By Alias    ${username}
+    #check is Main Page
+    ${ac_isMainPage}    Run Keyword And Return Status    Page Should Contain    ${username}
+    Run Keyword If    '${ac_isMainPage}'=='True'    unselect frame
+    Run Keyword If    '${ac_isMainPage}'=='True'    Select frame    frHeader
+    # check username if is main page
+    ${ac_isUser}=    Run Keyword If    '${ac_isMainPage}'=='True'    Get Text    ${hd_lblLoginName}
+    ...    ELSE    Set Variable    ${EMPTY}
+    Run Keyword If    '${ac_isMainPage}'=='True'    Unselect Frame
+    # if not main page then Login
+    Run Keyword If    '${ac_isUser}'!='${username}'    go to    ${url}
+    Run Keyword If    '${ac_isUser}'!='${username}'    Login    ${username}    ${password}
+    Run Keyword If    '${ac_isUser}'!='${username}' and '${secCode}'!='${EMPTY}'    Input Security Code After Login    ${secCode}
+    Close Announcement Popup
+
+Logout
+    Sleep    2s
+    Unselect Frame
+    Select Frame    frHeader
+    Click Element    id=logout
+    Unselect Frame
+    Wait Until Page Contains Element    ${in_login_user}    20s
+
+Open Page
+    [Arguments]    ${url}=${cf_url}
+    Set Global Variable    ${cf_url}    ${url}
+    Open Browser    ${url}    ${cf_browser}    ff_profile_dir=c:\\firefox_profile
+    Maximize Browser Window
+
+Open Setting From Account Info
+    [Arguments]    ${accountName}    ${settingLink}
+    [Documentation]    Desciption: this action allow user open setting page by search account ${accountName} then click on a link {settingLink} on setting tab
+    Search Account    ${accountName}
+    Click Link Setting Tab Contains Text    ${settingLink}
+
+PT Select From List By Label
+    [Arguments]    ${locator}    ${expected}
+    [Documentation]    This action is used to select PT dropdown list by lable (handle case expected ={EMPTY})
+    Run Keyword If    '${expected}'!='${EMPTY}'    Select From List By Label    ${locator}    ${expected}
+
+PT Should Be Equal
+    [Arguments]    ${first}    ${second}
+    [Documentation]    This action is used to compare two values ( skip compare when 1 value is EMPTY)
+    Run Keyword If    '${first}'!='${EMPTY}' and '${second}'!='${EMPTY}'    Should Be Equal    ${first}    ${second}
+
+Remove End Text
+    [Arguments]    ${strSource}    ${strText}
+    ${mask}    set variable    MaskText
+    ${strSource}    set variable    ${strSource}${mask}
+    ${strSource}    Replace String    ${strSource}    ${strText}${mask}    ${EMPTY}
+    ${strSource}    Replace String    ${strSource}    ${mask}    ${EMPTY}
+    [Return]    ${strSource}
+
+Scroll To Element
+    [Arguments]    ${locator}
+    [Documentation]    This action use to scroll to a locator
+    ...
+    ...    -----------------History----------------
+    ...    - [08/27/2015]: create by Casey
+    ${vert_pos}    Get Vertical Position    ${locator}
+    ${horz_pos}    Get Horizontal Position    ${locator}
+    Run Keyword And Ignore Error    Execute Javascript    window.scrollTo(${horz_pos},${vert_pos})
+
+Scroll To Element On Iframe
+    [Arguments]    ${iframe}    ${locator}
+    #Get position of Iframe
+    unselect frame
+    ${vert_pos_iframe}    Get Vertical Position    ${iframe}
+    ${horz_pos_iframe}    Get Horizontal Position    ${iframe}
+    Select Frame    ${iframe}
+    ${vert_pos}    Get Vertical Position    ${locator}
+    ${horz_pos}    Get Horizontal Position    ${locator}
+    ${vert_pos}    Evaluate    ${vert_pos}-${vert_pos_iframe}
+    ${horz_pos}    Evaluate    ${horz_pos}-${horz_pos_iframe}
+    Run Keyword And Ignore Error    Execute Javascript    window.scrollTo(${horz_pos},${vert_pos})
+
+Scroll to element by xpath js
+    [Arguments]    ${locator}
+    [Documentation]    This action to scroll to element using Javascript by inputing xpath locator
+    ...
+    ...    ${locator}: xpath locator of element (Ex: //div[@id='1234'])
+    ...
+    ...    ********History***********
+    ...
+    ...    20170119: Kingsley created
+    Execute Javascript    window.document.evaluate("${locator}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.scrollIntoView(true);
+
+Select Calendar Date
+    [Arguments]    ${tableLocator}    ${date}
+    Run Keyword And Ignore Error    Wait Until Page Contains Element    ${tableLocator}    ${cfWaitControl}
+    ${ac_controlexist1}=    Run Keyword And Return Status    Page Should Contain Element    ${tableLocator}//*[@dyc-date='${date}']
+    Run Keyword If    '${ac_controlexist1}'=='False'    Run Keywords    Click Element    ${tableLocator}//*[@dyc-btn='-M']
+    ...    AND    Click Element    ${tableLocator}//*[@dyc-date='${date}']
+    ...    ELSE    Click Element    ${tableLocator}//*[@dyc-date='${date}']
+
+Select Calendar Date Smartphone Friendly
+    [Arguments]    ${tableLocator}    ${date}
+    Comment    ${ac_IsAnounment}    Run Keyword And Return Status    Wait Until Element Is Visible    xpath=//div[@id='popup-container-text']    10s
+    Comment    Run Keyword If    ${ac_IsAnounment}    Click Element    xpath=//div[@id='popup-container-text']//button[@class='icon icon-close close']
+    Run Keyword And Ignore Error    Wait Until Page Contains Element    ${tableLocator}    ${cfWaitControl}
+    : FOR    ${ac_Time}    IN RANGE    1    5000
+    \    ${ac_controlexist1}=    Run Keyword And Return Status    Page Should Contain Element    ${tableLocator}//td[@data-day='${date}']
+    \    Run Keyword If    '${ac_controlexist1}'=='False'    Click Element By Xpath js    ${tableLocator}//span[@title='Previous Month']
+    \    Exit For Loop If    '${ac_controlexist1}'=='True'
+    Capture Page Screenshot
+    Click Element By Xpath js    ${tableLocator}//td[@data-day='${date}']
+
+Select Date in Calendar
+    [Arguments]    ${ac_CalendarIcon}    ${ac_date}    # format date=20140627 (YYYYMMDD)
+    [Documentation]    This action is used to select a specific date in Calendar control in main frame
+    ...
+    ...    ${ac_CalendarIcon}: the Calendar icon to open Calendar popup
+    ...
+    ...    ${ac_date}: the date need to selected
+    ${ac_CalendarControl}    Set Variable    //table[@class='DynarchCalendar-topCont' and not(contains(@style,'display: none'))]
+    ${ac_dateControl}    Set Variable    ${ac_CalendarControl}//div[@dyc-date='${ac_date}']
+    Click Element    ${ac_CalendarIcon}
+    Wait Until Element Is Visible    ${ac_CalendarControl}
+    ${isExisted}    Get Matching Xpath Count    ${ac_dateControl}
+    Run Keyword If    ${isExisted} ==0    Select Year Month in Calendar    ${ac_CalendarControl}    ${ac_date}
+    Wait Until Element Is Visible    ${ac_dateControl}
+    Click Element    ${ac_dateControl}
+
+Select From Date
+    [Arguments]    ${date}
+    #From date
+    Click Element    ${in_main_frcalendar}
+    Select Calendar Date    //table[1][@class='DynarchCalendar-topCont']    ${date}
+
+Select From Date Smartphone Friendly
+    [Arguments]    ${date}
+    [Documentation]    This action to select from date on date range filter (smartphone friendly)
+    ...
+    ...    Current report: select date in calendar
+    ...
+    ...    History report: leave date range as default
+    ...
+    ...    ${date}: input datetime with format mm/dd/yyyy
+    ...
+    ...    *******History*********
+    ...
+    ...    20170117: Kingsley created
+    #check DateFilter Report
+    ${ac_IsDateRangeCurrent}    Run Keyword And Return Status    Element Should Be Visible    ${in_m_report_DateRange_Current}
+    #Select From date Current report
+    Run Keyword If    ${ac_IsDateRangeCurrent}    Click Element    ${in_m_Report_fromdate_container}//span[@class='icon-calendar']
+    Capture Page Screenshot
+    Run Keyword If    ${ac_IsDateRangeCurrent}    Wait Until Element Is Visible    ${in_m_Report_fromdate_container}//div[@class='datepicker-days']//table[@class='table-condensed']    10
+    Run Keyword If    ${ac_IsDateRangeCurrent}    Select Calendar Date Smartphone Friendly    ${in_m_Report_fromdate_container}//div[@class='datepicker-days']//table[@class='table-condensed']    ${date}
+
+Select To Date
+    [Arguments]    ${date}
+    #To date
+    Click Element    ${in_main_tocalendar}
+    Select Calendar Date    //table[2][@class='DynarchCalendar-topCont']    ${date}
+
+Select To Date Smartphone Friendly
+    [Arguments]    ${date}
+    [Documentation]    This action to select To date on date range filter (smartphone friendly)
+    ...
+    ...    Current report: select date in calendar
+    ...
+    ...    History report: leave date range as default
+    ...
+    ...    ${date}: input datetime with format mm/dd/yyyy
+    ...
+    ...    *******History*********
+    ...
+    ...    20170117: Kingsley created
+    #check DateFilter Report
+    ${ac_IsDateRangeCurrent}    Run Keyword And Return Status    Element Should Be Visible    ${in_m_report_DateRange_Current}
+    #Select To date Current report
+    Run Keyword If    ${ac_IsDateRangeCurrent}    Click Element    //div[@id='to-date-container']//span[@class='icon-calendar']
+    Run Keyword If    ${ac_IsDateRangeCurrent}    Wait Until Element Is Visible    //div[@id='to-date-container']//div[@class='datepicker-days']//table[@class='table-condensed']    10
+    Run Keyword If    ${ac_IsDateRangeCurrent}    Select Calendar Date Smartphone Friendly    //div[@id='to-date-container']//div[@class='datepicker-days']//table[@class='table-condensed']    ${date}
+
+Select Value From List
+    [Arguments]    ${locator}    ${value}
+    [Documentation]    This is used to select a value from a list
+    Click Element    ${locator}
+    Click Element    ${locator}/option[.='${value}']
+    Run keyword if    '${value}'!='${EMPTY}'    Press Key    ${locator}    \\13
+    sleep    0.1s
+
+Select Year Month in Calendar
+    [Arguments]    ${ac_CalendarIcon}    ${ac_datevalue}    # format date=20140627 (YYYYMMDD)
+    [Documentation]    This action is used to select a specific year and month in Calendar control in main frame
+    ...
+    ...    ${ac_CalendarControl}: the Calendar control
+    ...
+    ...    ${ac_datevalue}: the date value need to be selected
+    ${ac_YearControl}    Set Variable    ${ac_CalendarControl}//input[@class='DynarchCalendar-menu-year']
+    ${ac_Yearvalue}    String.Get Substring    ${ac_datevalue}    \    -4
+    ${ac_Monthvalue}    String.Get Substring    ${ac_datevalue}    4    6
+    ${ac_Monthvalue}    Evaluate    int('${ac_Monthvalue}')-1
+    ${ac_MonthControl}    Set Variable    ${ac_CalendarControl}//div[@class='DynarchCalendar-menu-month' and @dyc-btn='m${ac_Monthvalue}']
+    Click Element    ${ac_CalendarControl}//div[@class='DynarchCalendar-title']
+    Input Text    ${ac_YearControl}    ${ac_Yearvalue}
+    Click Element    ${ac_MonthControl}
+
+Select multiple checkboxes by JS
+    [Arguments]    ${lstControl}    ${isCheck}
+    [Documentation]    This action is used to selec/unselect checkbox control by executing JS
+    ...
+    ...    {lstControl}: the list of checkboxes ID that need to check or unchecked
+    ...
+    ...    ${isCheck}: 0/1 (0: uncheck, 1: check)
+    ${strControls}    Evaluate    ",".join(${lstControl})
+    ${isCheck}    Set Variable If    '${isCheck}'=='1'    true    false
+    Execute Javascript    var arrChk, strChk,ischecked; \ ischecked = new Boolean (${ischeck}); \ strChk = "${strControls}"; \ strChk = strChk.replace(/id=/g,""); \ arrChk = strChk.split(","); \ for (i = 0; i< arrChk.length;i++) \ \ { \ \ ichk = document.getElementById(arrChk[i]); \ \ \ if (ichk.checked != ischecked) \ \ \ ichk.click(); \ \ \ \ }
+
+Select radio button from dropdown list
+    [Arguments]    ${Dropdown_locator}    ${RadioLabel}
+    Comment    ***Check Dropdown is visible****
+    ${isDropdownVisible}    Run Keyword And Return Status    Wait Until Element Is Visible    ${Dropdown_locator}    10s
+    Run Keyword If    ${isDropdownVisible}    Click Element By Xpath js    ${Dropdown_locator}
+    Comment    ***Check Radio button is visible****
+    ${li_index}    Set Variable If    '${RadioLabel}'=='Bet List'    2    3
+    ${isRadioVisible}    Run Keyword And Return Status    Wait Until Element Is Visible    //form[@id='betlist-form']//div[@class='btn-group open']//li[${li_index}]//label[contains(text(),'${RadioLabel}')]    10s
+    Comment    ***Select Radio button****
+    Run Keyword If    ${isRadioVisible}    Click Element    //form[@id='betlist-form']//div[@class='btn-group open']//li[${li_index}]//label[contains(text(),'${RadioLabel}')]/input
+    Capture Page Screenshot
+
+Set Checkbox
+    [Arguments]    ${locator}    ${value}
+    ${isSuccess}    Set Variable    False
+    Run Keyword Unless    '${value}'=='${EMPTY}'    Wait Until Element Is Visible    ${locator}    ${cfWaitControl}
+    Run Keyword If    '${value}'=='1' or '${value}'=='check'    Select Checkbox    ${locator}
+    ${isSuccess}    Return From Keyword If    '${value}'=='1' or '${value}'=='check'    Checkbox Should Be Selected    ${locator}
+    Run Keyword If    '${value}'=='0' or '${value}'=='uncheck'    Unselect Checkbox    ${locator}
+    ${isSuccess}    Return From Keyword If    '${value}'=='0' or '${value}'=='uncheck'    Checkbox Should Not Be Selected    ${locator}
+    [Return]    ${isSuccess}
+
+Set Dictionary Key Value By List Keys
+    [Arguments]    ${dct}    ${lst}    ${value1}    ${value2}
+    ${output}    Copy Dictionary    ${dct}
+    ${lstK}    Get Dictionary Keys    ${output}
+    ${len}    Get Length    ${lstK}
+    : FOR    ${i}    IN RANGE    0    ${len}
+    \    ${iKey}    Get From List    ${lstK}    ${i}
+    \    ${isInLst}    Get Index From List    ${lst}    ${iKey}
+    \    ${iValue}    Set Variable If    ${isInLst} < 0    ${value2}    ${value1}
+    \    Set To Dictionary    ${output}    ${iKey}    ${iValue}
+    [Return]    ${output}
+
+Set Local Data_Account
+    [Arguments]    ${userName}
+    ## Get line ID from username
+    ${ac_prefix}    Set Variable    SUPERTESTAUTO
+    ${ac_lineID}    Fetch From Right    ${userName.upper()}    ${ac_prefix}
+    ${ac_lineID}    Get Substring    ${ac_lineID}    ${EMPTY}    2
+    ${ac_lineID}    Convert To Integer    ${ac_lineID}
+    ${ac_lineID}    convert to string    ${ac_lineID}
+    Run Process    SQL_UpdateAcc.bat    ${ac_lineID}
+
+Set checkbox js
+    [Arguments]    ${xpath}    ${value}
+    Run Keyword If    '${value}'=='1' or '${value}'=='check'    Check Checkbox    ${xpath}
+    Run Keyword If    '${value}'=='0' or '${value}'=='uncheck'    Uncheck Checkbox    ${xpath}
+
+Stop Execute If Element Not Appear
+    [Arguments]    ${iframeName}=${EMPTY}    ${element}=${EMPTY}    ${timeout}=60s    ${message}=${EMPTY}
+    [Documentation]    This action is used to stop Execution if check an element doesn't appear
+    ${ac_isSuccess}    Run Keyword And Return Status    Run Keyword If    '${iframeName}'!='${EMPTY}'    Wait Until Keyword Succeeds    ${timeout}    1s
+    ...    Select Frame    id=${iframeName}
+    Run Keyword If    '${ac_isSuccess}'=='False'    Run Keywords    Capture Page Screenshot
+    ...    AND    LOG    \n LOGIN FAILED    console='yes'
+    ...    AND    Fatal Error    ${message}
+    ${ac_isSuccess}    Run Keyword And Return Status    Wait Until Element Is Visible    ${element}    ${timeout}
+    Run Keyword If    '${ac_isSuccess}'=='False'    Run Keywords    Capture Page Screenshot
+    ...    AND    LOG    \n LOGIN FAILED    console='yes'
+    ...    AND    Fatal Error    ${message}
+    Run Keyword If    '${iframeName}'!='${EMPTY}'    Unselect Frame
+
+Switch Browser By Alias
+    [Arguments]    ${alias}
+    [Documentation]    This action is used to switch to browser by alias if bowser is not open then Open within naming Alias
+    ${ac_isWindowOpen}    Run Keyword And Return Status    Switch Browser    ${alias}
+    Run Keyword If    '${ac_isWindowOpen}'!='True'    Open Browser    about:blank    ff    ${alias}
+    Run Keyword If    '${ac_isWindowOpen}'!='True'    Maximize Browser Window
+    Comment    ${ac_role}    Set Variable if    '${role}'=='agent'    1
+    Comment    ${ac_role}    Set Variable if    '${role}'=='master'    2    ${ac_role}
+    Comment    ${ac_role}    Set Variable if    '${role}'=='super'    3    ${ac_role}
+    Comment    Convert To Integer    ${ac_role}
+    Comment    ${ac_isWindowOpen}    Run Kyword And Return Status    Switch Browser    ${ac_role}
+    Comment    Run Keyword If    '${ac_isWindowOpen}'!='True'    Open Browser    about:blank    ff
+    Comment    Run Keyword If    '${ac_isWindowOpen}'!='True'    Maximize Browser Window
+
+Teardown Test Suite
+    [Documentation]    This action is used to tear down a test suit
+    Comment    -------------------------------    Teardown Test Suite
+    Close All Browsers
+
+Trim String
+    [Arguments]    ${stringValue}
+    ${ac_value}    Run Keyword If    '${stringValue}'!='${EMPTY}'    Replace String Using Regexp    ${stringValue}    (^[ ]+|[ ]+$)    ${EMPTY}
+    ${stringValue}    Set Variable If    '${stringValue}'!='${EMPTY}'    ${ac_value}    ${EMPTY}
+    [Return]    ${stringValue}
+
+Uncheck Checkbox
+    [Arguments]    ${xpath}
+    Execute Javascript    var x =document.evaluate("${xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked = false;
+    Comment    Execute Javascript    var x =document.evaluate("${locator}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; x.removeAttribute('checked');
+
+Verify CheckBox Value
+    [Arguments]    ${locator}    ${expected}
+    [Documentation]    This action is used to verify checkbox value check/uncheck
+    ...    - ${expected}: check,uncheck
+    ...
+    ...    -------------HISTORY---------------------
+    ...    - 07/31/2015-Casey: Created
+    Run Keyword if    '${expected}'=='check' or '${expected}'=='1'    Run Keyword And Continue On Failure    Checkbox Should Be Selected    ${locator}
+    Run Keyword if    '${expected}'=='uncheck' or '${expected}'=='0'    Run Keyword And Continue On Failure    Checkbox Should Not Be Selected    ${locator}
+
+Verify Closed Account Color by Class Attribute
+    [Arguments]    ${tableLocator}    ${identifyText}    ${expectedClass}
+    ${xpath}    Set Variable    ${tableLocator}//tr//*[text()='${identifyText}']/ancestor::tr[1]
+    Wait Until Element Is Visible    ${xpath}    ${cfWaitControl}
+    ${actualColor}    Get Element Attribute    ${xpath}@class
+    Run Keyword And Continue On Failure    Should contain    ${actualColor}    ${expectedClass}
+
+Verify Control
+    [Arguments]    ${locator}    ${type}    ${expectedAppear}=${EMPTY}    ${expectedStatus}=${EMPTY}    ${expectedValue}=${EMPTY}
+    [Documentation]    This action is used to verify: element is (visible,hide);(enabled/disabled);value
+    ...    - ${type}: checkbox, normal
+    ...    - ${expectedAppear}: visible,hide
+    ...    - ${expectedStatus}: enable/disable
+    ...    - ${expectedValue}: text or (check/uncheck) with checkbox
+    Run Keyword If    '${expectedAppear}'!='${EMPTY}'    Verify Element Appear    ${locator}    ${expectedAppear}
+    Run Keyword If    '${expectedStatus}'!='${EMPTY}'    Verify Element Status    ${locator}    ${expectedStatus}
+    Run Keyword If    '${expectedValue}'!='${EMPTY}'    Verify Element Value    ${locator}    ${type}    ${expectedValue}
+
+Verify Dropdown List
+    [Arguments]    ${locator}    ${expectedMin}    ${expectedMax}    ${expectedStep}    ${expectedValue}
+    run keyword if    '${expectedValue}'!='${EMPTY}'    Verify Dropdown List Selected Value    ${locator}    ${expectedValue}
+    run keyword if    '${expectedMin}'!='${EMPTY}' and '${expectedMax}'!='${EMPTY}'    Run Keyword    Verify Dropdown List Range    ${locator}    ${expectedMin}    ${expectedMax}
+    ...    ${expectedStep}    ${expectedValue}
+
+Verify Dropdown List Range
+    [Arguments]    ${locator}    ${expectedMin}    ${expectedMax}    ${expectedStep}    ${selectedValue}
+    # get list item from locator list
+    ${ac_locatorList}    Get List Text    ${locator}    \n
+    # Created expected list
+    ${ac_expectedList}    Create List in Range 0-1    ${expectedMin}    ${expectedMax}    ${expectedStep}
+    ${ac_isValueInList}    Run Keyword And Return Status    List Should Contain Value    ${ac_expectedList}    ${selectedValue}
+    Run Keyword If    '${ac_isValueInList}'!='True'    Append To List    ${ac_expectedList}    ${selectedValue}
+    # Verify all items
+    Compare Lists    ${ac_locatorList}    ${ac_expectedList}
+
+Verify Dropdown List Selected Value
+    [Arguments]    ${locator}    ${expectedValue}
+    # Verify selected value
+    ${ac_locatorSelected}    Get Selected List Label    ${locator}
+    Run Keyword And Continue On Failure    Should Be Equal    ${ac_locatorSelected}    ${expectedValue}
+
+Verify Element Appear
+    [Arguments]    ${locator}    ${expected}
+    [Documentation]    This action is used to verify element is visible/hide
+    ...    - ${expected}: visible,hide
+    ...
+    ...    -------------HISTORY---------------------
+    ...    - 07/31/2015-Casey: Created
+    Run Keyword if    '${expected}'=='visible'    Run Keyword And Continue On Failure    Element Should Be Visible    ${locator}
+    Run Keyword if    '${expected}'=='hide'    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${locator}
+
+Verify Element Background Color
+    [Arguments]    ${xpath}    ${expectedColor}
+    Wait Until Element Is Visible    ${xpath}    ${cfWaitControl}
+    ${actualColor}    Get Background Color JS    ${xpath}
+    Run Keyword And Continue On Failure    Should be equal    ${actualColor}    ${expectedColor}
+
+Verify Element Status
+    [Arguments]    ${locator}    ${expected}
+    [Documentation]    This action is used to verify element is enabled/disabled
+    ...    - ${expected}: enabled,disabled
+    ...
+    ...    -------------HISTORY---------------------
+    ...    - 07/31/2015-Casey: Created
+    Run Keyword if    '${expected}'=='enable'    Run Keyword And Continue On Failure    Element Should Be Enabled    ${locator}
+    Run Keyword if    '${expected}'=='disable'    Run Keyword And Continue On Failure    Element Should Be disabled    ${locator}
+
+Verify Element Value
+    [Arguments]    ${locator}    ${type}    ${expected}
+    [Documentation]    This action is used to verify element is value
+    ...    - ${type}: checkbox, normal
+    ...
+    ...    -------------HISTORY---------------------
+    ...    - 07/31/2015-Casey: Created
+    # checkbox
+    Run Keyword If    '${type}'=='checkbox'    Verify CheckBox Value    ${locator}    ${expected}
+    # text
+    Run Keyword If    '${type}'=='text'    Run Keyword And Continue On Failure    Element Text Should Be    ${locator}    ${expected}
+    # value
+    ${ac_actualValue}    Run Keyword If    '${type}'=='value'    get value    ${locator}
+    Run Keyword And Continue On Failure    Run Keyword If    '${type}'=='value'    Should Be Equal    ${ac_actualValue}    ${expected}
+
+Verify Table Row Background Color
+    [Arguments]    ${tableLocator}    ${identifyText}    ${expectedColor}
+    ${xpath}    Set Variable    ${tableLocator}//tr//*[text()='${identifyText}']/ancestor::tr[1]
+    Wait Until Element Is Visible    ${tableLocator}//tr//*[text()='${identifyText}']/ancestor::tr[1]    ${cfWaitControl}
+    ${actualColor}    Get Background Color JS    ${xpath}
+    Run Keyword And Continue On Failure    Should be equal    ${actualColor}    ${expectedColor}
+
+Verify Table Total Value of a Column
+    [Arguments]    ${columnName}    ${expectedTotal}    ${sumColIndex}    ${rowsLocator}    ${boundaryValue}=0
+    [Documentation]    This action is used to verify total number of column in table
+    ...    - ${tableRowLocator}: this is match xpath of all body row for Sum values (ex: //table[@id='tblTransferList']/tbody/tr)
+    ...    - ${totalColumnLocator}: this is xpath of Total Row (ex: //table[@id="tblTransferList"]//tr[@class="RptFooter"])
+    ...    - ${sumColumnIndex} }: this is list of index of body column (ex: {1,2,3}--> column is "//table[@id='tblTransferList']/tbody/tr/td[1] or 2,3 )
+    ...    - ${totalColumnIndex}: this is the lsit of index of Total column
+    ...    - ${boundaryValue}: this is the Allow Difference Value Accept for each value( with value !=0)
+    ...    ---------------------------------------------
+    ${rows}    Get Matching Xpath Count    ${rowsLocator}
+    ${rows}    Evaluate    ${rows}+1
+    ${sumValue}    set variable    0
+    ${sumAllowDiffValues}    set variable    0
+    : FOR    ${i}    IN RANGE    1    ${rows}
+    \    ${value}    get text    ${rowsLocator}[${i}]/td[${sumColIndex}]
+    \    ${value}    Replace String    ${value}    ,    ${EMPTY}
+    \    ${sumAllowDiffValues}    Run Keyword If    '${value}'!='0'    Evaluate    ${sumAllowDiffValues}+${boundaryValue}
+    \    ...    ELSE    evaluate    ${sumAllowDiffValues}+0
+    \    ${sumValue}    Evaluate    ${sumValue}+${value}
+    Compare value with boundary range    ${sumValue}    ${expectedTotal}    ${sumAllowDiffValues}    ${columnName} Wrong
+
+Verify Table Total Values of All Columns
+    [Arguments]    ${columnNames}    ${rowsLocator}    ${totalColumnLocator}    ${sumColumnIndex}    ${totalColumnIndex}    ${boundaryValue}=0
+    [Documentation]    This action is used to verify total number of column in table
+    ...    - ${rowsLocator}: this is match xpath of all body row for Sum values (ex: //table[@id='tblTransferList']/tbody/tr)
+    ...    - ${totalColumnLocator}: this is xpath of Total Row (ex: //table[@id="tblTransferList"]//tr[@class="RptFooter"]/td)
+    ...    - ${sumColumnIndex} }: this is list of index of body column (ex: {1,2,3}--> column is "//table[@id='tblTransferList']/tbody/tr[i]/td[1] or 2,3 )
+    ...    - ${totalColumnIndex}: this is the lsit of index of Total column
+    ...
+    ...    Noted: ${sumColumnIndex} and ${totalColumnIndex} have to mapping by column
+    ...    ---------------------------------------------
+    ##Verify Yesterday Total
+    ${noOfDownlines}    Get Matching Xpath Count    ${rowsLocator}
+    ${sumValueList}    create List    ${totalColumnIndex}
+    ${n}    Get Length    ${columnNames}
+    ${n}    evaluate    ${n}-1
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${sumColIndex}    Set variable    ${sumColumnIndex[${i}]}
+    \    ${totalColIndex}    Set variable    ${totalColumnIndex[${i}]}
+    \    ${expectedTotal}    Get Text    ${totalColumnLocator}[${totalColIndex}]
+    \    ${expectedTotal}    Replace String    ${expectedTotal}    ,    ${EMPTY}
+    \    Log    Verfiy: ${columnNames[${i}]}
+    \    Verify Table Total Value of a Column    ${columnNames[${i}]}    ${expectedTotal}    ${sumColIndex}    ${rowsLocator}    ${boundaryValue}
+
+Verify report stack/normal and show/hide language translation
+    [Arguments]    ${ac_language}    ${ac_tooltips_hide_stack_text}    ${ac_tooltips_show_normal_text}    ${ac_control_hide_stack}    ${ac_control_show_normal}
+    [Documentation]    This action is used to check data after changing language
+    ...
+    ...    ${ac_language} : the language need to be changed
+    ...
+    ...    ${ac_tooltips_hide_stack_text}: tooltips for hide icon (Hide filter) or stack mode icon (Group columns)
+    ...
+    ...    ${ac_tooltips_show_normal_text}: tooltips for show icon (Show filter) or Normal mode icon (Ungroup columns)
+    ...
+    ...    ${ac_control_hide_stack}: control locator of hide button or stack mode button
+    ...
+    ...    ${ac_control_show_normal}: control locator of show button or normal mode button
+    Change Language    ${ac_language}
+    Close Announcement Popup
+    Unselect Frame
+    Select Frame    main
+    #check tool tip of button stack mode
+    Comment    Mouse Over    ${ac_control}    # this action cannot run on Geckodriver and mozilla is fixing it
+    ${ac_tooltips_on_web}=    Get Element Attribute    ${ac_control_hide_stack}@title
+    Should Be Equal    ${ac_tooltips_on_web}    ${ac_tooltips_hide_stack_text}
+    Click Element    ${ac_control_hide_stack}
+    ${ac_tooltips_on_web}=    Get Element Attribute    ${ac_control_show_normal}@title
+    Should Be Equal    ${ac_tooltips_on_web}    ${ac_tooltips_show_normal_text}
+
+Wait Data Processing
+    [Arguments]    ${waitTime}=3s
+    Sleep    ${waitTime}
+
+Wait Until Not Contains Element
+    [Arguments]    ${iframe}    ${locator}    ${timeout}=60s    ${intervalTime}=2s
+    [Documentation]    Waits until element specified with 'locator' disappear on current page.
+    ...
+    ...    Fails if timeout expires before the element disappears.
+    Unselect Frame
+    Select Frame    ${iframe}
+    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    1s    0.1    Page Should Contain Element    ${locator}
+    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    ${timeout}    ${intervalTime}    Page Should not Contain Element    ${locator}
+
+Wait Until Page Not Contains Element
+    [Arguments]    ${locator}    ${timeout}=60s    ${intervalTime}=0.05s
+    [Documentation]    Waits until element specified with 'locator' disappear on current page.
+    ...
+    ...    Fails if timeout expires before the element disappears.
+    Set Selenium Implicit Wait    0.01
+    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    0.5s    0.1s    Page Should Contain Element    ${locator}
+    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    ${timeout}    ${intervalTime}    Page Should not Contain Element    ${locator}
+    Set Selenium Implicit Wait    ${cfWaitTime}
+
+Wait Until Page Not Contains Message
+    [Arguments]    ${message}    ${timeout}=60s    ${intervalTime}=2s
+    [Documentation]    This action is use to wait the system save successfully:
+    ...    - 1: Wait message ${Msg} is shown
+    ...    - 2: Then Wait message ${Msg} is disappeared
+    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    2s    0.1    Page Should Contain    ${message}
+    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    ${timeout}    ${intervalTime}    Page Should Not Contain    ${message}
+
+Weekly Update Pass
+    [Documentation]    This action is used to return default password for acc-weekly change password process
+    Select Frame    main
+    ${errormsg}    Run Keyword And Return Status    Page Should Contain Element    id=spmsgerr
+    Unselect Frame
+    Run Keyword If    '${errormsg}'=='True'    Run Keywords    Select Frame    main
+    ...    AND    Input Password    id=txtOldPwd    ${cf_acc_pass}
+    ...    AND    Input Password    id=txtNewPwd    1234aaBB
+    ...    AND    Input Password    id=txtConfirmPwd    1234aaBB
+    ...    AND    Click Element    xpath=//*[@onclick='ChangePassword();']
+    ...    AND    sleep    3s
+    ...    AND    Unselect Frame
+    ...    AND    Change Password    1234aaBB    ${cf_acc_pass}
+
+Get Row Index by Column Value
+    [Arguments]    ${value}    ${columnLocator}
+    ${n}    Get Matching Xpath Count    ${columnLocator}
+    ${cells}    Get Webelements    ${columnLocator}
+    ${valueList}    Create List
+    ${n}    Evaluate    ${n}+1
+    ${text}    Set Variable    ${EMPTY}
+    : FOR    ${i}    IN RANGE    1    ${n}
+    \    ${text}    Get Text    @{cells}[${i}]
+    \    ${text}    Strip String    ${text}
+    \    Exit For Loop If    '${text}'=='${value}'
+    ${return}    Set Variable    ${i}
+    [Return]    ${return}

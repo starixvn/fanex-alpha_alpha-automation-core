@@ -1,0 +1,288 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01Login_S}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Super    Funct_Report
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../../Actions/account_info_general.txt
+Resource          ../../../Actions/common_actions.txt
+Resource          ../../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/Setting/status_actions.txt
+Resource          ../../../Interfaces/in_top_menu.txt
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Actions/PT/pt_sportsbook.txt
+Resource          ../../../Data_set/accounts.txt
+Resource          ../../../Actions/PT/pt_virtualsports.txt
+Resource          ../../../Interfaces/Main/in_m_transfer.txt
+Resource          ../../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../../Interfaces/Main/in_main_totalbet_report_forecast.txt
+Resource          ../../../Actions/reports_actions.txt
+Resource          ../../../Interfaces/Main/in_main_memberinfo.txt
+Resource          ../../../Actions/memberinfo.txt
+Resource          ../../../Interfaces/Main/in_main_new_totalbets_forecast.txt
+Resource          ../../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../../Interfaces/Main/in_m_edit_casino.txt
+Resource          ../../../Actions/PT/pt_racing.txt
+Resource          ../../../Interfaces/Main/in_m_securitycode_password.txt
+
+*** Test Cases ***
+TC_1_Super_Master Win Loss Details_Smartphone_Functional_NormalMode
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Detail*
+    ...
+    ...    2. Close Announcement Popup
+    ...
+    ...    3. Close Net Turnover Tool Tip
+    ...
+    ...    4. Smartphone Verify function Show/Hide Report filter
+    ...
+    ...    5. Verify Report Filter Date Range
+    ...
+    ...    6. Verify Report *Win Loss Detail* functional test normal mode
+    ...    - Select date range fillter and submit
+    ...    - VP: Check data exist or not and export excel file
+    ...    - VP: Check sort function in report Winloss details_Normal mode
+    ...    - VP: Check Breadcrumb for each level
+    ...    - VP: Verify Total Winloss for each level. User can use some action below:
+    ...
+    ...    a. VerifyTotalWinlossDetailsByUsername : This action is used to verify below by input DownlineName
+    ...
+    ...    b. VerifyTotalWinlossDetailsByRow_AllRow: This action is used to verify below by input RowID or "All" if you want to check all row
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Close Announcement Popup
+    Close Net TurnOver Tool tip
+    Smartphone Verify function Show/Hide Report filter
+    Comment    Verify Report Filter Product List    ${cfProductFilterList}
+    Verify Report Filter Date Range    ${cfDateRangeList}
+    Smartphone Verify Report_Win Loss Detail_NormalMode    Master    Current    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    ${tc_member}    username
+
+TC_2_Super_Master Win Loss Details_Smartphone_Functional_StackMode
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Detail*
+    ...
+    ...    2. Close Announcement Popup
+    ...
+    ...    3. Close Net Turnover Tool Tip
+    ...
+    ...    4. Smartphone Verify function Show/Hide Report filter
+    ...
+    ...    5. Smartphone Report WinLoss Detail Verify function Switch between stack and normal mode
+    ...
+    ...    6. Verify Report Filter Date Range
+    ...
+    ...    7. Verify Report *Win Loss Detail* functional test normal mode
+    ...    - Select date range fillter and submit
+    ...    - Switch to Stack mode
+    ...    - VP: Check data exist or not and export excel file
+    ...    - VP: Check sort function in report Winloss details_stack mode
+    ...    - VP: Check Breadcrumb for each level
+    ...    - VP: Verify Total Winloss for each level. User can use some action below:
+    ...
+    ...    a. Smartphone VerifyTotalWinlossDetailsByUsername_StackMode : This action is used to verify below by input DownlineName
+    ...
+    ...    b. Smartphone VerifyTotalWinlossDetailsByRow_AllRow_StackMode: This action is used to verify below by input RowID or "All" if you want to check all row
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Close Announcement Popup
+    Close Net TurnOver Tool tip
+    Smartphone Verify function Show/Hide Report filter
+    Smartphone Report WinLoss Detail Verify function Switch between stack and normal mode    Yes    Yes
+    Comment    Verify Report Filter Product List    ${cfProductFilterList}
+    Verify Report Filter Date Range    ${cfDateRangeList}
+    Smartphone Verify Report_Win Loss Detail_StackMode    Master    Current    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    ${tc_member}    username
+
+TC_3_Super_Master Win Loss Details_Smartphone_Functional_NormalMode_History
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Detail*
+    ...
+    ...    2. Close Announcement Popup
+    ...
+    ...    3. Close Net Turnover Tool Tip
+    ...
+    ...    4. Switch to Current/History report
+    ...
+    ...    5. Smartphone Verify function Show/Hide Report filter
+    ...
+    ...    6. Verify Report Filter Date Range
+    ...
+    ...    7. Verify Report *Win Loss Detail* functional test normal mode
+    ...    - Select date range fillter and submit
+    ...    - VP: Check data exist or not and export excel file
+    ...    - VP: Check sort function in report Winloss details_Normal mode
+    ...    - VP: Check Breadcrumb for each level
+    ...    - VP: Verify Total Winloss for each level. User can use some action below:
+    ...
+    ...    a. VerifyTotalWinlossDetailsByUsername : This action is used to verify below by input DownlineName
+    ...
+    ...    b. VerifyTotalWinlossDetailsByRow_AllRow: This action is used to verify below by input RowID or "All" if you want to check all row
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    sleep    45s
+    Close Announcement Popup
+    Close Net TurnOver Tool tip
+    Switch to Current/History report    View History Report
+    Verify Date range filter of History report    ${tc_toDate}
+    Smartphone Verify function Show/Hide Report filter
+    Comment    Verify Report Filter Product List    ${cfProductFilterList}
+    Smartphone Verify Report_Win Loss Detail_NormalMode    Master    History    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    ${tc_member}    username
+
+TC_4_Super_Master Win Loss Details_Smartphone_Functional_StackMode_History
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Detail*
+    ...
+    ...    2. Close Announcement Popup
+    ...
+    ...    3. Close Net Turnover Tool Tip
+    ...
+    ...    4. Switch to Current/History report
+    ...
+    ...    5. Smartphone Verify function Show/Hide Report filter
+    ...
+    ...    6. Smartphone Report WinLoss Detail Verify function Switch between stack and normal mode
+    ...
+    ...    7. Verify Report Filter Date Range
+    ...
+    ...    8. Verify Report *Win Loss Detail* functional test normal mode
+    ...    - Select date range fillter and submit
+    ...    - Switch to Stack mode
+    ...    - VP: Check data exist or not and export excel file
+    ...    - VP: Check sort function in report Winloss details_stack mode
+    ...    - VP: Check Breadcrumb for each level
+    ...    - VP: Verify Total Winloss for each level. User can use some action below:
+    ...
+    ...    a. Smartphone VerifyTotalWinlossDetailsByUsername_StackMode : This action is used to verify below by input DownlineName
+    ...
+    ...    b. Smartphone VerifyTotalWinlossDetailsByRow_AllRow_StackMode: This action is used to verify below by input RowID or "All" if you want to check all row
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    sleep    45s
+    Close Announcement Popup
+    Close Net TurnOver Tool tip
+    Switch to Current/History report    View History Report
+    Verify Date range filter of History report    ${tc_toDate}
+    Smartphone Verify function Show/Hide Report filter
+    Smartphone Report WinLoss Detail Verify function Switch between stack and normal mode    Yes    Yes
+    Comment    Verify Report Filter Product List    ${cfProductFilterList}
+    Smartphone Verify Report_Win Loss Detail_StackMode    Master    History    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    ${tc_member}    username
+
+TC_5_Super_Master Win Loss Detail Smartphone_Functional_Check Sort When Drill Down/Up
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Detail*
+    ...
+    ...    2. Verify the sort function when drill down/up the Report *Win Loss Detail*
+    ...
+    ...    - VP: Verify report name
+    ...    - Select date range fillter and submit
+    ...    - VP: check default sort asc Username columns
+    ...    - Drill down to downline and check sort function does not change
+    ...    - Drill up to upline and check sort function does not change.
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    - Alpha-6229:Check sort function when drilling down/up
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 21 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_WinLoss_WinLossDetail_Check Sort When Drill Down/Up_Username_Coltest    Master    WIN LOSS DETAIL    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    Master    1    asc    String
+    Smartphone Verify Report_WinLoss_WinLossDetail_Check Sort When Drill Down/Up_Username_Coltest    Master    WIN LOSS DETAIL    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    Master    1    desc    String
+    Smartphone Verify Report_WinLoss_WinLossDetail_Check Sort When Drill Down/Up_Others_Coltest    Master    WIN LOSS DETAIL    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    Turnover    3    asc    numberic
+    Smartphone Verify Report_WinLoss_WinLossDetail_Check Sort When Drill Down/Up_Others_Coltest    Master    WIN LOSS DETAIL    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    GrossComm    5    desc    numberic
+    Smartphone Verify Report_WinLoss_WinLossDetail_Check Sort When Drill Down/Up_Others_Coltest    Master    WIN LOSS DETAIL    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    MemberNetWinLoss.Total    8    asc    numberic
+    Smartphone Verify Report_WinLoss_WinLossDetail_Check Sort When Drill Down/Up_Others_Coltest    Master    WIN LOSS DETAIL    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    AgentNetWinLoss.Total    9    desc    numberic
+
+TC_6_Super_Master Win Loss Detail_Check information icon
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Detail*
+    ...
+    ...    2. Return List offered Product or False if none of Casino, Macau Games, Allbet, Fishing World are offered
+    ...
+    ...    3. Check info tooltip content report *Win Loss Detail*
+    ...    - Click on (i) icon
+    ...    - Tooltip must contain info if one of Casino, Macau Games, Allbet, Fishing World are offered
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    Alpha-8120:Rules for displaying info icon
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 21 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    Win Loss Detail
+    ${ac_ListOfferedProduct}    Smartphone Verify Report_Check Offered Product    WIN LOSS DETAIL
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_Check Info Tooltip Content_WinLossDetail    ${ac_ListOfferedProduct}    ${tc_rptName}

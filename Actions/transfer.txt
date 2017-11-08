@@ -1,0 +1,360 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           DateTime
+Resource          ../Interfaces/Main/in_m_transfer.txt    #**************************************************INTERFACES*****************************************
+Resource          ../Interfaces/Main/in_main.txt
+Resource          ../Interfaces/in_left_menu.txt
+Resource          ../Interfaces/Main/in_m_hom_homePage.txt
+Resource          ../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../Actions/Left_menu/left_menu_actions.txt
+Resource          ../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+
+*** Keywords ***
+Click Yesterday Balance Value on Transfer List of User
+    [Arguments]    ${username}
+
+Open Transfer Cash Of User
+    [Arguments]    ${username}
+    Unselect frame
+    Select Frame    main
+    Click element    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${username}"]/parent::tr/td/a[contains(@onclick,"ShowCashBalanceTransferPopup")]
+
+Open Transfer Yesterday Balance Of User
+    [Arguments]    ${username}
+    Unselect frame
+    Select Frame    main
+    Click element    ${in_m_transfer_tblTransfer}//td[4]/a[contains(@onclick,'${username}')]/span
+
+Transfer Cash
+    [Arguments]    ${action}=${EMTPY}    ${transferValue}=${EMTPY}
+    Comment    ${value}    Convert to number    ${transferValue}    2
+    Run Keyword If    '${transferValue}'!='${EMPTY}'    Input Text    ${in_m_transferCash_txtAmount}    ${transferValue}
+    Run Keyword If    '${action}'=='save'    Click Element    ${in_m_transferCash_btnTransfer}
+    Run Keyword If    '${action}'=='save'    Choose Ok On Next Confirmation
+    Run Keyword If    '${action}'=='save'    Confirm Action
+
+Verify Transfer Cash Balance Popup UI
+    [Arguments]    ${loginLevel}    ${downlineLevel}
+    Unselect frame
+    Select frame    ${in_main_framePopup}
+    Capture Page Screenshot
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_m_transferCash_lblloginCashBalance}    ${loginLevel} Cash Balance:
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblloginCashBalanceValue}
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_m_transferCash_lblInformation}    ${downlineLevel} Information:
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblUsername}    Username
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblUsernameValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblCashBalance}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblCashBalanceValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblOutStanding}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblOutStandingValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblGiveCredit}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblGiveCreditValue}
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_m_transferCash_lblAmount}    Amount
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_txtAmount}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_btnTransfer}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferCash_lblRangeTransferMessage}
+    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_transferCash_lblTransferMessage}
+
+Verify Transfer Cash Hint Text1
+    [Arguments]    ${expectFromValue}    ${expectToValue}
+    ${actualHintText}    get text    ${in_m_transferCash_lblRangeTransferMessage}
+    ${expectedHint}    Set Variable If    '${expectFromValue}'=='0' and '${expectToValue}'=='0'    Cash balance is not available to transfer.
+    Run Keyword And Return If    '${expectFromValue}'=='0' and '${expectToValue}'=='0'    Should Be Equal    ${actualHintText}    ${expectedHint}
+    ## Get {From value} from hint text and round it 2 decimal    ${actualHintText} | ${expFromValue} | ${expectToValue}
+    ${actualFromValue}    Fetch From Right    ${actualHintText}    You can transfer from
+    ${actualFromValue}    Fetch From Left    ${actualFromValue}    ${SPACE}to
+    ${actualFromValue}    Replace String    ${actualFromValue}    ,    ${EMPTY}
+    ${actualFromValue}    evaluate    round(${actualFromValue},1)
+    ${actualFromValue}    set variable if    '${actualFromValue}'=='0.0'    0    ${actualFromValue}
+    ## Get {To value} from hint text and round it 2 decimal
+    ${actualToValue}    Fetch From Right    ${actualHintText}    ${SPACE}to
+    Comment    ${actualToValue}    Fetch From Left    ${actualToValue}    .
+    ${actualToValue}    Get Substring    ${actualToValue}    ${EMPTY}    -1
+    ${actualToValue}    Replace String    ${actualToValue}    ,    ${EMPTY}
+    ${actualToValue}    evaluate    round(${actualToValue},1)
+    ${actualToValue}    set variable if    '${actualToValue}'=='0.0'    0    ${actualToValue}
+    ${actualHintText}    Set variable    You can transfer from ${actualFromValue} to ${actualToValue}.
+    ${expectedHint}    Set variable    You can transfer from ${expectFromValue} to ${expectToValue}.
+    Run Keyword And Continue On Failure    Should Be Equal    ${actualHintText}    ${expectedHint}
+    Capture Page Screenshot
+
+Verify Transfer Cash Hint Text
+    [Arguments]    ${expectFromValue}    ${expectToValue}
+    ${actualHintText}    get text    ${in_m_transferCash_lblRangeTransferMessage}
+    ${expectedHint}    Set Variable If    '${expectFromValue}'=='0' and '${expectToValue}'=='0'    Cash balance is not available to transfer.
+    Run Keyword And Return If    '${expectFromValue}'=='0' and '${expectToValue}'=='0'    Should Be Equal    ${actualHintText}    ${expectedHint}
+    ## Get {From value} from hint text and round it 2 decimal    ${actualHintText} | ${expFromValue} | ${expectToValue}
+    ${actualFromValue}    Fetch From Right    ${actualHintText}    You can transfer from
+    ${actualFromValue}    Fetch From Left    ${actualFromValue}    ${SPACE}to
+    ${actualFromValue}    Replace String    ${actualFromValue}    ,    ${EMPTY}
+    Comment    ${actualFromValue}    evaluate    round(${actualFromValue},1)
+    Comment    ${actualFromValue}    set variable if    '${actualFromValue}'=='0.0'    0    ${actualFromValue}
+    ## Get {To value} from hint text and round it 2 decimal
+    ${actualToValue}    Fetch From Right    ${actualHintText}    ${SPACE}to
+    Comment    ${actualToValue}    Fetch From Left    ${actualToValue}    .
+    ${actualToValue}    Get Substring    ${actualToValue}    ${EMPTY}    -1
+    ${actualToValue}    Replace String    ${actualToValue}    ,    ${EMPTY}
+    Run Keyword And Continue On Failure    Should be true    abs(${actualFromValue}-${expectFromValue})<=0.1
+    Run Keyword And Continue On Failure    Should be true    abs(${actualToValue}-${expectToValue})<=0.1
+    Comment    ${actualToValue}    evaluate    round(${actualToValue},1)
+    Comment    Comment    ${actualToValue}    set variable if    '${actualToValue}'=='0.0'    0    ${actualToValue}
+    Comment    ${actualHintText}    Set variable    You can transfer from ${actualFromValue} to ${actualToValue}.
+    Comment    ${expectFromValue}    evaluate    round(${expectFromValue},1)
+    Comment    ${expectToValue}    evaluate    round(${expectToValue},1)
+    Comment    ${expectedHint}    Set variable    You can transfer from ${expectFromValue} to ${expectToValue}.
+    Comment    Run Keyword And Continue On Failure    Should Be Equal    ${actualHintText}    ${expectedHint}
+    Capture Page Screenshot
+
+Verify Transfer Filter UI
+    [Arguments]    ${mode}=new
+    COMMENT    -----------------------    SET VARIABLES
+    ${statusListExpect}    Create List    All    Open    Suspended    Closed    Disabled
+    ${pageSizeListExpect}    Create List    10    50    100    500
+    COMMENT    - 2. Verify Filter
+    unselect frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_main_framePopupHeaderOld}    MULTIPLE TRANSFER    #verfiy Title
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_iconPrint}    # Verify Icon Print After Title
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_labUsername}    # Verify Username
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_txtUsername}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_labStatus}    # Verify Status
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_ddlStatus}
+    ${statusListActual}    Get List Items    ${in_m_transfer_ddlStatus}
+    Compare Lists    ${statusListActual}    ${statusListExpect}    Status List is wrong    # Verify Status List Item
+    ${statusSelectActual}    Get Selected List Label    ${in_m_transfer_ddlStatus}
+    Run Keyword And Continue On Failure    Should Be Equal    ${statusSelectActual}    Open    # Verify Selected Item
+    ${allYesterdayBalanceActual}    Get Value    ${in_m_transfer_chkYesterdayBal}    # Verify All Yesterday Balance
+    Run Keyword And Continue On Failure    Should Be Equal    ${allYesterdayBalanceActual}    on
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_btnSubmit}    # Verify Submit Button is visible
+    Run Keyword If    '${mode}'=='new'    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_icoInfo}
+    Run Keyword If    '${mode}'=='old'    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_transfer_icoInfo}
+    Comment    - 3. Verify Page Size
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_transfer_lblPageSize}    Page Size:    # Verify Page Size text
+    ${pageSizeListActual}    Get List Items    ${in_m_transfer_cboPageSizeList}    # Verify Page Size List
+    Compare Lists    ${pageSizeListActual}    ${pageSizeListExpect}    Page Size List is wrong
+    Comment    - 4. Verify Transfer Button
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_btnTransfer}
+    ${transferButtonStatus}    Get Element Attribute    ${in_m_transfer_btnTransfer}@class    #Verify Transfer Button is disable
+    Run Keyword And Continue On Failure    Should Be Equal    ${transferButtonStatus}    btnSubmitDisable
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_icoTransferArrow}    # Verify Arrow Button is visible
+
+Verify Transfer List UI
+    [Arguments]    ${mode}    ${columsHeaderListExpect}    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${userBalanceZero}
+    ...    ${userBalance}
+    [Documentation]    This test case is used to verify Transfer List UI
+    ...    - 1. Verify Header Columns
+    Unselect Frame
+    Select Frame    main
+    Run Keyword If    '${mode}'=='old'    Set Checkbox    ${in_m_transfer_chkYesterdayBal}    1
+    Comment    - 5. Verify Table Transfer    Column Header
+    sleep    0.5s
+    ${len}    Get Length    ${columsHeaderListExpect}
+    ${len}    Evaluate    ${len}-1
+    : FOR    ${i}    IN RANGE    1    ${len}
+    \    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_transfer_trTableHeader}//th[${i}]    ${columsHeaderListExpect[${i}]}
+    Comment    Verify Yesterday Balance is not Allow clickable if New Mode ELSE Old mode is clickable
+    Run Keyword If    '${mode}'=='new'    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_transfer_tblTransfer}//td[4]/a[contains(@onclick,'${userBalanceZero}')]/span
+    Run Keyword If    '${mode}'=='new'    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_transfer_tblTransfer}//td[4]/a[contains(@onclick,'${userBalance}')]/span
+    Comment    Verify allow click on "Balance" value in New mode and NOT in OLD mode
+    Run Keyword If    '${mode}'=='new'    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${userBalanceZero}"]/parent::tr/td/a[contains(@onclick,"ShowCashBalanceTransferPopup")]
+    Run Keyword If    '${mode}'=='old'    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${userBalanceZero}"]/parent::tr/td/a[contains(@onclick,"ShowCashBalanceTransferPopup")]
+    Comment    Verify Header Check/Uncheck
+    Verify Trasnfer Header Yesterday Checkbox    check
+    Comment    Verify Transfer Multiple Options
+    Verify Trasnfer Header Yesterday Checkbox    uncheck
+
+Verify Transfer Multiple Options
+    Comment    Verify Transfer Button Option
+    Click Element    ${in_m_transfer_icoTransferArrow}
+    ${onlyPageOptionStatus}    Get Element Attribute    ${in_m_transfer_btnTransferOnlyThisPage}@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${onlyPageOptionStatus}    Enable
+    ${allPageOptionStatus}    Get Element Attribute    ${in_m_transfer_btnTransferAllPage}@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${allPageOptionStatus}    Disable
+    Scroll To Element    ${in_m_transfer_icoTransferArrow}
+    Click Element    ${in_m_transfer_icoTransferArrow}
+    Comment    Comment    Verify Confirm Message Popup Show when click on option "Only This Page"
+    Comment    Click Element    ${in_m_transfer_btnTransferOnlyThisPage}
+    Comment    Alert Should Be Present    Full multiple transfer will reset max transfer limit. Are you sure you want to transfer?
+    Comment    Choose Cancel On Next Confirmation
+
+Verify Transfer Total Values
+    [Arguments]    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${boundaryValue}=0
+    Unselect Frame
+    Select Frame    main
+    Comment    - 5. Verify Table Transfer    Total Values By Column
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transfer_trTableFooter}/td[text()="Total"]
+    ${noOfFooterColumn}    Get Matching Xpath Count    ${in_m_transfer_trTableFooter}/td
+    ${len}    get length    ${sumColIndex}
+    ${totalColFooterExpected}    evaluate    ${len}+2
+    Run Keyword And Continue On Failure    Should be true    ${noOfFooterColumn}==${totalColFooterExpected}
+    Verify Table Total Values of All Columns    ${sumColNames}    ${in_m_transfer_tblTransfer}/tbody/tr    ${in_m_transfer_trTableFooter}/td    ${sumColIndex}    ${totalColIndex}    ${boundaryValue}
+
+Verify Transfer YB MasterAgent Popup UI
+    Unselect frame
+    Select frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblAmount}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_txtAmount}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_btnCancel}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_btnSubmit}
+
+Verify Transfer YB Member Popup UI
+    [Arguments]    ${agent}    ${member}
+    Unselect frame
+    Select frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblTransferTitle}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblCustomer}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_transferYB_lblCustomerValue}    ${member}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblCashBalance}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblCashBalanceValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblOut.Txn}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblOut.TxnValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblGivenCredit}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblGivenCreditValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblBetCredit}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblBetCreditValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblTransferredAmount}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblTransferredAmountValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblLastLogin}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblLastLoginValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblLastTxn}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblLastTxnValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblFrom}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_transferYB_lblFromValue}    ${member}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblTo}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_transferYB_lblToValue}    ${agent.upper()}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_btnTransfer}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblRangeTransferMessage}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblAmount}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_txtAmount}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_btnTransfer}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_transferYB_lblRangeTransferMessage}
+
+Verify Trasnfer Header Yesterday Checkbox
+    [Arguments]    ${headerCheckBox}
+    [Documentation]    This action is used to verify Tranfer Yester Checkbox in trasnfer list
+    ...    - Header checkbox: checked, if Yesterday Balance !=0 then [yesterday checkbox of user] is checked \ else un-checked
+    ...    - Header checkbox: unchecked, All User's checkbox is unchecked
+    Comment    - Header checkbox: checked, if Yesterday Balance !=0 then [yesterday checkbox of user] is checked \ else un-checked
+    Set Checkbox    ${in_m_transfer_chkHeaderYesterday}    ${headerCheckBox}
+    ${totalRow}    Get Matching Xpath Count    ${in_m_transfer_tblTransfer}/tbody/tr
+    ${totalRow}    Evaluate    ${totalRow}+1
+    ${isAllZero}    set variable    ${True}
+    : FOR    ${i}    IN RANGE    1    ${totalRow}
+    \    ${yesterdayBalance}    get text    ${in_m_transfer_tblTransfer}//tr[${i}]/td[4]
+    \    Run Keyword And Continue On Failure    Run Keyword If    '${yesterdayBalance}'!='0' and '${headerCheckBox}'=='check'    Checkbox Should Be Selected    ${in_m_transfer_tblTransfer}/tbody/tr[${i}]/td[2]/input
+    \    ...    ELSE    Checkbox Should Not Be Selected    ${in_m_transfer_tblTransfer}//tr[${i}]/td[2]/input
+    \    ${isAllZero}    set variable if    '${yesterdayBalance}'!='0' and '${headerCheckBox}'=='check'    ${False}    ${isAllZero}
+    ${trasnferStatus}    Get Element Attribute    ${in_m_transfer_btnTransfer}@class
+    Run Keyword And Continue On Failure    Run Keyword If    '${isAllZero}'=='${True}'    Should Be Equal    ${trasnferStatus}    btnSubmitDisable
+    Run Keyword And Continue On Failure    Run Keyword If    '${isAllZero}'=='${False}'    Should Be Equal    ${trasnferStatus}    btnSubmit
+
+Transfer Cash Then Cross Check Values
+    [Arguments]    ${downlineLevel}    ${downlineName}    ${fromValue}    ${toValue}    ${uplineCash}    ${downlineYesBalance}
+    ...    ${downlineBalance}    ${downlineOutstanding}
+    ## transfer action
+    ${fromValue}    Run Keyword If    '${fromValue}'=='0'    Evaluate    ${toValue}*1
+    ...    ELSE    Evaluate    ${fromValue}*1
+    ${toValue}    Run Keyword If    '${toValue}'=='0'    Evaluate    ${fromValue}*1
+    ...    ELSE    Evaluate    ${toValue}*1
+    ${from}    evaluate    ${fromValue}/4
+    ${to}    evaluate    ${toValue}/4
+    ${transferValue}    evaluate    min(${from},${to})
+    Transfer cash    save    ${transferValue}
+    ## Verify Message Transfer Successfull
+    Wait Until Element Contains    ${in_m_transferCash_lblTransferMessage}    ransfer    ${cfWaitControl}
+    ${isSuccess}    Run Keyword And Return Status    Element Should Contain    ${in_m_transferCash_lblTransferMessage}    Transfer successfully
+    Run Keyword If    '${isSuccess}'=='True'    Run Keyword And Continue On Failure    Wait Until Element Is Not Visible    ${in_main_framePopup}    30s
+    Run Keyword If    '${isSuccess}'=='True' and '${downlineLevel}'=='member'    Cross Check After Trasnfer_Member    ${downlineName}    ${transferValue}    ${uplineCash}    ${downlineYesBalance}
+    ...    ${downlineBalance}    ${downlineOutstanding}
+    Run Keyword If    '${isSuccess}'=='True' and '${downlineLevel}'!='member'    Cross Check After Trasnfer_Agent    ${downlineName}    ${transferValue}    ${uplineCash}    ${downlineYesBalance}
+    ...    ${downlineBalance}    ${downlineOutstanding}
+    ## Verify if transfer return BU/MO error message
+    Run Keyword If    '${isSuccess}'!='True'    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_transferCash_lblTransferMessage}    To ensure the accuracy of data while being processed, all transfer transaction cannot be executed.
+    Run Keyword If    '${isSuccess}'!='True'    Unselect Frame
+    Run Keyword If    '${isSuccess}'!='True'    Click Element By Xpath js    ${in_main_btnClosePopup}
+    Run Keyword If    '${isSuccess}'!='True' and '${downlineLevel}'=='member'    Cross Check After Trasnfer_Member    ${downlineName}    0    ${uplineCash}    ${downlineYesBalance}
+    ...    ${downlineBalance}    ${downlineOutstanding}
+    Run Keyword If    '${isSuccess}'!='True' and '${downlineLevel}'!='member'    Cross Check After Trasnfer_Agent    ${downlineName}    0    ${uplineCash}    ${downlineYesBalance}
+    ...    ${downlineBalance}    ${downlineOutstanding}
+
+Cross Check After Trasnfer_Member
+    [Arguments]    ${downline}    ${transferValue}    ${uplineCash}    ${downlineYesBalance}    ${downlineBalance}    ${downlineOutstanding}
+    ####    CROSS CHECK VALUE AFTER TRANSFER
+    ## CROSS CHECK WITH VALUE IN TRANSFER LIST
+    ${expDownlineYesBalance}    evaluate    ${downlineYesBalance}+${transferValue}
+    ${expDownlineBalance}    evaluate    ${downlineBalance}+${transferValue}
+    Reload Page
+    Select Left Menu    TRANSFER
+    unselect frame
+    Select Frame    main
+    Comment
+    ${downlineYesBalance_after}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${downline}"]/parent::tr/td[4]
+    ${downlineYesBalance_after}    Replace String    ${downlineYesBalance_after}    ,    ${EMPTY}
+    ${downlineBalance_after}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${downline}"]/parent::tr/td[5]
+    ${downlineBalance_after}    Replace String    ${downlineBalance_after}    ,    ${EMPTY}
+    ${downlineOutstanding_after}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${downline}"]/parent::tr/td[6]
+    ${downlineOutstanding_after}    Replace String    ${downlineOutstanding_after}    ,    ${EMPTY}
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineYesBalance_after}    ${expDownlineYesBalance}    0.1
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineBalance_after}    ${expDownlineBalance}    0.1
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineOutstanding_after}    ${downlineOutstanding}    0.1
+    ## HOME PAGE:
+    ${expUplineCash}    evaluate    ${uplineCash}-${transferValue}
+    Unselect Frame
+    Click Element    ${in_tm_iconHome}
+    Select frame    main
+    ${uplineCash_after}    get text    ${in_m_hom_balInfo_cash}
+    ${uplineCash_after}    Replace String    ${uplineCash_after}    ,    ${EMPTY}
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineOutstanding_after}    ${downlineOutstanding}    0.1
+
+Cross Check After Trasnfer_Agent
+    [Arguments]    ${downline}    ${transferValue}    ${uplineCash}    ${downlineYesBalance}    ${downlineBalance}    ${downlineOutstanding}
+    ####    CROSS CHECK VALUE AFTER TRANSFER
+    ## CROSS CHECK WITH VALUE IN TRANSFER LIST
+    ${expDownlineYesBalance}    evaluate    ${downlineYesBalance}+${transferValue}
+    ${expDownlineBalance}    evaluate    ${downlineBalance}+${transferValue}
+    Reload Page
+    Select Left Menu    TRANSFER
+    unselect frame
+    Select Frame    main
+    Comment
+    ${downlineYesBalance_after}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${downline}"]/parent::tr/td[6]
+    ${downlineYesBalance_after}    Replace String    ${downlineYesBalance_after}    ,    ${EMPTY}
+    ${downlineBalance_after}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${downline}"]/parent::tr/td[7]
+    ${downlineBalance_after}    Replace String    ${downlineBalance_after}    ,    ${EMPTY}
+    ${downlineOutstanding_after}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${downline}"]/parent::tr/td[8]
+    ${downlineOutstanding_after}    Replace String    ${downlineOutstanding_after}    ,    ${EMPTY}
+    Comment    Run Keyword And Continue On Failure    Should Be True    '${downlineYesBalance_after}'=='${expDownlineYesBalance}'
+    Comment    Run Keyword And Continue On Failure    Should Be True    '${downlineBalance_after}'=='${expDownlineBalance}'
+    Comment    Run Keyword And Continue On Failure    Should Be True    '${downlineOutstanding_after}'=='${downlineOutstanding}'
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineYesBalance_after}    ${expDownlineYesBalance}    0.1
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineBalance_after}    ${expDownlineBalance}    0.1
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineOutstanding_after}    ${downlineOutstanding}    0.1
+    ## HOME PAGE:
+    ${expUplineCash}    evaluate    ${uplineCash}-${transferValue}
+    Unselect Frame
+    Click Element    ${in_tm_iconHome}
+    Select frame    main
+    ${uplineCash_after}    get text    ${in_m_hom_balInfo_cash}
+    ${uplineCash_after}    Replace String    ${uplineCash_after}    ,    ${EMPTY}
+    Comment    Run Keyword And Continue On Failure    Should Be True    '${uplineCash_after}'=='${expUplineCash}'
+    Run Keyword And Continue On Failure    Compare value with boundary range    ${downlineOutstanding_after}    ${downlineOutstanding}    0.1
+
+Transfer Yesterday Balance Member
+    [Arguments]    ${action}    ${transferValue}
+    Run Keyword If    '${transferValue}'!='${EMPTY}'    Input Text    ${in_m_transferYB_txtAmount}    ${transferValue}
+    Run Keyword If    '${action}'=='save'    Click Element    ${in_m_transferYB_btnTransfer}
+    Run Keyword If    '${action}'=='save'    Choose Ok On Next Confirmation
+    Run Keyword If    '${action}'=='save'    Confirm Action
+
+Transfer Yesterday Balance Agent
+    [Arguments]    ${action}    ${transferValue}
+    Run Keyword If    '${transferValue}'!='${EMPTY}'    Input Text    ${in_m_transferYB_txtAmount}    ${transferValue}
+    Run Keyword If    '${action}'=='save'    Click Element    ${in_m_transferYB_btnSubmit}
+    Run Keyword If    '${action}'=='save'    Choose Ok On Next Confirmation
+    Run Keyword If    '${action}'=='save'    Confirm Action

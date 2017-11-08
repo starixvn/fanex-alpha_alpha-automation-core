@@ -1,0 +1,1 @@
+If exist "%~dp0\Report" del "%~dp0\Report\*.*" /Q

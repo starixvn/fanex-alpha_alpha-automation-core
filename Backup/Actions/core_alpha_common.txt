@@ -1,0 +1,231 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../before-login-website/tests/functionaltests/lgnActions/login_actions.txt
+Resource          ../Interfaces/in_cmm_common.txt    #============================INTERFACES====================
+Resource          core_common.txt    #============================ACTIONS====================
+Resource          core_securityCode.txt
+
+*** Keywords ***
+Click From Date Picker Icon
+    Click Element    ${in_core_cmm_icoFromDate}
+    ${return}    Run Keyword And Return Status    Element Should Be Visible    ${in_core_cmm_dtpFromDate}
+    [Return]    ${return}
+
+Click To Date Picker Icon
+
+Close Announcement Popup
+    [Arguments]    ${waitTime}=10s
+    [Documentation]    This action is used to close announcement popup. This popup is showed when user login
+    ...
+    ...    *****History********
+    ...
+    ...    2016-12-19: Kingsley
+    Unselect Frame
+    ${ac_IsAnounment}    Run Keyword And Return Status    Wait Until Element Is Visible    //div[@id='popup-container-text']    ${waitTime}
+    Run Keyword If    ${ac_IsAnounment}    Click Element    //div[@id='popup-container-text']//button[@class='icon icon-close close']
+
+Config System
+    ################    SET CONFIG ROBOT
+    Set Global Variable    ${cfWaitTime}    0.01
+    Set Selenium Implicit Wait    ${cfWaitTime}
+    Set Global Variable    ${cfSpeed}    0.03
+    Set Selenium Speed    ${cfSpeed}
+    Set Global Variable    ${cfWaitControlLong}    90
+    Set Global Variable    ${cfWaitControl}    30
+    #################    # Get Workplace path
+    ${ac_CurDir}    Set variable    ${CURDIR}
+    ${ac_worksSpace}    Replace String    ${ac_CurDir}    \Actions    ${EMPTY}
+    Set Global Variable    ${cfCoreWorksSpace}    ${ac_worksSpace}
+    #################    Get config variable from Config.py file
+    Set Global Variable    ${cfUrl}    ${Url}    #    ${Url}    https://mb.gatonic.com/site-main/
+    Set Global Variable    ${cfBrowser}    ${Browser}    #    ${Browser}    ff
+    Set Global Variable    ${cfSeCode}    ${SeCode}    #    ${SeCode}    123457
+    Set Global Variable    ${cfPwd}    ${Pwd}    #    ${Pwd}    1234aaAA
+    Set Global Variable    ${cfisLocal}    ${isLocal}    #    ${isLocal}    1
+    Set Global Variable    ${cfDsBetlistFile}    ${DsBetlistFile}    #    ${DsBetlistFile}    Data_set\\BetList_rptWinLostDetail_Pro_Betlist.xls
+    Set Global Variable    ${cfDsResultsPage}    ${DsResultsPage}    #    ${DsResultsPage}    Data_set\\ResultsPage_Local.xls
+    Set Global Variable    ${cfReportDownloadFolder}    ${ReportDownloadFolder}    #    ${ReportDownloadFolder}    C:\\reportfolder
+    #################    ALPHA Avariables
+    ${cfProductList}    Create List    Sportsbook    Racing    Number Game    Virtual Sports    Casino
+    ...    Keno    Gold Deluxe    Colossus Bets    Allbet    Macau Games    Fishing World
+    ...    Lottery
+    Set Global Variable    ${cfProductList}
+    Set Global Variable    ${cfDBTime}    UTC - 4 hour
+    Comment    Create Sporttype Bettype Tote Dictionary
+    Comment    Define Status Color Vairables
+
+Expand Collapse Left Menu Side bar
+    [Arguments]    ${isExpand}=1
+    [Documentation]    This action is used to expand or collapse \ left menu side bar
+    ...    ${isExpand}: 1/0 (default value =1)
+    Unselect Frame
+    ${ac_sidebarStyle}    Get Element Attribute    ${in_core_cmm_left_sidebarMenu}@class
+    ${ac_sidebarIsExpand}    Evaluate    "${ac_sidebarStyle}".find("docked")
+    ${ac_sidebarIsExpand}    Set Variable If    ${ac_sidebarIsExpand} > 0 or '${ac_sidebarStyle}'=='sidebar'    1    0
+    Run Keyword Unless    '${ac_sidebarIsExpand}'=='${isExpand}'    Click Element    ${in_core_cmm_left_icoHamburger}
+
+Init
+    [Arguments]    ${username}
+    Config System
+    #################    Local Evironment: Update Account SC and Password
+    #################    Open Browser and navigate to login page
+    Open Browser    about:blank    ${cfBrowser}    ff_profile_dir=${cfCoreWorksSpace}\\firefox_profile
+    Delete All Cookies
+    Go To    ${cfUrl}
+    Maximize Browser Window
+    Run Keyword And Ignore Error    Log    \nURL= ${cfUrl}    console='yes'
+    #################    Login
+    Run Keyword Unless    '${username}'=='${EMPTY}'    Login    1    ${username}    ${cfPwd}
+    Comment    Run Keyword Unless    '${username}'=='${EMPTY}'    Login    1    ${username}    ${cfPwd}
+    ## Stop Exec If Login Failed
+    Stop Execute If Element Not Appear    ${EMPTY}    //div[@id='profile-content']    ${cfWaitControlLong}    LOGIN FAIL
+    ${ac_IsAnounment}    Run Keyword And Return Status    Wait Until Element Is Visible    //div[@id='popup-container-text']    10s
+    Run Keyword If    ${ac_IsAnounment}    Click Element    //div[@id='popup-container-text']//button[@class='icon icon-close close']
+    Expand Collapse Left Menu Side bar
+    ################
+    Select Personal Menu    Password
+    Confirm Security Code
+
+Select From Date
+    [Arguments]    ${date}    ${timeZone}=${cfDBTime}
+    Close Announcement Popup    0.01s
+    select frame    main
+    ${return}    Set Variable    True
+    ${ac_currentSelectedDate}    Get Value    ${in_core_cmm_txtFromDate}
+    ${ac_currentSelectedDateConvert}    Convert Date By Input Output Format    ${ac_currentSelectedDate}    m/d/y    /    y-mm-dd    -
+    ${ac_currentYear}    ${ac_currentMonth}    ${ac_currentDay}    Get Time    year,month,day    ${ac_currentSelectedDateConvert}
+    ${ac_dateConvert}    Convert Date By Input Output Format    ${date}    m/d/y    /    y-mm-dd    -
+    ${ac_year}    ${ac_month}    ${ac_day}    Get Time    year,month,day    ${ac_dateConvert}
+    ${ac_convertCurMonth}    Convert To Integer    ${ac_currentMonth}
+    ${ac_convertSelMonth}    Convert To Integer    ${ac_month}
+    ${ac_diffYear}    Evaluate    ${ac_currentYear}-${ac_year}
+    ${ac_diffMonth}    Evaluate    (${ac_diffYear}*12)+${ac_convertCurMonth}-${ac_convertSelMonth}
+    ${ac_diffDay}    Evaluate    ${ac_currentDay}-${ac_day}+1
+    ${ac_NavigateMonthControl}    Set variable if    ${ac_diffMonth}>0    ${in_core_cmm_dtpPrevMonthButton}    ${in_core_cmm_dtpNextMonthButton}
+    ${ac_diffMonth}    Evaluate    abs(${ac_diffMonth})
+    Click Element    ${in_core_cmm_icoFromDate}
+    Wait Until Element Is Visible    ${in_core_cmm_dtpFromDate}${in_core_cmm_dtpDateTable}    2s
+    : FOR    ${i}    IN RANGE    0    ${ac_diffMonth}
+    \    Click Element By Xpath js    ${ac_NavigateMonthControl}
+    Click Element By Xpath js    //table[@class='table-condensed']//td[@data-day='${date}']
+    ${ac_currentSelectedDate}    Get Value    ${in_core_cmm_txtFromDate}
+    ${return}    Run Keyword And Return Status    Should Be Equal    ${ac_currentSelectedDate}    ${date}
+    [Return]    ${return}
+
+Select Left Menu
+    [Arguments]    ${menu}    ${sub_menu}=${EMPTY}
+    [Documentation]    This action is used to select left menu item and after that focus on main frame
+    ...
+    ...    ${menu}: the main menu in left menu (TOTAL BETS, REPORTS,..)
+    ...
+    ...    ${sub_menu}: the sub menu item in ${menu} (Money Line,Parlay,Sub Account,...)
+    Unselect Frame
+    Expand Collapse Left Menu Side bar
+    Click Element    ${in_core_cmm_left_tabMainMenu}
+    ${menu}    Evaluate    "${menu}".upper()
+    ##1
+    ${ac_controlItem}    Set Variable    //ul[@id='main-menu-items']//span[@class='txt-item pull-left' and translate(text(), 'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='${menu}']/parent::a/parent::li
+    ${ac_controlItemID}    Get Element Attribute    ${ac_controlItem}@id
+    ${acc_DisplayStatus}    Get Element Attribute    ${ac_controlItem}@class
+    ${ac_controlSubItem}    Set Variable    ${ac_controlItem}//li/a[contains(.,'${sub_menu}')]
+    ${ac_controlSubItem}    Set Variable    ${ac_controlSubItem}//parent::li
+    ${ac_controlSubItemID}    Run Keyword If    '${sub_menu}'<>'${EMPTY}'    Get Element Attribute    ${ac_controlSubItem}@id
+    ##
+    Run Keyword Unless    '${acc_DisplayStatus}'=='menu-item active'    Execute Javascript    var x =document.getElementById("${ac_controlItemID}").children[0]; x.click();
+    Run Keyword If    '${sub_menu}'<>'${EMPTY}'    Execute Javascript    var x =document.getElementById("${ac_controlSubItemID}").children[0]; x.click();
+
+Select Personal Menu
+    [Arguments]    ${itemName}
+    Unselect Frame
+    Wait Until Element Is Enabled    ${in_core_cmm_top_iconHeaderMenu}    ${cfWaitControl}
+    Click Element    ${in_core_cmm_top_iconHeaderMenu}
+    Click Element    ${in_core_cmm_top_dropdownHeadMenu}//*[text()='${itemName}']
+
+Select To Date
+    [Arguments]    ${date}    ${timeZone}=${cfDBTime}
+    Close Announcement Popup    0.01s
+    select frame    main
+    ${return}    Set Variable    True
+    ${ac_currentSelectedDate}    Get Value    ${in_core_cmm_txtToDate}
+    ${ac_currentSelectedDateConvert}    Convert Date By Input Output Format    ${ac_currentSelectedDate}    m/d/y    /    y-mm-dd    -
+    ${ac_currentYear}    ${ac_currentMonth}    ${ac_currentDay}    Get Time    year,month,day    ${ac_currentSelectedDateConvert}
+    ${ac_dateConvert}    Convert Date By Input Output Format    ${date}    m/d/y    /    y-mm-dd    -
+    ${ac_year}    ${ac_month}    ${ac_day}    Get Time    year,month,day    ${ac_dateConvert}
+    ${ac_convertCurMonth}    Convert To Integer    ${ac_currentMonth}
+    ${ac_convertSelMonth}    Convert To Integer    ${ac_month}
+    ${ac_diffYear}    Evaluate    ${ac_currentYear}-${ac_year}
+    ${ac_diffMonth}    Evaluate    (${ac_diffYear}*12)+${ac_convertCurMonth}-${ac_convertSelMonth}
+    ${ac_diffDay}    Evaluate    ${ac_currentDay}-${ac_day}+1
+    ${ac_NavigateMonthControl}    Set variable if    ${ac_diffMonth}>0    ${in_core_cmm_dtpPrevMonthButton}    ${in_core_cmm_dtpNextMonthButton}
+    ${ac_diffMonth}    Evaluate    abs(${ac_diffMonth})
+    Click Element    ${in_core_cmm_icoToDate}
+    Wait Until Element Is Visible    ${in_core_cmm_dtpToDate}${in_core_cmm_dtpDateTable}    2s
+    : FOR    ${i}    IN RANGE    0    ${ac_diffMonth}
+    \    Click Element By Xpath js    ${ac_NavigateMonthControl}
+    Click Element By Xpath js    //table[@class='table-condensed']//td[@data-day='${date}']
+    ${ac_currentSelectedDate}    Get Value    ${in_core_cmm_txtToDate}
+    ${return}    Run Keyword And Return Status    Should Be Equal    ${ac_currentSelectedDate}    ${date}
+    [Return]    ${return}
+
+Stop Execute If Element Not Appear
+    [Arguments]    ${iframeName}=${EMPTY}    ${element}=${EMPTY}    ${timeout}=60s    ${message}=${EMPTY}
+    [Documentation]    This action is used to stop Execution if check an element doesn't appear
+    ${ac_isSuccess}    Run Keyword And Return Status    Run Keyword If    '${iframeName}'!='${EMPTY}'    Wait Until Keyword Succeeds    ${timeout}    1s
+    ...    Select Frame    id=${iframeName}
+    Run Keyword If    '${ac_isSuccess}'=='False'    Run Keywords    Capture Page Screenshot
+    ...    AND    LOG    \n LOGIN FAILED    console='yes'
+    ...    AND    Fatal Error    ${message}
+    ${ac_isSuccess}    Run Keyword And Return Status    wait_until_element_is_visible    ${element}    ${timeout}
+    Run Keyword If    '${ac_isSuccess}'=='False'    Run Keywords    Capture Page Screenshot
+    ...    AND    LOG    \n LOGIN FAILED    console='yes'
+    ...    AND    Fatal Error    ${message}
+    Run Keyword If    '${iframeName}'!='${EMPTY}'    Unselect Frame
+
+Get Min Date Suport Range
+    [Arguments]    ${inputDate}    ${monthNumber}=0    ${yearNumber}=0    ${plus}=0    ${errMsg}=${EMPTY}
+    ${yyyy}    ${mm}    ${dd}    Get time    year,month,day    ${inputDate}
+    ${ac_subTractDays}    evaluate    ${monthNumber}*31
+    ${ac_subTractMonth}    Subtract Time From Date    ${inputDate}    ${ac_subTractDays} days
+    ${yyyy_subMonth}    ${mm_subMonth}    ${dd_sub}    Get time    year,month,day    ${ac_subTractMonth}
+    ${yyyy_subYear}    evaluate    ${yyyy}-${yearNumber}
+    ${d}    Set Variable If    ('${plus}'== '1')    01    ${dd_sub}
+    ${m}    Set Variable If    ('${plus}' == '1') and ('${yearNumber}' != '0')    01    ${mm_subMonth}
+    Comment    ${y}    Set Variable    ${yyyy_subYear}
+    ${y}    Set Variable If    '${yearNumber}' != '0'    ${yyyy_subYear}    ${yyyy_subMonth}
+    ${returnDate}    Set Variable    ${m}/${d}/${y}
+    [Return]    ${returnDate}
+
+Define Product System
+    ${cf_dic_ProductID}    Create Dictionary
+    Set To Dictionary    Sportsbook    1
+    Set To Dictionary    Racing    2
+    Set To Dictionary    Number Game    3
+    Set To Dictionary    Live Casino    4
+    Set To Dictionary    Virtual Sports    5
+    Set To Dictionary    Keno    8
+    Set To Dictionary    Gold Deluxe    12
+    Set To Dictionary    Colossus Bets    15
+    Set To Dictionary    Allbet    21
+    Set To Dictionary    Macau Games    22
+    Set To Dictionary    Fishing World    24
+    Set To Dictionary    Lottery    28
+    Comment    ${cf_dic_ProductEndOfDate}    ProductName
+    ${cf_dic_ProductStatus}    Create Dictionary
+    Set To Dictionary    Sportsbook    ${EMPTY}
+    Set To Dictionary    Racing    ${EMPTY}
+    Set To Dictionary    Number Game    ${EMPTY}
+    Set To Dictionary    Live Casino    2017-12-31
+    Set To Dictionary    Virtual Sports    ${EMPTY}
+    Set To Dictionary    Keno    ${EMPTY}
+    Set To Dictionary    Gold Deluxe    ${EMPTY}
+    Set To Dictionary    Colossus Bets    ${EMPTY}
+    Set To Dictionary    Allbet    ${EMPTY}
+    Set To Dictionary    Macau Games    ${EMPTY}
+    Set To Dictionary    Fishing World    ${EMPTY}
+    Set To Dictionary    Lottery    ${EMPTY}

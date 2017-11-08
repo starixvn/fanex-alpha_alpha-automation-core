@@ -1,0 +1,18 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../Interfaces/in_scd_SecurityCode.txt    #============================INTERFACES====================
+Resource          core_common.txt    #============================ACTIONS====================
+
+*** Keywords ***
+Confirm Security Code
+    Unselect Frame
+    Select Frame    main
+    Wait Until Element Is Visible    ${in_core_scd_txtSE}    ${cfWaitTime}
+    Input Text    ${in_core_scd_txtSE}    ${cfSeCode}
+    click element    ${in_core_scd_btnSubmit}

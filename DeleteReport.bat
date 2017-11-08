@@ -1,0 +1,1 @@
+call DEL /F /S /Q /A "%~dp0\Report\*"

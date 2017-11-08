@@ -1,0 +1,147 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01Login_S}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Super    Funct_Report
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../../Actions/account_info_general.txt
+Resource          ../../../Actions/common_actions.txt
+Resource          ../../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/Setting/status_actions.txt
+Resource          ../../../Interfaces/in_top_menu.txt
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Actions/PT/pt_sportsbook.txt
+Resource          ../../../Data_set/accounts.txt
+Resource          ../../../Actions/PT/pt_virtualsports.txt
+Resource          ../../../Interfaces/Main/in_m_transfer.txt
+Resource          ../../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../../Interfaces/Main/in_main_totalbet_report_forecast.txt
+Resource          ../../../Actions/reports_actions.txt
+Resource          ../../../Interfaces/Main/in_main_memberinfo.txt
+Resource          ../../../Actions/memberinfo.txt
+Resource          ../../../Interfaces/Main/in_main_new_totalbets_forecast.txt
+Resource          ../../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../../Interfaces/Main/in_m_edit_casino.txt
+Resource          ../../../Actions/PT/pt_racing.txt
+Resource          ../../../Interfaces/Main/in_m_securitycode_password.txt
+
+*** Test Cases ***
+TC_1_Super_Master Outstanding Smartphone_Functional
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Outstanding*
+    ...
+    ...    2. Verify Report *Outstanding*
+    ...    - 1 VP: Verify report header
+    ...    - 2 VP: Verify Report Filter Product List
+    ...    - 3 VP: Check sort function in report outstanding
+    ...    - 4 VP:Check Breadcrumb Super
+    ...    - 5 DrillDown Master (If Login level Super)
+    ...    - 6 VP: Verify report header
+    ...    - 7 VP: Check sort function in report outstanding
+    ...    - 8 VP: Check Breadcrumb Master
+    ...    - 9 DrillDown Agent (If Login level Super or Master)
+    ...    - 10 VP: Verify report header
+    ...    - 11 VP: Check sort function in report outstanding
+    ...    - 12 VP: Check Breadcrumb Agent
+    ...    - 13 DrillDown Member
+    ...    - 14 VP: Check Breadcrumb Member (Expected don't have Breadcrumb)
+    ...    - 15 Click on breadcrumb link of master to drill up to master
+    ...    - 16 VP: Verify report header
+    ...    - 17 Click on breadcrumb link of sortuper to drill up to super
+    ...    - 18 VP: Verify report header
+    ...
+    ...    *****History*******
+    ...
+    ...    2017-02-27: Kingsley created
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    - Alpha-7136:[Submit] Button
+    ...    - Alpha-7144:Verify product checkbox
+    ...    - Alpha-7165:Drilldown - Check breadcrumb
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Outstanding
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_OutStanding    Master    ${tc_master}    ${tc_agent}    ${tc_member}
+
+TC_2_Super_Master Outstanding Smartphone_Functional_Crosscheckdata
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Outstanding*
+    ...
+    ...    2. Verify Report *Outstanding Cross Check data*
+    ...    - 1 VP: Verify report header
+    ...    - 2 VP: Verify Report Filter Product List
+    ...    - 3 Get Super Outstanding and Member Outstanding value of report Master Outstanding
+    ...    - 4 DrillDown Master (If Login level Super)
+    ...    - 5 VP: Verify report header
+    ...    - 6 Get Super and Member Outstanding value at total row of report Agent Out Standing.
+    ...    - 7 Get Master Outstanding of report Agent Out Standing
+    ...    - 8 VP: Compare with total row of column Super and Member after drilldown
+    ...    - 9 Get Super , Master and Member Outstanding value of Report Agent Outstanding
+    ...    - 10 DrillDown Agent (If Login level Super or Master)
+    ...    - 11 Get Super and Member and Master Outstanding at total row of report Member Outstanding
+    ...    - 12 VP: Compare with total row of column Super, Master and \ Member after drilldown
+    ...
+    ...    *****History*******
+    ...
+    ...    2017-02-27: Kingsley created
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Outstanding
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_OutStanding_crosscheck_data    Master    ${tc_master}    ${tc_agent}    ${tc_member}
+
+TC_3_Super_Master Outstanding Smartphone_Functional_Check Navigation
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Outstanding
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_OutStanding_Check Navigation    Master    ${tc_super}    ${tc_master}    ${tc_agent}    ${tc_member}
+
+TC_4_Super_Master Outstanding Smartphone_Functional_Check Sort When Drill Down/Up
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Outstanding
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Smartphone Verify Report_OutStanding_Check Sort When Drill Down/Up_Username_Column    Master    ${tc_master}    ${tc_agent}    Master    1    asc
+    ...    String
+    Smartphone Verify Report_OutStanding_Check Sort When Drill Down/Up_Username_Column    Master    ${tc_master}    ${tc_agent}    Master    1    desc
+    ...    String
+    Smartphone Verify Report_OutStanding_Check Sort When Drill Down/Up_Outstanding_Column    Master    ${tc_master}    ${tc_agent}    Member    2    asc
+    ...    numberic
+    Smartphone Verify Report_OutStanding_Check Sort When Drill Down/Up_Outstanding_Column    Master    ${tc_master}    ${tc_agent}    Member    2    desc
+    ...    numberic
+    Smartphone Verify Report_OutStanding_Check Sort When Drill Down/Up_Outstanding_Column    Master    ${tc_master}    ${tc_agent}    Super    3    asc
+    ...    numberic
+    Smartphone Verify Report_OutStanding_Check Sort When Drill Down/Up_Outstanding_Column    Master    ${tc_master}    ${tc_agent}    Super    3    desc
+    ...    numberic

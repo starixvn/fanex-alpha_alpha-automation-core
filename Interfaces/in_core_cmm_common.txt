@@ -1,0 +1,42 @@
+*** Variables ***
+##LEFT PANEL
+${in_core_cmm_left_sidebarMenu}    //aside[@id='side-bar']
+${in_core_cmm_left_tabMainMenu}    //li[@id='main-menu-header']/a
+${in_core_cmm_left_AccountInfo}    //li[@id='account-info-header']/a
+${in_core_cmm_left_icoHamburger}    //span[@id='hamburger-icon']
+## TOP RIGHT GROUP
+${in_core_cmm_top_lnkLanguage}    //li[@class='hidden-mobile dropdown language']/a    #//li[@class='dropdown language']/a
+${in_core_cmm_top_iconlogout}    //a[@class='icon icon-logout withripple']
+## Right Context Menu Icon [...]
+${in_core_cmm_top_iconHeaderMenu}    //a[@id='btn-header-menu']
+${in_core_cmm_top_iconNickName}    //ul[@id='header-dropdown-menu']/li[2]/a[text()="Nickname"]/span[@class="icon icon-account-key"]
+${in_core_cmm_top_iconProfilePicture}    //ul[@id='header-dropdown-menu']/li[3]/a[text()="Profile picture"]/span[@class='icon icon-account-circle']
+${in_core_cmm_top_iconPassword}    //ul[@id='header-dropdown-menu']/li[4]/a[text()="Password"]/span[@class='icon icon-lock']
+${in_core_cmm_top_iconSecurityCode}    //ul[@id='header-dropdown-menu']/li[5]/a[text()="Security Code"]/span[@class='icon icon-sercuritycode']
+${in_core_cmm_top_iconHelp}    //ul[@id='header-dropdown-menu']/li[6]/a[text()="Help"]/span[@class='icon icon-help']
+${in_core_cmm_top_iconOTP}    //ul[@id='header-dropdown-menu']/li[7]/a[text()="OTP"]/span[@class='icon icon-otp']
+${in_core_cmm_top_iconContactUs}    //ul[@id='header-dropdown-menu']/li[8]/a[text()="Contact Us"]/span[@class='icon icon-contactus']
+## Top Left Options
+${in_core_cmm_top_imgProfile}    //img[@id='logoProfileImg']
+${in_core_cmm_top_spanUsername}    //span[@class='userName']
+${in_core_cmm_top_lnkNickname}    //a[@id='linkNickNameID']
+${in_core_cmm_top_lnkOPT}    //div[@id='profile-content']/div/a[@class="otp"]
+${in_core_cmm_top_iconHamburger}    //span[@id='hamburger-icon']
+${in_core_cmm_top_dropdownHeadMenu}    //ul[@id='header-dropdown-menu']
+## Top Bar
+${in_core_cmm_top_iconHome}    //span[@id='home-icon']
+${in_core_cmm_top_labMarqueeMessage}    //div[@id="marqueeMessage"]
+${in_core_cmm_top_scollTextMessage}    //span[@id="scroller"]//span[@id='liveMessage']
+${in_core_cmm_top_iconSpecialMessage}    //span[@id='btnSpecialMessage']
+${in_core_cmm_top_iconPrivateMessage}    //div[@id='btnPrivateMessage']/span[1]
+## Date Picker Control
+${in_core_cmm_txtFromDate}    //div[@class='control date']//input[@id='from-date']
+${in_core_cmm_txtToDate}    //div[@class='control date']//input[@id='to-date']
+${in_core_cmm_icoFromDate}    //span[@id='fdate_trigger']
+${in_core_cmm_icoToDate}    //span[@id='tdate_trigger']
+${in_core_cmm_dtpFromDate}    //div[@id='from-date-container']
+${in_core_cmm_dtpToDate}    //div[@id='to-date-container']
+${in_core_cmm_dtpDateTable}    //table[@class='table-condensed']
+${in_core_cmm_dtpMonthYear}    //table[@class='table-condensed']/thead//th[@class='picker-switch']
+${in_core_cmm_dtpPrevMonthButton}    //table[@class='table-condensed']/thead//th[@data-action='previous']/span[@title='Previous Month']
+${in_core_cmm_dtpNextMonthButton}    //table[@class='table-condensed']/thead//th[@data-action='next']/span[@title='Next Month']

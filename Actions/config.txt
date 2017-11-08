@@ -1,0 +1,25 @@
+*** Settings ***
+Library         Selenium2Library
+
+*** Variables ***
+${cf_url}       http://10.18.200.202:8022/ID29363-AutomationTest/
+${cf_browser}   ff
+${cf_super}     supertest1sub88
+${cf_acc_pass}  1234aaAA
+${cf_se_code}   123457
+${cf_master}    Master1Sub61
+${cf_agent}     Agent01sub10
+${cf_super_auto}  SUPERTESTAUTO1
+${cf_msg_closed_acc}  Account closed. Please contact your administrator!
+${cf_timeout}   10
+${cf_accsite}   http://10.18.200.112:8011/Accounting-Pro/index.aspx
+${cf_timeout_long}  15
+${cf_supertestauto}  supertestAutoAlpha01
+${cf_mastertestauto}  supertestAutoAlpha0101
+${cf_agenttestauto}  supertestAutoAlpha010101
+${cf_capcha}    88889999
+${cf_acc_auto_pass}  1234aaAA
+
+*** Keywords ***
+config_error
+  Run Keyword If Any Tests Failed  Close All Browsers

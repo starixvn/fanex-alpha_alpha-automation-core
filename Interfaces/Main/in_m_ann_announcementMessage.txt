@@ -1,0 +1,4 @@
+*** Variables ***
+${in_m_ann_tabNormalAnnouncement}    //a[text()='Normal Announcement']
+${in_m_ann_tabSpecialAnnouncement}    //a[text()='Special Announcement']
+${in_m_ann_tabPersonalMessage}    //a[text()='Personal Message']

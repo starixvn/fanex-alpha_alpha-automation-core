@@ -1,0 +1,8 @@
+*** Variables ***
+${in_m_subAcc_btnAddSubAccount}    //*[@id='page_main']/div[1]/button
+${in_m_subAcc_tblHeader}    //*[@id='page_main']/table/tbody/tr[1]
+${in_m_subAcc_firstColMemberInformation}    //table//tr[2]//div[@class='pMemInfo']
+${in_m_subAcc_firstColEdit}    //table//tr[2]/td[contains(@onclick,'EditSubAccPopup')]/span
+${in_m_subAcc_firstColPassword}    //table//tr[2]/td[contains(@onclick,'ResetSubAccPwdPopup')]/span
+${in_m_subAcc_firstColSecurity}    //table//tr[2]/td[contains(@onclick,'ResetSubAccSCPopup')]/span
+${in_m_subAcc_firstColRemoveOTP}    //table//tr[2]/td[contains(@onclick,'ResetSubAccOtpPopup')]/span

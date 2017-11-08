@@ -1,0 +1,4 @@
+*** Variables ***
+${in_mp_cboPT}    //*[@data-ng-model='uplinePTOnMember.newUplinePositionTaking']
+${in_mp_btnYes}    //*[@data-ng-click='updatePTOnMember(true)']    # //*[@id='presetOnMemberModal']/div/div/div[3]/input[1]
+${in_mp_btnNo}    //*[@data-ng-click='updatePTOnMember(false)']

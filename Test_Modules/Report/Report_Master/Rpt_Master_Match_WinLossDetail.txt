@@ -1,0 +1,132 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01_M}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Funct_Report    Level_Master
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../../Actions/account_info_general.txt
+Resource          ../../../Actions/common_actions.txt
+Resource          ../../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/Setting/status_actions.txt
+Resource          ../../../Interfaces/in_top_menu.txt
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Actions/PT/pt_sportsbook.txt
+Resource          ../../../Data_set/accounts.txt
+Resource          ../../../Actions/PT/pt_virtualsports.txt
+Resource          ../../../Interfaces/Main/in_m_transfer.txt
+Resource          ../../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../../Interfaces/Main/in_main_totalbet_report_forecast.txt
+Resource          ../../../Actions/reports_actions.txt
+Resource          ../../../Interfaces/Main/in_main_memberinfo.txt
+Resource          ../../../Actions/memberinfo.txt
+Resource          ../../../Interfaces/Main/in_main_new_totalbets_forecast.txt
+Resource          ../../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../../Interfaces/Main/in_m_edit_casino.txt
+Resource          ../../../Actions/PT/pt_racing.txt
+Resource          ../../../Interfaces/Main/in_m_securitycode_password.txt
+
+*** Test Cases ***
+TC_1_Master_Match Win Loss Detail_Smartphone_Functional_NormalMode
+    [Documentation]    ***Step***
+    ...
+    ...    1. Navigate to Match Win Loss Detail Report
+    ...
+    ...    2. Verify function Show/Hide Report filter
+    ...
+    ...    3. Verify Report filter Product list
+    ...
+    ...    4. Verify Report Filter Date Range
+    ...
+    ...    5. Smartphone Verify Report_Match_Win Loss Detail_StackMode
+    ...    - 1 Switch to stack mode
+    ...    - 2 VP: check Table of stack mode is visible and some colums are correct
+    ...    - 3 Select date range fillter and submit
+    ...    - 4 VP: Check all checkboxes in Leagues dropdown list are checked as default
+    ...    - 5 VP: Verify data on Match
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    - Alpha-7232:Add Show/hide icon
+    ...    - Alpha-7201:Verify product dropdown list
+    ...    - Alpha-7252:[Submit] Button
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Match Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 4 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Close Announcement Popup
+    Smartphone Verify function Show/Hide Report filter
+    Verify Report Filter Product List    All Products (@NumberOfProduct@),Select all,Sportsbook,Racing,Number Game,Virtual Sports
+    Comment    Verify Report Filter Date Range    Today,Yesterday,This Week,Specific Dates
+    Smartphone Verify Report_Match_Win Loss Detail_NormalMode    ${tc_fromDate}    ${tc_toDate}    Master    ENGLISH
+
+TC_2_Master_Match Win Loss Detail_Smartphone_Functional_StackMode
+    [Documentation]    ***Step***
+    ...
+    ...    1. Navigate to Match Win Loss Detail Report
+    ...
+    ...    2. Verify function Show/Hide Report filter
+    ...
+    ...    3. Verify Report filter Product list
+    ...
+    ...    4. Verify Report Filter Date Range
+    ...
+    ...    5. Verify function Switch between stack and normal mode
+    ...    - 1 VP: check icon stack mode is present then click it
+    ...    - 2 VP: check Table of stack mode is visible and some colums are correct
+    ...    - 3 VP: check icon normal mode is present then click it
+    ...    - 4 VP: check Table stack mode is disable and normal mode is visible
+    ...
+    ...    6. Smartphone Verify Report_Match_Win Loss Detail_StackMode
+    ...    - 1 Switch to stack mode
+    ...    - 2 VP: check Table of stack mode is visible and some colums are correct
+    ...    - 3 Select date range fillter and submit
+    ...    - 4 VP: Check all checkboxes in Leagues dropdown list are checked as default
+    ...    - 5 VP: Verify data on Match
+    ...
+    ...    ********List of TCs are automated*********:
+    ...
+    ...    - Alpha-7232:Add Show/hide icon
+    ...    - Alpha-7201:Verify product dropdown list
+    ...    - Alpha-7252:[Submit] Button
+    ...    - Alpha-7220:stack mode
+    ...    - Alpha-7221:Check Bettype
+    ...    - Alpha-7222:Check Turnover/Gross Comm
+    ...    - Alpha-7224:Check Member (WL/Comm/Total)
+    ...    - Alpha-7225:Check Agent (WL/Comm/Total)
+    ...    - Alpha-7226:Check Master (WL/Comm/Total)
+    ...    - Alpha-7227:Check Super (WL/Comm/Total)
+    ...    - Alpha-7228:Check Company (Comm/Total)
+    [Tags]
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Match Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 4 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Close Announcement Popup
+    Smartphone Verify function Show/Hide Report filter
+    Verify Report Filter Product List    All Products (@NumberOfProduct@),Select all,Sportsbook,Racing,Number Game,Virtual Sports
+    Comment    Verify Report Filter Date Range    Today,Yesterday,This Week,Specific Dates
+    Smartphone Report Match WinLoss Detail Verify function Switch between stack and normal mode    No    Yes
+    Smartphone Verify Report_Match_Win Loss Detail_StackMode    ${tc_fromDate}    ${tc_toDate}    Master    ENGLISH

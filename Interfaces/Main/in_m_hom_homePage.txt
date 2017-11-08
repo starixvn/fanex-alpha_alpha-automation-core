@@ -1,0 +1,37 @@
+*** Variables ***
+##
+## BALANCE INFO tab
+${in_m_hom_tabBalanceInfo}    //div[@id='balance']
+${in_m_hom_lblBalanceInfoTitle}    //div[@id='balance']//div[@class="panel-title" and text()='Balance Info']
+${in_m_hom_balInfo_superUsername}    //div[@id='balance']//div[text()='Super']/following-sibling::div/strong
+${in_m_hom_balInfo_masterUsername}    //div[@id='balance']//div[text()='Master']/following-sibling::div/strong
+${in_m_hom_balInfo_agentUsername}    //div[@id='balance']//div[text()='Agent']/following-sibling::div/strong
+${in_m_hom_balInfo_agentUsername}    //div[@id="stats"]//*[text()='Total Outstanding']/following-sibling::div/a[@class="btn-link"]
+${in_m_hom_balInfo_cash}    //div[@id='balance']//div[text()='Cash']/following-sibling::div/strong
+#####BALANCE INFO_BALANCE GROUP
+${in_m_hom_lblBalanceInfo_Balance}    //div[@id='balance']//div[@class="group-title" and text()='Balance']
+#####BALANCE INFO_WIN LOSS GROUP
+${in_m_hom_lblBalanceInfo_Winloss}    //div[@id='balance']//div[@class="group-title" and text()='Win Loss']
+${in_m_hom_lblBalanceInfo_WinlossTodayValue}    //div[@id='balance']//div[contains(text(),'Today')]/following-sibling::div/a[@class="btn-link"]
+${in_m_hom_lblBalanceInfo_WinlossYesterdayValue}    //div[@id='balance']//div[contains(text(),'Yesterday')]/following-sibling::div/a[@class="btn-link"]
+#####BALANCE INFO_CREDIT GROUP
+${in_m_hom_lblBalanceInfo_Credit}    //div[@id='balance']//div[@class="group-title" and contains(text(),'Credit')]
+##
+## STATISTICS
+${in_m_hom_tabStatistics}    //div[@id='stats']
+${in_m_hom_lblStatisticsTitle}    //div[@id='stats']//div[@class="panel-title" and text()='Statistics']
+${in_m_hom_lblStatisSuperOutstadingValue}    //div[@id="stats"]//*[text()='Super']/following-sibling::div/a[@class="btn-link"]
+${in_m_hom_lblStatisMasterOutstadingValue}    //div[@id="stats"]//*[text()='Master']/following-sibling::div/a[@class="btn-link"]
+${in_m_hom_lblStatisAgentOutstadingValue}    //div[@id="stats"]//*[text()='Agent']/following-sibling::div/a[@class="btn-link"]
+${in_m_hom_lblStatisTotalOutstadingValue}    //div[@id="stats"]//*[text()='Total Outstanding']/following-sibling::div/a[@class="btn-link"]
+##
+## ANNOUNCEMENT
+${in_m_hom_tabNotice}    //div[@id='notice']
+${in_m_hom_lblBalanceInfoTitle}    //div[@id='balance']//div[@class="panel-title" and text()='Balance Info']
+##
+## PLAY FOR FUN
+${in_m_hom_tabPlaceForFun}    //div[@id='member-requests']
+${in_m_hom_lnkCasino}    //div[@id='member-requests']//a[text()='Casino']
+${in_m_hom_lnkCasinoMemberRequest}    //div[@id='member-requests']//a[text()='Casino']/../following-sibling::div/a
+${in_m_hom_lnkCasinoMemberRequest}    //div[@id='member-requests']//a[text()='Casino']/../following-sibling::div/a
+${in_m_hom_icoPlayForFunInfo}    //div[@id='member-requests']//span[@id='icon-help-play-for-fun']

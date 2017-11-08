@@ -1,0 +1,189 @@
+*** Setting ***
+Library           Selenium2Library
+Library           ../Libary/Selenium2Extend.py
+Library           ../ExternalLibrary.py
+Resource          common_actions.txt
+Resource          Left_menu/left_menu_actions.txt
+Resource          ../Interfaces/Main/in_m_report.txt
+Resource          ../Interfaces/Main/in_m_report_smartphone.txt
+Resource          ../Interfaces/Main/in_main_totalbet_report_forecast.txt
+
+*** Keywords ***
+Back to Previous Level by Breakcumb Node Index
+    [Arguments]    ${index}
+    [Documentation]    Go Report by breakcrumb \ Node Name
+    Wait Until Element Is Visible    ${in_m_report_lstBreadcrums}/li[${index}]    ${cfWaitControl}
+    Click Element    ${in_m_report_lstBreadcrums}/li[${index}]
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+
+Export Excel File
+    Wait Until Element Is Visible    ${in_Reports_btnExportToExcel_smartphone}    ${cfWaitControl}
+    Click element    ${in_Reports_btnExportToExcel_smartphone}
+
+Filter Month Control Previous
+    Wait Until Element Is Visible    ${in_m_Report_History_datetime_dropdown_btnPrevious}    ${cfWaitControl}
+    Click Element    ${in_m_Report_History_datetime_dropdown_btnPrevious}
+    Click Element    ${in_m_btnSubmit}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+
+Filter Report History
+    Click element    ${in_m_Report_lnkViewHistoryReport}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+
+Filter Report by Daily
+    Wait Until Element Is Visible    ${in_m_report_Daily}    ${cfWaitControl}
+    Click Element    ${in_m_report_Daily}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Filter Report by Monthly
+    Wait Until Element Is Visible    ${in_m_report_Monthly}    ${cfWaitControl}
+    Click Element    ${in_m_report_Monthly}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Filter Report by Sport
+    Wait Until Element Is Visible    ${in_m_report_Sport}    ${cfWaitControl}
+    Click Element    ${in_m_report_Sport}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Filter Report by Quick Date
+    [Arguments]    ${optionText}
+    [Documentation]    Action Support Select Dropdown Quick Date Options
+    ...    - ${optionText}: String (Today, Yesterday, This Week, This Month, Specific Dates)
+    ...
+    ...    *History*
+    ...    - [2017-09-28]-Casey: Created
+    ${optionLocator}    Set Variable    /li/a[text()='${optionText}']
+    Wait Until Element Is Visible    ${in_m_report_DateRange_dropdown_list_button}    ${cfWaitControl}
+    Click Element    ${in_m_report_DateRange_dropdown_list_button}
+    Click Element    ${in_m_report_DateRange_dropdown_list}/${optionLocator}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Hide Filter
+    Wait Until Element Is Visible    ${in_m_report_icon_arrow_up}    ${cfWaitControl}
+    Click Element    ${in_m_report_icon_arrow_up}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Select Month_Next
+    [Arguments]    ${monthControl}
+    Wait Until Element Is Visible    ${monthControl}    ${cfWaitControl}
+    Click Element    ${monthControl}/a[@title='Next Month']
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+
+Select Month_Previous
+    [Arguments]    ${monthControl}
+    Wait Until Element Is Visible    ${monthControl}    ${cfWaitControl}
+    Click Element    ${monthControl}/a[@title='Previous Month']
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+
+Show Filter
+    Wait Until Element Is Visible    ${in_m_report_icon_arrow_down}    ${cfWaitControl}
+    Click Element    ${in_m_report_icon_arrow_down}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Switch Report History
+    Wait Until Element Is Visible    ${in_m_Report_lnkViewHistoryReport}    ${cfWaitControl}
+    Click element    ${in_m_Report_lnkViewHistoryReport}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Switch View Mode Normal
+    Wait Until Element Is Visible    ${in_m_report_icon_normal_mode}    ${cfWaitControl}
+    Click Element    ${in_m_report_icon_normal_mode}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Switch View Mode Stake
+    Wait Until Element Is Visible    ${in_m_report_icon_stack_mode}    ${cfWaitControl}
+    Click Element    ${in_m_report_icon_stack_mode}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Verify Bet List Title Should Be
+    [Arguments]    ${expText}    ${issueID}=${EMPTY}
+    Wait Until Element Is Visible    ${in_m_report_divReportTitle}    ${cfWaitControl}
+    ${ac_Title}    Get Text    ${in_m_report_divReportTitle}
+    Run Keyword And Continue On Failure    Should Be Equal    ${ac_Title}    ${expText}    FAILED ${issueID}: [Observed Result: Title Text "${ac_Title}"] - [Expect Observed: contain text "${expText}"]
+
+Verify Bet List Smoke Test
+    [Arguments]    ${betlistName}    ${member}=${EMPTY}    ${isExportExcel}=0    ${issueID}=${EMPTY}
+    Wait Until Element Is Visible    ${in_m_report_divReportTitle}    ${cfWaitTime}    ${issueID}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_report_divReportTitle}    ${betlistName}    ${issueID}
+    Run Keyword And Continue On Failure    Run keyword if    '${member}'!='${EMPTY}'    Element Should Contain    ${in_m_report_divReportTitle}    ${member}    ${issueID}
+    Run Keyword If    '${isExportExcel}'=='1'    Export Excel File
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //th[contains(text(),'Trans.Time')]    ${cfWaitTime}    ${issueID}
+
+Verify Bet List Smartphone_Smoke Test
+    [Arguments]    ${betlistName}    ${member}=${EMPTY}    ${isExportExcel}=0    ${issueID}=${EMPTY}
+    Wait Until Element Is Visible    ${in_m_report_divReportTitle}    ${cfWaitTime}    ${issueID}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_report_divReportTitle}    ${betlistName}    ${issueID}
+    Run Keyword And Continue On Failure    Run keyword if    '${member}'!='${EMPTY}'    Element Should Contain    ${in_m_report_divReportTitle}    ${member}    ${issueID}
+    Run Keyword If    '${isExportExcel}'=='1'    Export Excel File
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //th[contains(text(),'Trans.Time')]    ${cfWaitTime}    ${issueID}
+
+Verify Data Table Header
+    [Arguments]    ${headerLocator}    ${expHeaderText}    ${issueID}=${EMPTY}
+    ${isExist}    Is Element Visible    ${headerLocator}    ${cfWaitControl}
+    ${obsHeaderText}    Run Keyword If    ${isExist}==True    Get Text    ${headerLocator}
+    ${errMsg}    Set Variable    FAILED ${issueID}: [Observed Result: Title Text "${obsHeaderText}"] - [Expect Observed: contain text "${expText}"]
+    Run Keyword And Continue On Failure    Should Be Equal    ${obsHeaderText}    ${expHeaderText}    ${errMsg}
+
+Verify Report Smoke Test
+    [Arguments]    ${expTitle}=${EMPTY}    ${expBreakcumb}=${EMPTY}    ${isExportExcel}=0    ${isDataTable}=0    ${isInfo}=0    ${issueID}=${EMPTY}
+    [Documentation]    This Action is used to Verify Report Smoke Test
+    ...    - ${expTitle}: String, Report Title contains ${expTitle}
+    ...    - ${expBreakcrumb}: 0-Invisible ELSE Node List
+    ...    (ex: ${breabcrumb} Create List SUPERTESTAUTO00 SUPERTESTAUTO0001)
+    Run Keyword If    '${expTitle}'!='${EMPTY}'    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_report_divReportTitle_smartphone_friendly}    ${expTitle}
+    Run Keyword If    '${isExportExcel}'=='1'    Run Keyword And Continue On Failure    Click element    ${in_Reports_btnExportToExcel_smartphone}
+    Run Keyword If    '${isDataTable}'=='1'    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_report_table_Smartphone}/tbody/tr/td    ${issueID}
+    Run Keyword If    '${expBreakcumb}'!='${EMPTY}'    Run Keyword And Continue On Failure    Verify Report Breadcrumb    ${expBreakcumb}    ${issueID}
+    Return From Keyword If    '${isInfo}'=='0'
+    Wait Until Element Is Visible    ${in_m_report_icoInfo}    ${cfWaitControl}
+    Sleep    0.5s
+    Click Element By Xpath js    ${in_m_report_icoInfo}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_report_icoInfoPopupContent}    ${cfWaitControl}
+    Click Element By Xpath js    ${in_m_report_btnClose}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+Verify Report Title Should Be
+    [Arguments]    ${expText}    ${issueID}=${EMPTY}
+    Wait Until Element Is Visible    ${in_m_report_divReportTitle_smartphone_friendly}    ${cfWaitControl}
+    ${ac_Title}    Get Text    ${in_m_report_divReportTitle_smartphone_friendly}
+    Run Keyword And Continue On Failure    Should Be Equal    ${ac_Title}    ${expText}    ${issueID}:
+
+Verify Report Title Should Contain
+    [Arguments]    ${expContainText}    ${issueID}=${EMPTY}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_report_divReportTitle_smartphone_friendly}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_report_divReportTitle_smartphone_friendly}    ${expContainText}
+    Comment    ${ac_Title}    Get Text    ${in_m_report_divReportTitle_smartphone_friendly}
+    Comment    Run Keyword And Continue On Failure    Should Contain    ${ac_Title}    ${expContainText}    ${issueID}:
+
+Verify Report Title and Breakcumb
+    [Arguments]    ${expReportName}=${EMPTY}    ${expBreakcrumb}=${EMPTY}    ${errMsg}=${EMPTY}
+    [Documentation]    Verify Report Name and Breakcrumb List
+    ...    - ${expReportName}: The Name of Report
+    ...    - ${expBreakcrumbList}: The List of Node Names in Breakcumbs
+    ...    - ${errMsg}=${EMPTY}: Issue ID if any
+    ...
+    ...    *History*
+    ...    - [2017-09-28]-Casey: Created
+    Wait Until Element Is Visible    ${in_m_report_divReportTitle_smartphone_friendly}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_report_divReportTitle_smartphone_friendly}    ${expReportName}
+
+View Down Report If Data Existing
+    [Arguments]    ${table}    ${columnLocator}
+    Is Element Visible    ${table}/tbody/tr[1]/td[1]    ${cfWaitControl}
+    ${isDataExisting}    get text    ${table}/tbody/tr[1]/td[1]
+    ${isNoData}    Run Keyword And Return Status    Should Contain    ${isDataExisting}    No information is available
+    Return From Keyword If    ${isNoData}==True    ${None}
+    ${viewDownValue}    get text    ${columnLocator}
+    Click Element    ${columnLocator}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    #Wait until BlockUI end
+    ${value}    Evaluate    "${viewDownValue}".upper()
+    [Return]    ${value}
+
+Verify Statement Member View Bet List
+    [Arguments]    ${locator}    ${member}    ${issueID}=${EMPTY}
+    Click Element    ${locator}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+    Unselect Frame
+    Select Frame    ${in_main_framePopup}
+    Verify Bet List Smoke Test    DAILY STATEMENT    ${member}    1    ${issueID}
+    Close Popup By JS

@@ -1,0 +1,1660 @@
+*** Settings ***
+Documentation     *Summary:* Test Module only use for VIEW MODE and Verify for ALL PAGEs in system is Viewed without any Errors
+...               - TC_MM: Test Case Main Menu
+...               - TC_AC: Test Case Account Info
+...               - TC_OT: Test Case OThers (the other test case Home page, Top Panel...)
+...
+...               *History:*
+...               - [2017-09-26]-Casey: Created
+Suite Setup       Init    ${ds_View01Login_S}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Super    Funct_Report
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           DateTime
+Resource          ../../Actions/account_info_general.txt    #========ACTIONS#===========#
+Resource          ../../Actions/common_actions.txt
+Resource          ../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../Actions/Setting/status_actions.txt
+Resource          ../../Actions/PT/pt_racing.txt
+Resource          ../../Actions/Setting/dcs_setting.txt
+Resource          ../../Actions/PT/pt_sportsbook.txt
+Resource          ../../Actions/report_general_actions.txt
+Resource          ../../Actions/PT/pt_virtualsports.txt
+Resource          ../../Actions/memberinfo.txt
+Resource          ../../Actions/transfer.txt
+Resource          ../../Actions/sub_account.txt
+Resource          ../../Interfaces/Main/in_m_transfer.txt    #========INTERFACES#===========#
+Resource          ../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../Interfaces/Main/in_main_totalbet_report_forecast.txt
+Resource          ../../Interfaces/Main/in_main_memberinfo.txt
+Resource          ../../Interfaces/Main/in_main_new_totalbets_forecast.txt
+Resource          ../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../Interfaces/Main/in_m_edit_casino.txt
+Resource          ../../Interfaces/Main/in_m_securitycode_password.txt
+Resource          ../../Interfaces/Main/in_m_hom_homePage.txt
+Resource          ../../Interfaces/Main/in_m_ann_announcementMessage.txt
+Resource          ../../Interfaces/in_top_menu.txt
+Resource          ../../Interfaces/Main/in_main.txt
+Resource          ../../Interfaces/in_left_menu.txt
+Resource          ../../Interfaces/Main/in_m_OTP.txt
+
+*** Test Cases ***
+TC_MM_Reports_Master Outstanding
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Outstanding
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_OutStanding    MASTER    ${tc_master}    ${tc_agent}    ${tc_member}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}
+
+TC_MM_Reports_Master Win Loss
+    [Documentation]    This Test Case
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_reportName}    Set Variable    Master Win Loss
+    ${tc_rptTitleName}    Set Variable    WIN LOSS
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    REPORTS    ${tc_reportName}
+    unselect frame
+    ${superName}    get text    ${in_tm_spanUsername}
+    ${expBreadcrumbString}    Set Variable    ${superName}
+    select frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Comment    **************************    CURRENT REPORT
+    Verify Report_Win loss_Main Page_SmokeTest    MASTER WIN LOSS
+    Filter Report by Quick Date    Last Week
+    Verify Report Smoke Test    MASTER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    1    IssueID
+    Switch to Stake Mode
+    Switch to Normal Mode
+    Hide Filter
+    Show Filter
+    Comment    **************************    CURRENT REPORT    VIEW DOWN IF ANY
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    Run Keyword If    '${master}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
+    Comment    **************************    BREAKCRUMB NAVIGATIONS
+    Select Left Menu    REPORTS    ${tc_reportName}
+    unselect frame
+    ${superName}    get text    ${in_tm_spanUsername}
+    ${expBreadcrumbString}    Set Variable    ${superName}
+    select frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Filter Report by Quick Date    Last Week
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Breadcrumb Navigation_Back To Direct Pre-Level    ISSUES ID
+    Comment    **************************    HISTORY REPORT
+    ${expBreadcrumbString}    Set Variable    ${superName}
+    Switch Report History
+    Verify Report Smoke Test    MASTER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    1    IssueID
+    Switch to Stake Mode
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    Run Keyword If    '${master}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
+
+TC_MM_Reports_Master Win Loss Detail
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_reportName}    Set Variable    Master Win Loss Detail
+    ${tc_rptTitleName}    Set Variable    WIN LOSS DETAIL
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    REPORTS    ${tc_reportName}
+    unselect frame
+    ${superName}    get text    ${in_tm_spanUsername}
+    ${expBreadcrumbString}    Set Variable    ${superName}
+    select frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Comment    **************************    CURRENT REPORT
+    Verify Report_Win loss_Main Page_SmokeTest    ${tc_rptTitleName}
+    Filter Report by Quick Date    Last Week
+    Verify Report Smoke Test    MASTER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    1    IssueID
+    Switch to Stake Mode
+    Switch to Normal Mode
+    Hide Filter
+    Show Filter
+    Comment    **************************    CURRENT REPORT    VIEW DOWN IF ANY
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    Run Keyword If    '${master}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
+    Comment    **************************    BREAKCRUMB NAVIGATIONS
+    Select Left Menu    REPORTS    ${tc_reportName}
+    unselect frame
+    ${superName}    get text    ${in_tm_spanUsername}
+    ${expBreadcrumbString}    Set Variable    ${superName}
+    select frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Filter Report by Quick Date    Last Week
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Breadcrumb Navigation_Back To Direct Pre-Level    ISSUES ID
+    Comment    **************************    HISTORY REPORT
+    ${expBreadcrumbString}    Set Variable    ${superName}
+    Switch Report History
+    Verify Report Smoke Test    MASTER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    1    IssueID
+    Switch to Stake Mode
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    Run Keyword If    '${master}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
+
+TC_MM_Reports_Match Win Loss Detail
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Match Win Loss Detail
+    ${tc_betListName}    Set Variable    MEMBER BET LIST
+    ${tc_rptTitleName}    Set Variable    MATCH WIN LOSS DETAIL
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Filter Report by Quick Date    This Week
+    Switch View Mode Stake
+    Switch View Mode Normal
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    Issue ID
+    ${tc_dowline}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[3]/td[1]/a
+    Run Keyword If    '${tc_dowline}'!='${None}'    Verify Bet List Smoke Test    ${tc_betListName}    ${EMPTY}    1    IssueID
+
+TC_MM_Reports_Win Loss Analysis
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Win Loss Analysis
+    ${tc_betListName}    Set Variable    MEMBER BET LIST
+    ${tc_rptTitleName}    Set Variable    WIN LOSS ANALYSIS
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Filter Report by Quick Date    Last Week
+    Switch View Mode Stake
+    Switch View Mode Normal
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    1    IssueID
+    Filter Report by Monthly
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    IssueID
+    Filter Report by Sport
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    IssueID
+    Filter Report by Daily
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    IssueID
+
+TC_MM_Reports_Win Loss Analysis Chart
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Win Loss Analysis Chart
+    ${tc_rptTitleName}    Set Variable    WIN LOSS CHART
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Hide Filter
+    Show Filter
+    Select Month_Previous    ${in_m_report_cboFromMonth}
+    Select Month_Next    ${in_m_report_cboToMonth}
+    Click Element    ${in_m_btnSubmit}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    0    1    1    IssueID
+
+TC_MM_Reports_Win Loss By Product
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Win Loss By Product
+    ${tc_rptTitleName}    Set Variable    WIN LOSS BY PRODUCT
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    0    1    1    IssueID
+    Filter Report by Quick Date    This Week
+    Switch View Mode Stake
+    Switch View Mode Normal
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    0    1    0    IssueID
+
+TC_MM_Reports_Commission By Bet Type
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Commission By Bet Type
+    ${tc_rptTitleName}    Set Variable    COMMISSION BY BET TYPE
+    COMMENT    -----------------------    MAIN STEPS
+    unselect frame
+    ${expBreadcrumbString}    get text    //*[@id='profile-content']/div/span
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    1    IssueID
+    Filter Report by Quick Date    This Week
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+
+TC_MM_Reports_Racing Commission
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Racing Commission
+    ${tc_rptTitleName}    Set Variable    RACING COMMISSION
+    COMMENT    -----------------------    MAIN STEPS
+    unselect frame
+    ${expBreadcrumbString}    get text    //*[@id='profile-content']/div/span
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControlLong}    0.5s
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    IssueID
+    Filter Report by Quick Date    This Week
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    IssueID
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+
+TC_MM_Reports_Cancelled Bets
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Cancelled Bets
+    ${tc_betListName}    Set Variable    VOID/REJECTED BET LIST (LAST 3 DAYS)
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Hide Filter
+    Show Filter
+    Verify Bet List Smoke Test    ${tc_betListName}    ${EMPTY}    1
+
+TC_MM_Reports_Consolidation
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Consolidation
+    ${tc_betListName}    Set Variable    MEMBER BET LIST
+    ${tc_rptTitleName}    Set Variable    CONSOLIDATION
+    COMMENT    -----------------------    MAIN STEPS
+    unselect frame
+    ${expBreadcrumbString}    Set Variable    CONSOLIDATION
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    1    IssueID
+    Filter Report by Quick Date    Last Week
+    Switch View Mode Stake
+    Switch View Mode Normal
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    1    1    0    IssueID
+    ${level}    get text    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]
+    Verify View Down Consolidaion_Smoke Test    ${level}    ${tc_rptTitleName}    ${expBreadcrumbString}    1    0    IssueID
+    ${colIndex}    Set Variable If    '${level}'!='Member'    1    2
+    ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[${colIndex}]/a
+    Run Keyword If    '${member}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
+
+TC_MM_Reports_Statement
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Statement
+    ${tc_rptTitleName}    Set Variable    STATEMENT
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect frame
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Hide Filter
+    Show Filter
+    Filter Report by Quick Date    This Month
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Verify Report Smoke Test    ${tc_rptTitleName}    ${EMPTY}    0    1    1    issueID
+
+TC_MM_Reports_Results
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Results
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Results Page    yes
+    COMMENT    -----------------------    POST-CONDITIONS
+    # N/A
+
+TC_MM_Reports_Play For Fun Detail
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Play For Fun Detail
+    ${tc_rptTitleName}    Set Variable    PLAY FOR FUN DETAIL
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Unselect Frame
+    ${expBreadcrumbString}    get text    //*[@id='profile-content']/div/span
+    Select Frame    main
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    10s    #Wait until BlockUI end
+    Filter Report by Quick Date    This Month
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    10s    #Wait until BlockUI end
+    Hide Filter
+    Show Filter
+    Verify Report Smoke Test    MASTER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    ${master}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
+    ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
+    ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
+    Run Keyword If    '${master}'!='${None}'    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1
+    ...    0    IssueID
+
+TC_MM_Reports_Super_Master Win Loss and ExportExcel_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss*
+    ...
+    ...    2. Verify Report *Win Loss* (Smoke test)
+    ...    - 1 Select date range fillter and submit
+    ...    - 2 VP: Verify Report Name
+    ...    - 3 VP: Check data exist or not and export excel file
+    ...    - 4 Verify Total Winloss for each level. User can use some action below:
+    ...
+    ...    a. VerifyTotalWinlossByUsername : This action is used to verify below by input DownlineName
+    ...
+    ...    b. VerifyTotalWinlossByRow_AllRow: This action is used to verify below by input RowID or "All" if you want to check all row
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Win Loss_ExportExcel    Master    Current    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    ${tc_member}    username
+
+TC_MM_Reports_Super_Master Win Loss Details and Export Excel_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Details*
+    ...
+    ...    2. Verify Report *Win Loss Details*(Smoke test)
+    ...    - 1 Select date range fillter and submit
+    ...    - 2 VP: Verify Report Name
+    ...    - 3 VP: Check data exist or not and export excel file
+    ...    - 4 VP: Verify Total Winloss Detail for each level. User can use some action below:
+    ...
+    ...    a. VerifyTotalWinlossDetailsByUsername : This action is used to verify below by input DownlineName
+    ...
+    ...    b. VerifyTotalWinlossDetailsByRow_AllRow: This action is used to verify below by input RowID or "All" if you want to check all row
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Master Win Loss Detail
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_member}    Set Variable    ${ds_View01_P}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 14 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Win Loss Detail_ExportExcel    Master    Current    ${tc_fromDate}    ${tc_toDate}    ${tc_master}    ${tc_agent}
+    ...    ${tc_member}    username
+
+TC_MM_Reports_Super_Win Loss By Product_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss By Product*
+    ...
+    ...    2. Verify Report *Win Loss By Product* (Smoke test)
+    ...    - Select date range fillter and submit
+    ...    - VP: Verify Report Name
+    ...    - VP: Verify Function Export Excel and check content if exist
+    ...
+    ...    *****History*******
+    ...
+    ...    2017-05-08: Kingsley created
+    ...
+    ...    ********List of TCs are automated*********:
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Win Loss By Product
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 10 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Winloss by Product and Export Excel    ${tc_super}    ${tc_fromDate}    ${tc_toDate}
+
+TC_MM_Reports_Super_Match Win Loss Detail_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Match Win Loss Detail*
+    ...
+    ...    2. Verify Report *Match Win Loss Detail* (Smoke test)
+    ...    - 1 Select date range fillter and submit
+    ...    - 2 VP: Verify Report Name
+    ...    - 3 VP: Verify Function Export Excel
+    ...    - 4 Click on bettype on the first row to drill down to BetList
+    ...    - 5 VP: Verify header of BetList
+    ...    - 6 VP: Verify Function Export Excel
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Match Win Loss Detail
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 5 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Match Win Loss Detail and Export Excel    ${tc_fromDate}    ${tc_toDate}    ${ds_View01_S}
+
+TC_MM_Reports_Super_Win Loss Analysis_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Win Loss Analysis*
+    ...
+    ...    2. Verify Report *Win Loss Analysis*
+    ...    - *****Close Pop up*****
+    ...    - 1 Select date range fillter and submit
+    ...    - 2 VP: Verify Report Name
+    ...    - 3 VP: Verify Function Export Excel
+    ...    - Monthly
+    ...    - Sport
+    ...    - Daily
+    ...
+    ...    *****History*******
+    ...
+    ...    2017-04-08: Kingsley created
+    ...
+    ...    ********List of TCs are automated*********:
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Win Loss Analysis
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 7 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Win Loss Analysis and Export Excel    ${tc_super}    ${tc_fromDate}    ${tc_toDate}
+
+TC_MM_Reports_Super_Commission by Bettype_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Commission By Bet Type*
+    ...
+    ...    2. Verify Report *Commission By Bet Type* (Smoke test)
+    ...
+    ...    - Close Pop up
+    ...
+    ...    - 1 Select date range fillter and submit
+    ...
+    ...    - 2 VP: Verify Function Export Excel
+    ...
+    ...    - 3.1 VP: Verify Export Excel for Super
+    ...
+    ...    - 3.2 VP: Verify Export Excel for Master
+    ...
+    ...    - 3.3 VP: Verify Export Excel for Agent
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Commission By Bet Type
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 5 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Commission By Bettype and Export Excel    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+
+TC_MM_Reports_Super_Racing Commission_Verify More Details
+    [Documentation]    ***Step***:
+    ...
+    ...    1. Navigate to Report *Racing Commission*
+    ...
+    ...    2. Verify Report *Racing Commission* (Smoke test)
+    ...
+    ...    - Close Pop up
+    ...
+    ...    - 1 Select date range fillter and submit
+    ...
+    ...    - 2 VP: Verify Function Export Excel
+    ...
+    ...    - 3.1 VP: Verify Export Excel for Super
+    ...
+    ...    - 3.2 VP: Verify Export Excel for Master
+    ...
+    ...    - 3.3 VP: Verify Export Excel for Agent
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Racing Commission
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 5 day
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Racing Commission and Export Excel    ${tc_fromDate}    ${tc_toDate}    ${tc_super}    ${tc_master}    ${tc_agent}
+
+TC_MM_Reports_Super_Cancelled Bets_Verify More Details
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Cancelled Bets
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Cancelled Bets
+
+TC_MM_Reports_Super_Statement_Verify More Details
+    [Tags]    NoRun
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Statement
+    ${tc_super}    Set variable    ${ds_View01_S}
+    ${tc_master}    Set variable    ${ds_View01_M}
+    ${tc_agent}    Set Variable    ${ds_View01_A}
+    ${tc_toDate}    Get time    yyyymmdd    UTC- 4 hour
+    ${tc_fromDate}    Get time    yyyymmdd    UTC- 4 hour + 7 day
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Report_Statement and Export Excel    ${tc_super}    ${tc_fromDate}    ${tc_toDate}
+
+TC_MM_MemberInfo_New Master
+    ## set variable
+    ${tc_supername}    Set Variable    ${ds_View01_S}
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    COMMENT    ==============================>    PRE-CONDITION
+    Select Left Menu    MEMBER INFORMATION    New Master
+    ## Check Search And Copy
+    Verify Add New Account Search Copy Mode    ${tc_supername}    ${tc_mastername}    Master
+    ## Select FullMode
+    Unselect Frame
+    Select Frame    main
+    Select Frame    ${in_MemberInfo_AddNew_frameHeader}
+    Click Element    ${in_MemberInfo_AddNew_frameHeader_tabFullMode}
+    ## Check FullMode
+    Verify Add New Account Full Mode    ${tc_supername}    Master
+
+TC_MM_MemberInfo_Sub Account
+    COMMENT    ==============================>    MAIN STEPS
+    Unselect Frame
+    ${isMainAccount}    Run Keyword And Return Status    Element Should Be Visible    ${in_tm_lnkNickname}
+    Run Keyword If    ${isMainAccount}==False    Verify Sub Menu Item Is Not Visible    MEMBER INFORMATION    Sub Account
+    Run Keyword If    ${isMainAccount}==True    Verify Sub Account Page
+
+TC_MM_MemberInfo_Master Agent List
+    ## Set Variable
+    ${tc_level}    Set Variable    Super
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblCustomerList']
+    COMMENT    ==============================>    PRE-CONDITION
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    ## Check Master Agent Customer list
+    ${tc_lstLevelName}    Create List    Master_${tc_mastername}    Agent_${tc_agentname}    Member_${tc_membername}
+    Verify Account List All    ${tc_level}    ${tc_lstLevelName}
+    #VERIFY ACCOUNT COLOR
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Unselect Frame
+    Select Frame    main
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedNAP}    ${colorClosedNAP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${colorClosedAlpha}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${colorClosedSCOTP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${colorClosedPwOthers}
+
+TC_MM_MemberInfo_Credit Balance
+    ## Set variable
+    ${tm_mastername}    Set Variable    ${ds_View01_M}
+    ${tm_agentname}    Set Variable    ${ds_View01_A}
+    ${tm_membername}    Set Variable    ${ds_View01_P}
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblMain']
+    Select Left Menu    MEMBER INFORMATION    Credit/Balance
+    ##
+    Verify CreditBalance By Level    Master    ${tm_mastername}
+    Verify CreditBalance By Level    Agent    ${tm_agentname}
+    Verify CreditBalance By Level    Member    ${tm_membername}
+    #VERIFY ACCOUNT COLOR
+    Select Left Menu    MEMBER INFORMATION    Credit/Balance
+    Unselect Frame
+    select frame    main
+    Select From List    //select[@id='statusFilter']    All
+    Click element    //input[@id='dSubmit']
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedNAP}${SPACE}    ${colorClosedNAP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedAlpha}${SPACE}    ${colorClosedAlpha}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedSCOPT}${SPACE}    ${colorClosedSCOTP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedPWOther}${SPACE}    ${colorClosedPwOthers}
+
+TC_MM_MemberInfo_Position Taking (%)_Sportbook
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblMain']
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    Select Frame    main
+    #VERIFY ACCOUNT COLOR
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedNAP}    ${colorClosedNAP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${colorClosedAlpha}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${colorClosedSCOTP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${colorClosedPwOthers}
+    ## Verify View PT page
+    Verify PositionTaking By Sport    ${tc_Level}    Sportsbook    Soccer    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    0
+    Verify Edit Member SB PT Popup UI    ${tc_Level}    ${tc_membername}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Live Casino
+    [Tags]    NoRun
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblMain']
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    sleep    1s
+    Select From List By Label    //*[@id='dropdown-product']    Racing
+    #VERIFY ACCOUNT COLOR
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedNAP}    ${cfClosedClassNAP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${cfClosedClassAlpha}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${cfClosedClassSCOTP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${cfClosedClassPwOthers}
+    ## Verify View PT page
+    Verify PositionTaking By Sport    ${tc_Level}    Racing    Racing    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    0
+    ## Verify Edit Member PT popup
+    Verify Edit Member Racing PT Popup UI    ${tc_Level}    ${tc_membername}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Virtual Sports
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblContent_gridContainer']
+    ${tc_productName}    Set Variable    Virtual Sports
+    ${tc_productID}    Set Variable    5
+    ${tc_SportName}    Create List    Virtual Soccer    Virtual Horse Racing    Virtual Greyhounds    Virtual Speedway    Virtual Motorsports
+    ...    Virtual Cycling    Virtual Tennis    Virtual Soccer League    Virtual Soccer Nation    Virtual Sports Parlay
+    ${tc_SportType}    Create List    180    181    182    183    184
+    ...    185    186    190    191    199
+    ${tc_BetType}    Create List    1201    1231    1231    1231    1231
+    ...    1231    1220    2701    2701    2799
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    sleep    1s
+    Select From List By Label    //*[@id='dropdown-product']    Virtual Sports
+    #VERIFY ACCOUNT COLOR
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedNAP}    ${cfClosedClassNAP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${cfClosedClassAlpha}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${cfClosedClassSCOTP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${cfClosedClassPwOthers}
+    # Verify Position Taking
+    Verify PositionTaking By Sport    ${tc_Level}    ${tc_productName}    @{tc_SportName}[0]    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    1
+    Verify DCS UI_Bet Setting_ReadOnly    ${in_main_framePopup}    ${tc_productID}    ${tc_SportName}    ${tc_SportType}    ${tc_BetType}
+    ${remove}    Remove From List    ${tc_SportName}    -1
+    ${remove}    Remove From List    ${tc_SportType}    -1
+    ${remove}    Remove From List    ${tc_BetType}    -1
+    Verify DCS UI_Position Taking_SuperMember    ${in_main_framePopup}    ${tc_productID}    ${tc_SportName}    ${tc_SportType}    ${tc_BetType}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Keno
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblMain']
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    sleep    1s
+    Select From List By Label    //*[@id='dropdown-product']    Keno
+    #VERIFY ACCOUNT COLOR
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedNAP}    ${colorClosedNAP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${colorClosedAlpha}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${colorClosedSCOTP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${colorClosedPwOthers}
+    ## Verify View PT page
+    Verify PositionTaking By Sport    ${tc_Level}    Keno    Australia    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    0
+    ## Verify Edit Member PT popup
+    Verify Edit Member Keno PT Popup UI    ${tc_Level}    ${tc_membername}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Gold Deluxe
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblMain']
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    sleep    1s
+    Select From List By Label    //*[@id='dropdown-product']    Gold Deluxe
+    #VERIFY ACCOUNT COLOR
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedNAP}    ${colorClosedNAP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${colorClosedAlpha}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${colorClosedSCOTP}
+    Verify Table Row Background Color    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${colorClosedPwOthers}
+    ## Verify View PT page
+    Verify PositionTaking By Sport    ${tc_Level}    Gold Deluxe    Gold Deluxe    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    0
+    ## Verify Edit Member PT popup
+    Verify Edit Member LiveCasino PT Popup UI    ${tc_Level}    ${tc_membername}    Gold Deluxe
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Sportbook 2
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_productName}    Set Variable    Sportsbook 2
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${classClosedNAP}    set variable    ${cfClosedClassNAP}    # Closed by NAP Admin
+    ${classClosedAlpha}    set variable    ${cfClosedClassAlpha}    # by Vip User ExtNap and User Alpha
+    ${classClosedSCOTP}    set variable    ${cfClosedClassSCOTP}
+    ${classClosedPwOthers}    set variable    ${cfClosedClassPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblContent_gridContainer']
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    Select From List By Label    //*[@id='dropdown-product']    ${tc_productName}
+    #VERIFY ACCOUNT COLOR
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedNAP}    ${classClosedNAP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${classClosedAlpha}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${classClosedSCOTP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${classClosedPwOthers}
+    ## Verify View PT page
+    Verify PositionTaking By Sport    ${tc_Level}    Sportsbook 2    Muay Thai    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    1
+    Verify Edit Member Sportbook2 PT Popup UI    ${tc_Level}    ${tc_membername}    16    44    Muay Thai
+
+TC_MM_MemberInfo_Position Taking (%)_Macau Games
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_productName}    Set Variable    Macau Games
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${classClosedNAP}    set variable    ${cfClosedClassNAP}    # Closed by NAP Admin
+    ${classClosedAlpha}    set variable    ${cfClosedClassAlpha}    # by Vip User ExtNap and User Alpha
+    ${classClosedSCOTP}    set variable    ${cfClosedClassSCOTP}
+    ${classClosedPwOthers}    set variable    ${cfClosedClassPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblContent_gridContainer']
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    Select From List By Label    //*[@id='dropdown-product']    ${tc_productName}
+    #VERIFY ACCOUNT COLOR
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedNAP}    ${cfClosedClassNAP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${cfClosedClassAlpha}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${cfClosedClassSCOTP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${cfClosedClassPwOthers}
+    ## Verify View PT page
+    Verify PositionTaking By Sport    ${tc_Level}    ${tc_productName}    ${tc_productName}    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    1
+    ## Verify Edit Member PT popup
+    Verify Edit Member Sportbook2 PT Popup UI    ${tc_Level}    ${tc_membername}    22    212    ${tc_productName}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Fishing World
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_productName}    Set Variable    Fishing World
+    ${tc_productID}    Set Variable    24
+    ${tc_sportType}    Set Variable    219
+    ${tc_bettype}    Set Variable    1011
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${classClosedNAP}    set variable    ${cfClosedClassNAP}    # Closed by NAP Admin
+    ${classClosedAlpha}    set variable    ${cfClosedClassAlpha}    # by Vip User ExtNap and User Alpha
+    ${classClosedSCOTP}    set variable    ${cfClosedClassSCOTP}
+    ${classClosedPwOthers}    set variable    ${cfClosedClassPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblContent_gridContainer']
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    Select From List By Label    //*[@id='dropdown-product']    ${tc_productName}
+    #VERIFY ACCOUNT COLOR
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedNAP}    ${classClosedNAP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${classClosedAlpha}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${classClosedSCOTP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${classClosedPwOthers}
+    Verify PositionTaking By Sport    ${tc_Level}    ${tc_productName}    ${tc_productName}    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    1
+    Verify DCS Setting UI_GeneralInfomation    ${in_main_framePopup}
+    Verify DCS Setting UI_AP_ProductStatus    ${in_main_framePopup}    ${tc_productName}    ${tc_productID}    ${tc_sportType}    ${tc_bettype}
+    Verify DCS Setting UI_AP_LossLimit    ${in_main_framePopup}    SP    ${tc_productName}    ${tc_productID}    ${tc_sportType}    ${tc_bettype}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Position Taking (%)_Lottery
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableListLocator}    set variable    //table[@id='tblContent_gridContainer']
+    ${tc_productName}    Set Variable    Lottery
+    ${tc_productID}    Set Variable    28
+    ${tc_SportName}    Create List    Max5D    Max3D    Max11x5    MaxDice
+    ${tc_SportType}    Create List    220    220    220    220
+    ${tc_BetType}    Create List    1021    1022    1023    1024
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Position Taking (%)
+    #SELECT PRODUCT
+    Unselect Frame
+    select frame    main
+    Run Keyword And Ignore Error    Wait Until Element Is Enabled    //*[@id='dropdown-product']    ${cfWaitControl}
+    Select From List By Label    //*[@id='dropdown-product']    ${tc_productName}
+    ## Verify Color
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedNAP}    ${cfClosedClassNAP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedAlpha}    ${cfClosedClassAlpha}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedSCOPT}    ${cfClosedClassSCOTP}
+    Verify Closed Account Color by Class Attribute    ${tableListLocator}    ${tc_MasterClosedPWOther}    ${cfClosedClassPwOthers}
+    ## Verify Position Taking
+    Verify PositionTaking By Sport    ${tc_Level}    ${tc_productName}    ${tc_SportName}    ${tc_mastername}    ${tc_agentname}    ${tc_membername}
+    ...    1
+    Verify DCS UI_Bet Setting_ReadOnly    ${in_main_framePopup}    ${tc_productID}    ${tc_SportName}    ${tc_SportType}    ${tc_BetType}
+    Verify DCS UI_Position Taking_SuperMember    ${in_main_framePopup}    ${tc_productID}    ${tc_SportName}    ${tc_SportType}    ${tc_BetType}
+    Close Popup By JS
+
+TC_MM_MemberInfo_Casino Position Taking (%)
+    ## Set Variable
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_Level}    Set Variable    Super
+    ## Navigate to MemberInformation >> View PositionTaking
+    Select Left Menu    MEMBER INFORMATION    Casino Position Taking (%)
+    Unselect Frame
+    select frame    main
+    ## Verify View PT page
+    Verify PositionTaking By Level    ${tc_Level}    Master    ${tc_mastername}    Casino    RnG Game
+    Verify PositionTaking By Level    ${tc_Level}    Agent    ${tc_agentname}    Casino    RnG Game
+    Verify PositionTaking By Level    ${tc_Level}    Member    ${tc_membername}    Casino    RnG Game
+    Verify Edit Member Casino PT Popup UI    ${tc_Level}    ${tc_membername}
+
+TC_MM_MemberInfo_Member Commission
+    Set Variable
+    ${tm_mastername}    Set Variable    ${ds_View01_M}
+    ${tm_agentname}    Set Variable    ${ds_View01_A}
+    ${tm_membername}    Set Variable    ${ds_View01_P}
+    ${tm_lstProduct}    Create List    Racing    Live Casino    Casino    Gold Deluxe    Macau Games
+    ...    Sportsbook
+    ## Check Member Commission UI
+    Verify Member Commission UI    Super    ${tm_lstProduct}    ${tm_membername}    ${tm_agentname}    ${tm_mastername}
+
+TC_MM_MemberInfo_Member Win Limit
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_winLimitProducts}    Create List    Gold Deluxe    RNG Casino    Lottery    Allbet    Macau Games
+    ...    Live Casino
+    ${tc_expTableHeader}    Set Variable    \# Status Username First Name Last Name Credit Balance Auto Daily Reset Limit Current Win Loss Amount Maximum Win (on given credit) Current Win Limit (%) Maximum Loss Current Loss Limit (%)
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Member Win Limit
+    Unselect Frame
+    Select frame    main
+    Run Keyword And Continue On Failure    Element Text Should Be    //*[@id='header_main']    MEMBER WIN LIMIT
+    Run Keyword And Continue On Failure    Element Should Be Visible    //select[@id='Products']    ${cfWaitControl}
+    : FOR    ${i}    IN    @{tc_winLimitProducts}
+    \    Click Element    //select[@id='Products']
+    \    Select From List By Label    //select[@id='Products']    ${i}
+    \    Wait Until Element Is Not Visible    //*[@class='MaskLoadingDiv']    ${cfWaitControl}
+    \    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //table[@class='grid-fixed-table col_header_content']/thead    ${cfWaitControl}
+    \    Capture Page Screenshot
+    \    ${tc_actTableHeader}    get text    //table[@class='grid-fixed-table col_header_content']/thead
+    \    Wait Until Element Contains Text    //table[@class='grid-fixed-table col_header_content']/thead    \# Status Username First Name Last Name Credit Balance Auto Daily Reset Limit Current Win Loss Amount Maximum Win (on given credit) Current Win Limit (%) Maximum Loss Current Loss Limit (%)    ${cfWaitControl}
+
+TC_MM_MemberInfo_Bet Choice Limit_All Bet
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_betChoiceLimit}    Create List    Allbet
+    COMMENT    -----------------------    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Bet Choice Limit
+    Unselect Frame
+    Select frame    main
+    Run Keyword And Continue On Failure    Element Text Should Be    //*[@id='header_main']    BET CHOICE LIMIT
+    Run Keyword And Continue On Failure    Element Should Be Visible    //select[@id='product']    ${cfWaitControl}
+    : FOR    ${i}    IN    @{tc_betChoiceLimit}
+    \    Click Element    //select[@id='product']
+    \    Select From List By Label    //select[@id='product']    ${i}
+    \    Wait Until Element Is Not Visible    //*[@class='MaskLoadingDiv']    ${cfWaitControl}
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@class='bet-choice-limit']
+
+TC_MM_BetAndForecast_Soccer
+    ## Check New Total Bet Forecast UI
+    Verify NewTBF UI
+
+TC_MM_TotalBets_Handicap/Over Under/Live
+    [Documentation]    *Summary:* Main Page(Verify Title and Table Data existing. View To Bet List From Number and [+] icon then Verify Betlist Title, Table Data, Excel Export
+    ...    - 1. Open Full-Time Handicap then View down to Bet List
+    ...    - 2. Open Full-Time Over/Under then View down to Bet List
+    ...    - 3. Open1st-Time Handicap then View down to Bet List
+    ...    - 4. Open 1st-Time Over/Under then View down to Bet List
+    ...    *History*
+    ...    - [2019-09-26]-Casey: Created
+    Verify TotalBets Header Data New    TOTAL BETS    Handicap/Over Under/Live    Handicap/Over Under/Live    ${in_TotalBets_tblData}
+    Verify TotalBet Forecast_Handicap/Over Under/Live
+
+TC_MM_TotalBets_Money Line
+    Verify TotalBets Header Data New    TOTAL BETS    Money Line    Money Line    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_Odd/Even + 1x2 + DND
+    Verify TotalBets Header Data New    TOTAL BETS    Odd/Even + 1x2 + DND    Odd/Even + 1 X 2 + Draw/No Draw    ${in_TotalBets_tblData}
+    Verify Forecast Popup_Odd/Even + 1x2 + DND
+
+TC_MM_TotalBets_Correct Score
+    Verify TotalBets Header Data New    TOTAL BETS    Correct Score    CORRECT SCORE    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+
+TC_MM_TotalBets_FT & HT Total Goal
+    Verify TotalBets Header Data New    TOTAL BETS    FT & HT Total Goal    Total Goal    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_Parlay
+    Verify TotalBets Header Data New    TOTAL BETS    Parlay    Mix Parlay    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@id='hor-minimalist-a']/thead/tr/th[text()='Choice']
+    Click Element    //*[@id='tab_hr']/ul/li[2]/a/span
+    Verify Bet List and Export Excel Smoke Text
+    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@id='hor-minimalist-a']/thead/tr/th[text()='Choice']
+
+TC_MM_TotalBets_Outright
+    Verify TotalBets Header Data New    TOTAL BETS    Outright    Outright    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_HT/FT
+    Verify TotalBets Header Data New    TOTAL BETS    HT/FT    HT/FT    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_FT & HT FG/LG
+    Verify TotalBets Header Data New    TOTAL BETS    FT & HT FG/LG    FG/LG    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_Clean Sheet
+    Verify TotalBets Header Data New    TOTAL BETS    Clean Sheet    CLEAN SHEET    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+
+TC_MM_TotalBets_Double Chance
+    Verify TotalBets Header Data New    TOTAL BETS    Double Chance    DOUBLE CHANCE    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+
+TC_MM_TotalBets_Home/Draw/Away No Bet
+    Verify TotalBets Header Data New    TOTAL BETS    Home/Draw/Away No Bet    Home/Draw/Away No Bet    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_Both/One/Neither Team To Score
+    Verify TotalBets Header Data New    TOTAL BETS    Both/One/Neither Team To Score    BOTH/ONE/NEITHER TEAM TO SCORE    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+
+TC_MM_TotalBets_To Win To Nil
+    Verify TotalBets Header Data New    TOTAL BETS    To Win To Nil    TO WIN TO NIL    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+
+TC_MM_TotalBets_3-Way Handicap
+    Verify TotalBets Header Data New    TOTAL BETS    3-Way Handicap    3-WAY HANDICAP    ${in_TotalBets_tblData}
+    Verify Bet List and Export Excel Smoke Text
+
+TC_MM_TotalBets_Number Game
+    Verify TotalBets Header Data New    TOTAL BETS    Number Game    Number Game    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_TotalBets_Racing
+    Verify TotalBets Header Data New    TOTAL BETS    Racing    Racing    ${in_TotalBets_tblData}
+    Verify Total Bet_Bet List
+
+TC_MM_Forecast_Handicap/Over Under/Live
+    Verify TotalBets Header Data New    FORECAST    Handicap/Over Under/Live    Handicap/Over Under/Live    ${in_ForeCast_tblData}
+    Verify Forecast_Handicap/Over Under/Live
+
+TC_MM_Forecast_1 X 2
+    Verify TotalBets Header Data New    FORECAST    1 X 2    1 X 2    ${in_ForeCast_tblData}
+    Verify Forecast_1x2
+
+TC_MM_Forecast_Score Map
+    ${tm_group}    Set Variable    FORECAST
+    Select Left Menu    ${tm_group}    Score Map
+    Unselect Frame
+    select frame    main
+    Run Keyword And Continue On Failure    Wait Until Element Contains    //div[@id='header_main']    SCORE MAP    ${cfWaitControl}
+    ${ac_Status}    Run Keyword And Return Status    Wait Until Element Is Visible    //select[@id='League']
+    Run Keyword If    '${ac_Status}'=='True'    Verify Forecast Score Map
+    Run Keyword If    '${ac_Status}'!='True'    Page Should Contain    No information is available
+
+TC_MM_Transfer
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_downlineName}    Set Variable    ${ds_View01_M}
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${colorClosedNAP}    set variable    ${cfClosedColorNAP}    # Closed by NAP Admin
+    ${colorClosedAlpha}    set variable    ${cfClosedColorAlpha}    # by Vip User ExtNap and User Alpha
+    ${colorClosedSCOTP}    set variable    ${cfClosedColorSCOTP}
+    ${colorClosedPwOthers}    set variable    ${cfClosedColorPwOthers}    # pwd/others
+    ${tableLocator}    set variable    //table[@id='tblTransferList']
+    @{tm_lstStatus}    Create List    All    Open    Suspended    Closed    Disabled
+    ${tm_txtheader}    Set Variable    Yesterday Username Yesterday Balance Master Balance Yesterday Cash Balance Master Cash Outstanding Given Credit Used Credit First Name Last Name Username
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    Transfer    ${EMPTY}
+    Unselect Frame
+    Select Frame    main
+    Comment    Verify \ Transfer value in List vs Transfer Popup value
+    ${ac_transferLnk}    set variable    //*[@id='tblTransferList']//a[contains(@onclick,'${tc_downlineName}')]
+    ${ac_TransferText}    Get Text    //*[@id='tblTransferList']//a[contains(@onclick,'${tc_downlineName}')]/span
+    ${ac_TransferText}    Replace String    ${ac_TransferText}    ,    ${EMPTY}
+    ${ac_TransferValue}    Convert To Number    ${ac_TransferText}
+    Run Keyword If    '${ac_TransferValue}'!='0'    Click Element    ${ac_transferLnk}
+    Run Keyword If    '${ac_TransferValue}'!='0'    Unselect Frame
+    Run Keyword If    '${ac_TransferValue}'!='0'    Select Frame    ${in_main_framePopup}
+    Run Keyword If    '${ac_TransferValue}'!='0'    Verify Transfer Default Value    ${ac_TransferValue}
+    Run Keyword If    '${ac_TransferValue}'!='0'    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@class='btn btnSubmit']
+    Run Keyword If    '${ac_TransferValue}'!='0'    Click Element    //input[@class='btn btn-cancel']
+    Comment    Verify Transfer List
+    Unselect Frame
+    Select Frame    main
+    : FOR    ${tm_iStatus}    IN    @{tm_lstStatus}
+    \    Filter Transfer    ${tm_iStatus}
+    \    Element Should Contain    //*[@id='tblTransferList']//thead/tr[@class="RptHeader"]    ${tm_txtheader}
+    \    Element Should Be Visible    ${in_m_transfer_tblTransfer}//tfoot/tr/td[@class="SubTitle"]
+    #VERIFY ACCOUNT COLOR
+    Select Left Menu    Transfer    ${EMPTY}
+    Unselect Frame
+    Select Frame    main
+    Select From List By Label    ${in_m_transfer_ddlStatus}    All
+    Set Checkbox    ${in_m_transfer_chkYesterdayBal}    1
+    Click element    ${in_m_transfer_btnSubmit}
+    Verify Element Background Color    ${tableLocator}//tr//*[text()='${tc_MasterClosedNAP}']/parent::tr    ${colorClosedNAP}
+    Verify Element Background Color    ${tableLocator}//tr//*[text()='${tc_MasterClosedAlpha}']/parent::tr    ${colorClosedAlpha}
+    Verify Element Background Color    ${tableLocator}//tr//*[text()='${tc_MasterClosedSCOPT}']/parent::tr    ${colorClosedSCOTP}
+    Verify Element Background Color    ${tableLocator}//tr//*[text()='${tc_MasterClosedPWOther}']/parent::tr    ${colorClosedPwOthers}
+    Unselect Frame
+
+TC_MM_ViewLog_Setting
+    COMMENT    ==============================>    SET VARIABLES
+    @{tm_lstCustomerSettingViewBy}    Create List    All Types    Position Taking    Commission    Bet Setting    General Info
+    ${tm_txtCustSettingHeader}    Set Variable    Action Details
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    VIEW LOG    Setting
+    Unselect Frame
+    Select Frame    main
+    # Customer setting
+    : FOR    ${iType}    IN    @{tm_lstCustomerSettingViewBy}
+    \    Filter View Log    Setting    ${EMPTY}    ${iType}
+    \    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_viewlog_tblLog}/thead[1]/tr    ${tm_txtCustSettingHeader}
+
+TC_MM_ViewLog_Status
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    VIEW LOG    Status
+    Unselect Frame
+    Select Frame    main
+    Filter View Log    Status    ${EMPTY}    ${EMPTY}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_viewlog_tblLog}/thead[1]/tr    Action Details
+
+TC_MM_ViewLog_Credit
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    VIEW LOG    Credit
+    Unselect Frame
+    Select Frame    main
+    Filter View Log    Credit    ${EMPTY}    ${EMPTY}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_viewlog_tblLog}/thead[1]/tr    Action Details IP
+
+TC_MM_ViewLog_Login
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    VIEW LOG    Login
+    Unselect Frame
+    Select Frame    main
+    Filter View Log    Login    ${EMPTY}    ${EMPTY}
+    Run Keyword And Continue On Failure    Element Should Contain    ${in_m_viewlog_tblLog}/thead[1]/tr    Action Details Domain Browser IP/Country
+
+TC_MM_Announcements_Normal
+    Select Left Menu    Announcements    Normal
+    Comment    - 3.1 Verify "Normal Announcement" tab show as default
+    Unselect Frame
+    Select Frame    main
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabNormalAnnouncement}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    active${SPACE}
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabSpecialAnnouncement}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    ${SPACE}
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabPersonalMessage}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    ${SPACE}
+    Comment    - 3.2 Verify "Normal Announcements" table header
+    Run Keyword And Continue On Failure    Element Should Be Visible    //*[@id='public']//table//th[text()="#"]
+    Run Keyword And Continue On Failure    Element Should Be Visible    //*[@id='public']//table//th[text()="Message"]
+
+TC_MM_Announcements_Special
+    Select Left Menu    Announcements    Special
+    Comment    - 1.1 Verify "Special Announcement" tab show as default
+    Unselect Frame
+    Select Frame    main
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabSpecialAnnouncement}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    active${SPACE}
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabNormalAnnouncement}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    ${SPACE}
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabPersonalMessage}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    ${SPACE}
+    Comment    - 1.2 Verify "Special Announcement" table header
+    Run Keyword And Continue On Failure    Element Should Be Visible    //div[@id="special"]//table//th[text()="#"]
+    Run Keyword And Continue On Failure    Element Should Be Visible    //div[@id="special"]//table//th[text()="Message"]
+
+TC_AC_Account Info_Master
+    COMMENT    ==============================>    PRE-CONDITION
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${statusGroup01}    Create List    DoubleComm    Outright    AutoPT    HRFixedOdds    Suspended
+    ...    Closed
+    ${statusGroup02}    Create List    Casino    Lottery    Allbet    ColossusBets    VirtualSports
+    ...    MacauGames    FishingWorld    Keno    Racing
+    COMMENT    ==============================>    MAIN STEPs
+    # Verify Master
+    Search Account    ${tc_mastername}
+    Verify AccountInfo Status_View Only    ${statusGroup01}    ${statusGroup02}    ISSUEID
+    Verify AccountInfo Setting_View Only    SM    ${ds_View01_M}    ISSUEID
+    Verify AccountInfo_MemberInfo_Direct    master
+    Verify AccountInfo Agent List
+    Verify AccountInfo Statement_MasterAgent
+    Verify AccountInfo BalanceInfo_Master
+    Verify AccountInfo Login
+    Verify AccountInfo Online List
+    Verify AccountInfo Downline to Agent    master=${tc_mastername}    agent=${tc_agentname}
+    Verify AccountInfo Downline to Member    master=${tc_mastername}    agent=${tc_agentname}    member=${tc_membername}
+    Verify AccountInfo Status Color    Master    ${EMPTY}    ${EMPTY}    ${tc_MasterClosedNAP}    ${tc_MasterClosedAlpha}    ${tc_MasterClosedSCOPT}
+    ...    ${tc_MasterClosedPWOther}
+
+TC_AC_Account Info_Agent
+    COMMENT    ==============================>    PRE-CONDITION
+    ${tc_mastername}    Set Variable    ${ds_View01_M}
+    ${tc_agentname}    Set Variable    ${ds_View01_A}
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${statusGroup01}    Create List    Suspended    Closed    Outright
+    ${statusGroup02}    Create List    Racing    Keno
+    COMMENT    ==============================>    MAIN STEPs
+    #Verfiy Agent
+    Search Account    ${tc_agentname}
+    Verify AccountInfo Status_View Only    ${statusGroup01}    ${statusGroup02}    ISSUEID
+    Verify AccountInfo Setting_View Only    SA    ${ds_View01_A}    ISSUEID
+    Verify AccountInfo_MemberInfo_Indirect    agent
+    Verify AccountInfo Customer List
+    Verify AccountInfo Statement_MasterAgent
+    Verify AccountInfo BalanceInfo_Agent    0
+    Verify AccountInfo Login
+    Verify AccountInfo Online List
+    Verify AccountInfo Downline to Member    master=${tc_mastername}    agent=${tc_agentname}    member=${tc_membername}
+
+TC_AC_Account Info_Member
+    COMMENT    ==============================>    PRE-CONDITION
+    ${tc_membername}    Set Variable    ${ds_View01_P}
+    ${tc_MasterClosedNAP}    Set Variable    ${ds_View01_M08}
+    ${tc_MasterClosedAlpha}    Set Variable    ${ds_View01_M05}
+    ${tc_MasterClosedSCOPT}    Set Variable    ${ds_View01_M06}
+    ${tc_MasterClosedPWOther}    Set Variable    ${ds_View01_M07}
+    ${statusGroup01}    Create List    Suspended    Closed    Outright
+    ${statusGroup02}    Create List    Racing    Keno
+    COMMENT    ==============================>    MAIN STEPs
+    #Verfiy Member
+    Search Account    ${tc_membername}
+    Verify AccountInfo Status_View Only    ${statusGroup01}    ${statusGroup02}    ISSUEID
+    Verify AccountInfo Setting_View Only    SP    ${tc_membername}    ISSUEID
+    Verify AccountInfo_MemberInfo_Indirect    member
+    Verify AccountInfo Bet List    ${tc_membername}
+    Verify AccountInfo Statement_Member    ${tc_membername}
+    Verify AccountInfo Downline Not Visible
+    Verify AccountInfo BalanceInfo_member    0
+    Verify AccountInfo Login
+    Verify AccountInfo Online List
+
+TC_MM_Announcements_Personal Message
+    Select Left Menu    Announcements    Personal Message
+    Comment    - 2.1 Verify "Personal Message" tab show as default
+    Unselect Frame
+    Select Frame    main
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabPersonalMessage}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    active${SPACE}
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabSpecialAnnouncement}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    ${SPACE}
+    ${isActive}    Get Element Attribute    ${in_m_ann_tabNormalAnnouncement}/parent::li@class
+    Run Keyword And Continue On Failure    Should Be Equal    ${isActive}    ${SPACE}
+    Comment    - 2.2 Verify "Personal Message" table header
+    Run Keyword And Continue On Failure    Element Should Be Visible    //*[@id='private']//table//th[text()="#"]
+    Run Keyword And Continue On Failure    Element Should Be Visible    //*[@id='private']//table//th[text()="Message"]
+
+TC_OT_Home Page_Balance Info
+    COMMENT    ==============================>    SET VARIABLES
+    ${tc_supername}    Set Variable    ${ds_View01_S}
+    COMMENT    ==============================>    MAIN STEPS
+    Unselect Frame
+    Click Element    ${in_tm_iconHome}
+    select frame    main
+    Comment    - 4.BALANCE INFO Group:
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_hom_tabBalanceInfo}    ${cfWaitControl}
+    Comment    - 4.1 Title Text
+    ${usernameUpcase}    Convert To Uppercase    ${tc_supername}
+    Comment    - 4.2 Role(SMA) and UserName is Login Username
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_hom_balInfo_superUsername}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_m_hom_balInfo_superUsername}    ${usernameUpcase}
+    Comment    - 4.3. Click "Today" value --> navigate to report Win Loss
+    Click Element    ${in_m_hom_lblBalanceInfo_WinlossTodayValue}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_main_pageTitle}    ${cfWaitControl}
+    Comment    - 4.3.1 Verify Report Title: "SUPER WIN LOSS"
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_main_pageTitle}    MASTER WIN LOSS
+    ${fromdate}    Get Value    //*[@id='from-date']
+    ${todate}    Get Value    //*[@id='to-date']
+    ${expectedToday}    Get time    yyyymmdd    UTC- 4 hour
+    ${expectedToday}    Convert Date    ${expectedToday}    result_format=%m/%d/%Y
+    Comment    - 4.3.2 Verify Report default From Date and Todate = Today
+    Run Keyword And Continue On Failure    Should Be Equal    ${fromdate}    ${expectedToday}    #Veriry report default From Date = Today
+    Run Keyword And Continue On Failure    Should Be Equal    ${todate}    ${expectedToday}    #Veriry report default To Date = Today
+    Comment    - 4.4.Click "Yesterday" value --> navigate to report Win Loss
+    Unselect Frame
+    Click Element    ${in_tm_iconHome}
+    select frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_hom_lblBalanceInfo_WinlossYesterdayValue}    ${cfWaitControl}
+    Click Element    ${in_m_hom_lblBalanceInfo_WinlossYesterdayValue}
+    Comment    - 4.4.1 Verify Report Title
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_main_pageTitle}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_main_pageTitle}    MASTER WIN LOSS
+    ${fromdate}    Get Value    //*[@id='from-date']
+    ${todate}    Get Value    //*[@id='to-date']
+    ${expectedYesterday}    Get time    yyyymmdd    UTC- 4 hour +1days
+    ${expectedYesterday}    Convert Date    ${expectedYesterday}    result_format=%m/%d/%Y
+    Comment    - 4.4.2 Verify Report default From Date and Todate = Yesterday
+    Run Keyword And Continue On Failure    Should Be Equal    ${fromdate}    ${expectedYesterday}    #Veriry report default From Date = Yesterday
+    Run Keyword And Continue On Failure    Should Be Equal    ${todate}    ${expectedYesterday}    #Veriry report default To Date = Yesterday
+
+TC_OT_Home Page_Statistics
+    Comment    - 5. Verify STATISTICS group
+    Unselect Frame
+    Click Element    ${in_tm_iconHome}
+    select frame    main
+    Comment    - 5.1 Title Text
+    Wait Until Element Is Visible    ${in_m_hom_tabStatistics}    ${cfWaitControl}
+    Comment    - 5.2 Click on "Super" Outstanding value --> navigate to Outstanding Report: Verify Report Title: "MASTER OUTSTANDING"
+    ${oustandingExisting}    Run Keyword And Return Status    Wait Until Element Is Visible    ${in_m_hom_lblStatisSuperOutstadingValue}    ${cfWaitControl}
+    Run Keyword If    '${oustandingExisting}'=='True'    Click Element    ${in_m_hom_lblStatisSuperOutstadingValue}
+    Run Keyword If    '${oustandingExisting}'=='True'    Wait Until Element Is Visible    ${in_main_pageTitle}    ${cfWaitControl}
+    Run Keyword If    '${oustandingExisting}'=='True'    Element Text Should Be    ${in_main_pageTitle}    MASTER OUTSTANDING
+    Unselect Frame
+    Comment    - 5.2 Click on "Total Outstanding" value --> navigate to Outstanding Report: Verify Report Title: "MASTER OUTSTANDING"
+    Click Element    ${in_tm_iconHome}
+    select frame    main
+    ${oustandingExisting}    Run Keyword And Return Status    Wait Until Element Is Visible    ${in_m_hom_lblStatisTotalOutstadingValue}    ${cfWaitControl}
+    Run Keyword If    '${oustandingExisting}'=='True'    Click Element    ${in_m_hom_lblStatisTotalOutstadingValue}
+    Run Keyword If    '${oustandingExisting}'=='True'    Wait Until Element Is Visible    ${in_main_pageTitle}    ${cfWaitControl}
+    Run Keyword If    '${oustandingExisting}'=='True'    Element Text Should Be    ${in_main_pageTitle}    MASTER OUTSTANDING
+
+TC_OT_Home Page_Announcement
+    COMMENT    ==============================>    SET VARIABLES
+    ${tc_supername}    Set Variable    ${ds_View01_S}
+    COMMENT    ==============================>    MAIN STEPS
+    Unselect frame
+    Comment    - 1. Click Icon Home Page at top bar menu
+    Click Element    ${in_tm_iconHome}
+    select frame    main
+    Comment    - 2. Verify ANNOUNCEMENT Group: Title Text
+    Wait Until Element Is Visible    ${in_m_hom_tabNotice}    ${cfWaitControl}
+
+TC_OT_Home Page_Play For Fun
+    Comment    - 3. Verify PLAY FOR FUN Group: Title Text
+    Unselect Frame
+    Click Element    ${in_tm_iconHome}
+    Select Frame    main
+    Wait Until Element Is Visible    ${in_m_hom_tabPlaceForFun}    ${cfWaitControl}
+    Wait Until Element Is Visible    ${in_m_hom_icoPlayForFunInfo}    ${cfWaitControl}
+    Click Element    ${in_m_hom_icoPlayForFunInfo}
+    Unselect Frame
+    Select Frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //div[@class='feature-list']    ${cfWaitControl}
+    Close Popup By JS
+    Unselect Frame
+    ${superLoginName}    get text    //*[@id='profile-content']/div/span
+    Select Frame    main
+    Comment    Click on Casino For Fun --Show Report Play for Fun
+    Wait Until Element Is Visible    ${in_m_hom_lnkCasino}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Should Not Be Visible    ${in_m_hom_lnkCasinoMemberRequest}    # At Super Level, doens't link to Member Request
+    Click element    ${in_m_hom_lnkCasino}
+    Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
+    Verify Report Smoke Test    MASTER PLAY FOR FUN DETAIL    ${superLoginName}    1    1    0    Issue ID
+    Comment    Smartphone Verify Report General    Master Play For Fun Detail    no
+
+TC_OT_Top Bar_Personal Menu Option
+    [Documentation]    Verify Personal Menu Options: Select Top menu Option then verify UI control existing
+    ...    - Nick Name
+    ...    - Profile picture
+    ...    - Password
+    ...    - Security Code
+    ...    - Help
+    ...    - OTP
+    ...    - Contact Us
+    [Tags]
+    ##    Verify Personal Menu Options: Select Top menu Option then verify UI control existing
+    ## Verify Menu Icon
+    Unselect Frame
+    Wait Until Element Is Enabled    ${in_tm_iconHeaderMenu}    ${cfWaitControl}
+    click element    ${in_tm_iconHeaderMenu}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconNickName}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconProfilePicture}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconPassword}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconSecurityCode}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconHelp}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconOTP}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconContactUs}
+    click element    ${in_tm_iconHeaderMenu}
+    ##    - Nick Name
+    Select Personal Menu    Nickname
+    Unselect Frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //input[@id='textNickName']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='chkUserName']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='chkNickName']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //button[@id='submitId']
+    ##    - Profile picture
+    Select Personal Menu    Profile picture
+    Unselect Frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    //img[@id='profileImg']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='chkdelete']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='uploadAvatar']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='uploadFromComputer']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='submitId']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='resetId']
+    ##    - Password
+    Select Personal Menu    Password
+    Unselect Frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_Pwd_txtPwdOld}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_Pwd_txtPwdNew}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_Pwd_txtPwdConfirm}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_Pwd_btnSubmit}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_Pwd_btnReset}
+    ##    - Security Code
+    Select Personal Menu    Security Code
+    Unselect Frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_SE_txtSEOld}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_SE_txtSE}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_SE_txtSEConfirm}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_SE_btnSubmit}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_SE_btnReset}
+    ##    - OTP
+    Select Personal Menu    OTP
+    Unselect Frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblRegistrationHeader}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo1}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo2}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_imgNo2Code}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lnkNo2ChangIt}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo2UnableScane}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo3}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_txtNo3OTP}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_btnNo3Verify}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_lblHeader}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_chkOTPStatus}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_btnSubmitOTPStatus}
+    ##    - Contact Us
+    Select Personal Menu    Contact Us
+    ${tc_skypeID}    Set Variable    maxcsd_agent
+    Unselect Frame
+    Select Frame    main
+    ## Check Skype name
+    Run Keyword And Continue On Failure    Element Text Should Be    //span[@class='skype-name']    ${tc_skypeID}
+    Run Keyword And Continue On Failure    Element Should Not Be Visible    //div[@class='hotline']
+    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-account-plus']/..    Add Now
+    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-phone']/..    Call Now
+
+TC_OT_Top Bar_Super_Left Profile Option
+    ## Set variable
+    ${tm_username}    Evaluate    "${ds_View01_S}".upper()
+    ## Go to header frame
+    Unselect Frame
+    ## Check Profile in top header
+    Is Element Invisible    ${in_tm_imgProfile}    ${cfWaitControl}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_imgProfile}
+    Run Keyword And Continue On Failure    Element Text Should Be    ${in_tm_spanUsername}    ${tm_username}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_lnkOPT}
+    ## Check Profile picture page
+    Click Element    ${in_tm_imgProfile}
+    Unselect Frame
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    //a[@id='loginTabId']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //img[@id='profileImg']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='chkdelete']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='uploadAvatar']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='uploadFromComputer']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='submitId']
+    Run Keyword And Continue On Failure    Element Should Be Visible    //input[@id='resetId']
+    ## Verify OTP Page
+    Unselect Frame
+    Click Element    ${in_tm_lnkOPT}
+    Select Frame    main
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblRegistrationHeader}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo1}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo2}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_imgNo2Code}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lnkNo2ChangIt}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo2UnableScane}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_lblNo3}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_txtNo3OTP}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_reg_btnNo3Verify}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_lblHeader}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_chkOTPStatus}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_btnSubmitOTPStatus}
+    Unselect Frame
+    ## Verfiy Nickname page vs Sub Name
+    Unselect Frame
+    ${isMainAccount}    Run Keyword And Return Status    Element Should Be Visible    ${in_tm_lnkNickname}
+    Run Keyword If    ${isMainAccount}==False    Element Should Be Visible    ${in_tm_lblSubAccName}
+    Run Keyword If    ${isMainAccount}==True    Run Keywords    Click Element    ${in_tm_lnkNickname}
+    ...    AND    Verify NickName Page
+
+TC_OT_Top Bar_Change_Language
+    [Tags]
+    ## Set Variable
+    ${tm_controlTitle}    Set Variable    ${in_main_lblHomePageBlalanceTile}
+    ## Nagative to Home page
+    Wait Until Keyword Succeeds    30s    5s    Click Element A and Wait Element B Appear    ${EMPTY}    ${in_tm_iconHome}    main
+    ...    ${tm_controlTitle}    4.5s
+    ## Check language
+    Run Keyword And Continue On Failure    Verify Language    繁體中文    餘額資料    ${tm_controlTitle}
+    Run Keyword And Continue On Failure    Verify Language    简体中文    余额资料    ${tm_controlTitle}
+    Run Keyword And Continue On Failure    Verify Language    日本語    BALANCE INFO    ${tm_controlTitle}
+    Run Keyword And Continue On Failure    Verify Language    ภาษาไทย    ข้อมูลยอดเงินคงเหลือ    ${tm_controlTitle}
+    Run Keyword And Continue On Failure    Verify Language    한국어    잔액정보    ${tm_controlTitle}
+    Run Keyword And Continue On Failure    Verify Language    English    BALANCE INFO    ${tm_controlTitle}
+
+TC_OT_Top Bar_Log Out
+    Unselect Frame
+    Click Element    ${in_tm_iconlogout}
+    Wait Until Element Is Not Visible    ${in_tm_iconlogout}
+
+TC_MM_Transfer New
+    Login    ${ds_Line13Login_S}    ${cfPwd}
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_master00}    Set Variable    ${ds_Line13_M00}
+    ${tc_master01}    Set Variable    ${ds_Line13_M01}
+    ${columsHeaderListExpect}    Create List    ${EMPTY}    ${EMPTY}#    Yesterday    Username    Yesterday Balance
+    ...    Master Balance    Yesterday Cash Balance    Master Cash    Outstanding    Given Credit    Used Credit
+    ...    First Name    Last Name    Username
+    ${columsFooterListExpect}    Create List    ${EMPTY}    Total
+    ${sumColNames}    Set Variable    Yesterday Balance    Master Balance    Yesterday Cash Balance    Master Cash    Outstanding
+    ...    Given Credit    Used Credit
+    ${sumColIndex}    Set Variable    4    5    6    7    8
+    ...    9    10
+    ${totalColIndex}    Set Variable    2    3    4    5    6
+    ...    7    8
+    ${boundaryValue}    Set Variable    0.01    ## The difference value allow for each value !=0
+    COMMENT    ==============================>    MAIN STEPS
+    Comment    - 1. Open Transfer Page: Main Menu > Transfer
+    Select Left Menu    TRANSFER
+    Verify Transfer Filter UI    new
+    Verify Transfer List UI    new    ${columsHeaderListExpect}    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${tc_master00}
+    ...    ${tc_master01}
+    Verify Transfer Total Values    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${boundaryValue}
+    COMMENT    ==============================>    POST-CONDITIONS
+    #N/A

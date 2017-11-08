@@ -1,0 +1,1 @@
+call pybot --variablefile "%~dp0\config_Prod.py" --outputdir "%~dp0\Report" -e NoRun "%~dp0\Test_Modules\Smoke_Test\Super_View_All.txt"

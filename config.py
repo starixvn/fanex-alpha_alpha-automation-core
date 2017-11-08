@@ -1,0 +1,9 @@
+isLocal=1
+Browser="ff"
+IsLogin=1
+SeCode="123457"
+Pwd="1234aaAA"
+AType=1
+Url="http://ha.nexdev.net:7411/ex-main/(S(uqyd2xo2owtdmz0gfr5vsyn5))/_Authorization/SignIn.aspx"
+DsBetlistFile="Data_set\\BetList_rptWinLostDetail_Pro_Betlist.xls"
+DsResultsPage="Data_set\\ResultsPage_Local.xls"

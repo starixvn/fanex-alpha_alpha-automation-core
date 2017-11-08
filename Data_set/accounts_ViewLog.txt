@@ -1,0 +1,9 @@
+*** Variables ***
+${ds_View01_S}    SupertestAuto00    # Is used for AGENT Login Level
+${ds_View01_S_Sub02}    SupertestAuto00Sub02
+${ds_View01_M03}    SupertestAuto0003
+${ds_View01_M04}    SupertestAuto0004
+${ds_View01_A04}    SUPERTESTAUTO000400
+${ds_View01_P0400}    SupertestAuto000400000
+${ds_View01_P0401}    SupertestAuto000400001
+${ds_View01_P0400_02}    SupertestAuto000400002

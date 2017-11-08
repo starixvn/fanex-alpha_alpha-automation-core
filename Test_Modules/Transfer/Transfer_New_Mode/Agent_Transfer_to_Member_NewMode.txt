@@ -1,0 +1,100 @@
+*** Settings ***
+Suite Setup       Init    ${ds_Line13Login_A}
+Suite Teardown    Close All Browsers    #
+Force Tags        Level_Agent
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           DateTime
+Resource          ../../../Interfaces/Main/in_m_transfer.txt    #**************************************************INTERFACES*****************************************
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Interfaces/Main/in_m_hom_homePage.txt
+Resource          ../../../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/transfer.txt
+Resource          ../../../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+
+*** Test Cases ***
+TC01_Agent Verify Transfer page behavior
+    Comment    Manua TC Refer: 8886
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_member000}    Set variable    ${ds_Line13_P0101001}
+    ${tc_member001}    Set variable    ${ds_Line13_P0101002}
+    ${columsHeaderListExpect}    Create List    ${EMPTY}    ${EMPTY}#    Yesterday    Username    Yesterday Balance
+    ...    Balance    Outstanding    Given Credit    First Name    Last Name    Username
+    ${columsFooterListExpect}    Create List    ${EMPTY}    Total
+    ${sumColNames}    Set Variable    Yesterday Balance    Balance    Outstanding    Given Credit
+    ${sumColIndex}    Set Variable    4    5    6    7
+    ${totalColIndex}    Set Variable    2    3    4    5
+    ${expectRowInfo}    Set Variable    ${tc_member000}    0    0    0    0
+    ...    FN ${tc_member000}    LN ${tc_member000}    ${tc_member000}
+    ${boundaryValue}    Set Variable    0.01    ## The difference value allow for each value !=0
+    COMMENT    ==============================>    MAIN STEPS
+    Comment    - 1. Open Transfer Page: Main Menu > Transfer
+    Select Left Menu    TRANSFER
+    Verify Transfer Filter UI    new
+    Verify Transfer List UI    new    ${columsHeaderListExpect}    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${tc_member000}
+    ...    ${tc_member001}
+    Verify Transfer Total Values    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${boundaryValue}
+    COMMENT    ==============================>    POST-CONDITIONS
+
+TC03_Agent Trasnfer_Transfer Cash
+    [Documentation]    This Test Case is Used to Verify user transfer cash successfull
+    ...    - ***STEPS***
+    ...    - 1. Go to Home Page: Get User Cash Balance
+    ...    - 2. MAIN MENU > TRANSFER: Get Downline Cash Balance and Outstanding
+    ...    - 3. Open Transfer Cash Popup
+    ...    - 4. Verify Default value on Cash Transfer Popup: User Cash Balance, Downline Cash Balance, Downline Outstading
+    ...    - 5. Verify Range Transfer
+    ...    - 6. Enter a valid value (in allow range) then click Transfer button
+    ...    - 7. Verify Successfull Message is shown
+    ...    - 8. Verify the values is Update After transfer:
+    ${tc_member}    Set variable    ${ds_Line13_P0101001}
+    ####    GET VALUES TO CROSS CHECK BEFORE TRANSFER CASH
+    ## HOME PAGE:
+    Unselect Frame
+    Click Element By Xpath js    ${in_tm_iconHome}
+    Select frame    main
+    ${agentCash}    get text    ${in_m_hom_balInfo_cash}
+    ${agentCash}    Replace String    ${agentCash}    ,    ${EMPTY}
+    ${toValue}    evaluate    max(0,${agentCash})
+    Capture Page Screenshot
+    # Open transfer Cash Popup
+    Reload page
+    Select Left Menu    TRANSFER
+    ## Get data In transfer List Before Transfer
+    unselect frame
+    Select Frame    main
+    Wait Until Element Is Visible    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[4]
+    ${memberYesBalance}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[4]
+    ${memberYesBalance}    Replace String    ${memberYesBalance}    ,    ${EMPTY}
+    ${memberBalance}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[5]
+    ${memberBalance}    Replace String    ${memberBalance}    ,    ${EMPTY}
+    ${memberOutstanding}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_member}"]/parent::tr/td[6]
+    ${memberOutstanding}    Replace String    ${memberOutstanding}    ,    ${EMPTY}
+    ${fromValue}    evaluate    max(0,${memberBalance}-${memberOutstanding})*(-1)
+    Open Transfer Cash Of User    ${tc_member}
+    Verify Transfer Cash Balance Popup UI    Agent    Member
+    Capture Page Screenshot
+    unselect frame
+    Select Frame    ${in_main_framePopup}
+    ${agentCashPopup}    get text    ${in_m_transferCash_lblloginCashBalanceValue}
+    ${agentCashPopup}    Replace String    ${agentCashPopup}    ,    ${EMPTY}
+    ${memberBalancePopup}    get text    ${in_m_transferCash_lblCashBalanceValue}
+    ${memberBalancePopup}    Replace String    ${memberBalancePopup}    ,    ${EMPTY}
+    ${memberOutTxnPopup}    get text    ${in_m_transferCash_lblOutStandingValue}
+    ${memberOutTxnPopup}    Replace String    ${memberOutTxnPopup}    ,    ${EMPTY}
+    ## Verify Default Value
+    Run Keyword And Continue On Failure    Should be true    ${agentCashPopup}==${agentCash}
+    Run Keyword And Continue On Failure    Should be true    ${memberBalancePopup}==${memberBalance}
+    Run Keyword And Continue On Failure    Should be true    ${memberOutTxnPopup}==${memberOutstanding}
+    Verify Transfer Cash Hint Text    ${fromValue}    ${toValue}
+    Run Keyword If    '${fromValue}'=='0' and '${toValue}'=='0'    Unselect Frame
+    Run Keyword If    '${fromValue}'=='0' and '${toValue}'=='0'    Click Element    ${in_main_btnClosePopup}
+    Run Keyword If    '${fromValue}'!='0' or '${toValue}'!='0'    Transfer Cash Then Cross Check Values    member    ${tc_member}    ${fromValue}    ${toValue}
+    ...    ${agentCash}    ${memberYesBalance}    ${memberBalance}    ${memberOutstanding}

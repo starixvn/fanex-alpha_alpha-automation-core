@@ -1,0 +1,116 @@
+*** Settings ***
+Suite Setup       Init    ${ds_Line13Login_S}
+Suite Teardown    Close All Browsers
+Force Tags        Level_Super
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           DateTime
+Resource          ../../../Interfaces/Main/in_m_transfer.txt    #**************************************************INTERFACES*****************************************
+Resource          ../../../Interfaces/Main/in_main.txt
+Resource          ../../../Interfaces/in_left_menu.txt
+Resource          ../../../Interfaces/Main/in_m_hom_homePage.txt
+Resource          ../../../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../../Actions/transfer.txt
+Resource          ../../../Data_set/accounts.txt    #**************************************************DATASETS*****************************************
+
+*** Test Cases ***
+TC01_Verify Transfer page behavior
+    [Documentation]    Manua TC Refer: 8886
+    ...    - ***Steps***
+    ...    - 1. Open Transfer Page: Main Menu > Transfer
+    ...    - 2. Verify Filter
+    ...    - 3. Verify Page Size
+    ...    - 4. Verify Transfer Button
+    ...    - 5. Verify Table Transfer (header name, footer, Sum(column Value)=Total Column Value)
+    ...
+    ...    **HISTORY**
+    ...    - Create by: Casey
+    [Tags]
+    [Setup]
+    Comment    Manua TC Refer: 8886
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_master00}    Set Variable    ${ds_Line13_M00}
+    ${tc_master01}    Set Variable    ${ds_Line13_M01}
+    ${columsHeaderListExpect}    Create List    ${EMPTY}    ${EMPTY}#    Yesterday    Username    Yesterday Balance
+    ...    Master Balance    Yesterday Cash Balance    Master Cash    Outstanding    Given Credit    Used Credit
+    ...    First Name    Last Name    Username
+    ${columsFooterListExpect}    Create List    ${EMPTY}    Total
+    ${sumColNames}    Set Variable    Yesterday Balance    Master Balance    Yesterday Cash Balance    Master Cash    Outstanding
+    ...    Given Credit    Used Credit
+    ${sumColIndex}    Set Variable    4    5    6    7    8
+    ...    9    10
+    ${totalColIndex}    Set Variable    2    3    4    5    6
+    ...    7    8
+    ${boundaryValue}    Set Variable    0.01    ## The difference value allow for each value !=0
+    COMMENT    ==============================>    MAIN STEPS
+    Comment    - 1. Open Transfer Page: Main Menu > Transfer
+    Select Left Menu    TRANSFER
+    Verify Transfer Filter UI    new
+    Verify Transfer List UI    new    ${columsHeaderListExpect}    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${tc_master00}
+    ...    ${tc_master01}
+    Verify Transfer Total Values    ${sumColNames}    ${sumColIndex}    ${totalColIndex}    ${boundaryValue}
+    COMMENT    ==============================>    POST-CONDITIONS
+    #N/A
+    [Teardown]
+
+TC03_Super Trasnfer_Transfer Cash
+    [Documentation]    This Test Case is Used to Verify user transfer cash successfull
+    ...    - ***STEPS***
+    ...    - 1. Go to Home Page: Get User Cash Balance
+    ...    - 2. MAIN MENU > TRANSFER: Get Downline Cash Balance and Outstanding
+    ...    - 3. Open Transfer Cash Popup
+    ...    - 4. Verify Default value on Cash Transfer Popup: User Cash Balance, Downline Cash Balance, Downline Outstading
+    ...    - 5. Verify Range Transfer
+    ...    - 6. Enter a valid value (in allow range) then click Transfer button
+    ...    - 7. Verify Successfull Message is shown
+    ...    - 8. Verify the values is Update After transfer:
+    ${tc_master}    Set variable    ${ds_Line13_M01}
+    ####    GET VALUES TO CROSS CHECK BEFORE TRANSFER CASH
+    ## HOME PAGE:
+    Unselect Frame
+    Click Element By Xpath js    ${in_tm_iconHome}
+    Select frame    main
+    ${superCash}    get text    ${in_m_hom_balInfo_cash}
+    ${superCash}    Replace String    ${superCash}    ,    ${EMPTY}
+    ${toValue}    evaluate    max(0,${superCash})
+    Capture Page Screenshot
+    # Open transfer Cash Popup
+    Reload page
+    Select Left Menu    TRANSFER
+    unselect frame
+    Select Frame    main
+    Wait Until Element Is Visible    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_master}"]/parent::tr/td[6]
+    ${masterYesBalance}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_master}"]/parent::tr/td[6]
+    ${masterYesBalance}    Replace String    ${masterYesBalance}    ,    ${EMPTY}
+    ${masterBalance}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_master}"]/parent::tr/td[7]
+    ${masterBalance}    Replace String    ${masterBalance}    ,    ${EMPTY}
+    ${masterOutstanding}    get text    ${in_m_transfer_tblTransfer}/tbody/tr/td[text()="${tc_master}"]/parent::tr/td[8]
+    ${masterOutstanding}    Replace String    ${masterOutstanding}    ,    ${EMPTY}
+    ${fromValue}    evaluate    max(0,${masterBalance}-${masterOutstanding})*(-1)
+    Capture Page Screenshot
+    Open Transfer Cash Of User    ${tc_master}
+    Verify Transfer Cash Balance Popup UI    Super    Master
+    unselect frame
+    Select Frame    ${in_main_framePopup}
+    ${superCashPopup}    get text    ${in_m_transferCash_lblloginCashBalanceValue}
+    ${superCashPopup}    Replace String    ${superCashPopup}    ,    ${EMPTY}
+    ${masterBalancePopup}    get text    ${in_m_transferCash_lblCashBalanceValue}
+    ${masterBalancePopup}    Replace String    ${masterBalancePopup}    ,    ${EMPTY}
+    ${masterOutTxnPopup}    get text    ${in_m_transferCash_lblOutStandingValue}
+    ${masterOutTxnPopup}    Replace String    ${masterOutTxnPopup}    ,    ${EMPTY}
+    ## Verify Default Value
+    Run Keyword And Continue On Failure    Should be true    ${superCashPopup}==${superCash}
+    Run Keyword And Continue On Failure    Should be true    ${masterBalancePopup}==${masterBalance}
+    Run Keyword And Continue On Failure    Should be true    ${masterOutTxnPopup}==${masterOutstanding}
+    Capture Page Screenshot
+    Verify Transfer Cash Hint Text    ${fromValue}    ${toValue}
+    Run Keyword If    '${fromValue}'=='0' and '${toValue}'=='0'    Unselect Frame
+    Run Keyword If    '${fromValue}'=='0' and '${toValue}'=='0'    Click Element    ${in_main_btnClosePopup}
+    Run Keyword If    '${fromValue}'!='0' or '${toValue}'!='0'    Transfer Cash Then Cross Check Values    master    ${tc_master}    ${fromValue}    ${toValue}
+    ...    ${superCash}    ${masterYesBalance}    ${masterBalance}    ${masterOutstanding}

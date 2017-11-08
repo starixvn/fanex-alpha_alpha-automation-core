@@ -1,0 +1,658 @@
+*** Settings ***
+Library           Selenium2Library
+Library           Collections
+Library           String
+Resource          ../../Interfaces/Main/in_m_edit_sportsbook.txt
+Resource          ../common_actions.txt
+Resource          ../PT/pt_sportsbook.txt
+
+*** Keywords ***
+Edit SBPT_SuperMaster
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${S3}=${EMPTY}    ${M3}=${EMPTY}
+    ...    ${Is3}=${EMPTY}    ${Us3}=${EMPTY}    ${N3}=${EMPTY}    ${action}=1
+    [Documentation]    *This Action is used to Update Sportsbook Position Taking - Master Edit Agent*
+    ...
+    ...    ********HISTORY************
+    ...    - Created by: Casey
+    @{ac_controlLst}    Get Sportsbook PT Controls    SuperMaster    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    Run Keyword And Continue On Failure    Wait Until Element Is enabled    @{ac_controlLst}[2]    ${cfWaitControl}
+    Run Keyword If    '${Is3}' == '1'    Select Checkbox    @{ac_controlLst}[2]
+    Run Keyword If    '${Is3}' == '0'    Unselect Checkbox    @{ac_controlLst}[2]
+    Run Keyword If    '${S3}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[0]    ${S3}
+    Run Keyword If    '${M3}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[1]    ${M3}
+    Run Keyword If    '${Us3}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[3]    ${Us3}
+    Run Keyword If    '${action}'=='1'    Click Element By Xpath js    ${in_m_editsb_btnUpdate}
+    Run Keyword If    '${action}'=='1' and '${Is3}' == '0'    Click Element By Xpath js    ${in_m_editsb_btnNoAutoPT}
+    Run Keyword And Continue On Failure    Wait Until Page Not Contains Element    //div[@class='MaskLoadingDiv']    10s
+    unselect frame
+
+Edit SBPT_SuperPlayer
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${S1}=${EMPTY}    ${Is1}=${EMPTY}
+    ...    ${Us1}=${EMPTY}    ${action}=1
+    @{ac_controlLst}    Get Sportsbook PT Controls    SuperPlayer    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    Run Keyword And Continue On Failure    Wait Until Element Is enabled    @{ac_controlLst}[1]    ${cfWaitControl}
+    Run Keyword If    '${Is1}' == '1'    Select Checkbox    @{ac_controlLst}[1]
+    Run Keyword If    '${Is1}' == '0'    Unselect Checkbox    @{ac_controlLst}[1]
+    Run Keyword If    '${S1}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[0]    ${S1}
+    Run Keyword If    '${Us1}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[2]    ${Us1}
+    Run Keyword If    '${action}'=='1'    Click Element By Xpath js    ${in_m_editsb_btnUpdate}
+    Run Keyword And Continue On Failure    Wait Until Page Not Contains Element    //div[@class='MaskLoadingDiv']    10s
+    unselect frame
+
+Edit SBPT_MasterAgent
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${M2}=${EMPTY}    ${A2}=${EMPTY}
+    ...    ${Im2}=${EMPTY}    ${Um2}=${EMPTY}    ${N2}=${EMPTY}    ${action}=1
+    [Documentation]    *This Action is used to Update Sportsbook Position Taking - Master Edit Agent*
+    ...
+    ...    ********HISTORY************
+    ...    - Created by: Casey
+    @{ac_controlLst}    Get Sportsbook PT Controls    MasterAgent    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    Run Keyword And Continue On Failure    Wait Until Element Is enabled    @{ac_controlLst}[2]    ${cfWaitControl}
+    Run Keyword If    '${Im2}' == '1'    Select Checkbox    @{ac_controlLst}[2]
+    Run Keyword If    '${Im2}' == '0'    Unselect Checkbox    @{ac_controlLst}[2]
+    Run Keyword If    '${M2}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[0]    ${M2}
+    Run Keyword If    '${A2}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[1]    ${A2}
+    Run Keyword If    '${Um2}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[3]    ${Um2}
+    Run Keyword If    '${action}'=='1'    Click Element By Xpath js    ${in_m_editsb_btnUpdate}
+    Run Keyword If    '${Im2}' == '0' and '${action}'=='1'    Click Element By Xpath js    ${in_m_editsb_btnNoAutoPT}
+    Run Keyword And Continue On Failure    Wait Until Page Not Contains Element    //div[@class='MaskLoadingDiv']    10s
+    unselect frame
+
+Edit SBPT_MasterPlayer
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${M1}=${EMPTY}    ${Im1}=${EMPTY}
+    ...    ${Um1}=${EMPTY}    ${action}=1
+    [Documentation]    This action is used to edit Sportsbook PT of account
+    ...
+    ...    ${action}=${EMPTY} | ${sporttype}=${EMPTY} | ${bettype}=${EMPTY} | ${isLive}=${EMPTY} | ${M1}=${EMPTY} | ${Im1}=${EMPTY} | ${Um1}=${EMPTY}
+    ...
+    ...    ${action}: Input 'save ' if want to execite update action
+    ...
+    ...    ${Sporttype}: the sporttype
+    ...
+    ...    ${Bettype}: the bettype
+    ...
+    ...    ${isLive}: the liveindicator
+    ...
+    ...    ${M1}: Input Member Position that master want to change
+    ...
+    ...    ${Im1}: Is auto PT or not
+    ...
+    ...    ${Um1}: Auto PT Max Preset value.
+    @{ac_controlLst}    Get Sportsbook PT Controls    MasterPlayer    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    Run Keyword And Continue On Failure    Wait Until Element Is enabled    @{ac_controlLst}[1]    ${cfWaitControl}
+    Run Keyword If    '${Im1}' == '1'    Select Checkbox    @{ac_controlLst}[1]
+    Run Keyword If    '${Im1}' == '0'    Unselect Checkbox    @{ac_controlLst}[1]
+    Run Keyword If    '${M1}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[0]    ${M1}
+    Run Keyword If    '${Um1}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[2]    ${Um1}
+    Run Keyword If    '${action}' == '1'    Click Element By Xpath js    ${in_m_editsb_btnUpdate}
+    Run Keyword And Continue On Failure    Wait Until Page Not Contains Element    //div[@class='MaskLoadingDiv']    10s
+    unselect frame
+
+Edit SBPT_AgentPlayer
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${A1}=${EMPTY}    ${action}=1
+    [Documentation]    This action is used to edit Sportsbook PT of account
+    ...
+    ...    ${action}: Input 'save ' if want to execite update action
+    ...
+    ...    ${Sporttype}: the sporttype
+    ...
+    ...    ${Bettype}: the bettype
+    ...
+    ...    ${isLive}: the liveindicator
+    ...
+    ...    ${A1}: Input Member Position that agent want to change
+    ...
+    ...
+    ...    Example:
+    ...    Edit Sportsbook PT_AgentPlayer save 1 1 1 0.9
+    ...    Edit Sportsbook PT_AgentPlayer \ \ \ \ \ Do update \ Soccer \ \ \ Handicap \ \ \ \ Live \ \ \ PT value want to change
+    @{ac_controlLst}    Get Sportsbook PT Controls    AgentPlayer    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    #SET NORMAL VALUE
+    Run Keyword And Continue On Failure    Wait Until Element Is enabled    @{ac_controlLst}[0]    ${cfWaitControl}
+    Run Keyword If    '${A1}'!='${EMPTY}'    Select From List By Label    @{ac_controlLst}[0]    ${A1}
+    Run Keyword If    '${action}'=='1'    Click Element By Xpath js    ${in_m_editsb_btnUpdate}
+    Run Keyword And Continue On Failure    Wait Until Page Not Contains Element    //div[@class='MaskLoadingDiv']    10s
+    Unselect Frame
+
+Verify SBPT_SuperMaster
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${expectedS3}=${EMPTY}    ${expectedM3}=${EMPTY}
+    ...    ${expectedIs3}=${EMPTY}    ${expectedUs3}=${EMPTY}    ${expectedN3}=${EMPTY}
+    [Documentation]    *This action is used to Veriry PT Setting: Master Edit Agent*
+    ...    - S3,M3, Is3, Us3
+    ...    *-------------HISTORY--------------*
+    ...    - Created by Casey Huynh
+    @{ac_controlLst}    Get Sportsbook PT Controls    SuperMaster    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    # Check S3
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    @{ac_controlLst}[2]    ${cfWaitControl}
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[0]
+    Run keyword if    '${expectedS3}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedS3}
+    # Check M3
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[1]
+    Run keyword if    '${expectedM3}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedM3}
+    # Check Is3
+    ${actualValue}    Get Value    @{ac_controlLst}[2]
+    Run keyword if    '${expectedIs3}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedIs3}
+    # Check Us3
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[3]
+    Run keyword if    '${expectedUs3}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedUs3}
+    Unselect Frame
+
+Verify SBPT_SuperPlayer
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${expectedS1}=${EMPTY}    ${expectedIs1}=${EMPTY}
+    ...    ${expectedUs1}=${EMPTY}
+    @{ac_controlLst}    Get Sportsbook PT Controls    SuperPlayer    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    # Check M1
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    @{ac_controlLst}[1]    ${cfWaitControl}
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[0]
+    Run keyword if    '${expectedS1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedS1}
+    # Check Im1
+    ${actualValue}    Get Value    @{ac_controlLst}[1]
+    Run keyword if    '${expectedIs1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedIs1}
+    # Check Um1
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[2]
+    Run keyword if    '${expectedUs1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedUs1}
+    Unselect Frame
+
+Verify SBPT_MasterAgent
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${expectedM2}=${EMPTY}    ${expectedA2}=${EMPTY}
+    ...    ${expectedIm2}=${EMPTY}    ${expectedUm2}=${EMPTY}    ${expectedN2}=${EMPTY}
+    [Documentation]    *This action is used to Veriry PT Setting: Master Edit Agent*
+    ...    - M2,A2, Im2, Um2
+    ...    *-------------HISTORY--------------*
+    ...    - Created by Casey Huynh
+    @{ac_controlLst}    Get Sportsbook PT Controls    MasterAgent    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    # Check M2
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    @{ac_controlLst}[2]    ${cfWaitControl}
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[0]
+    Run keyword if    '${expectedM2}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedM2}
+    # Check A2
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[1]
+    Run keyword if    '${expectedA2}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedA2}
+    # Check Im2
+    ${actualValue}    Get Value    @{ac_controlLst}[2]
+    Run keyword if    '${expectedIm2}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedIm2}
+    # Check Um2
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[3]
+    Run keyword if    '${expectedUm2}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedUm2}
+    Unselect Frame
+
+Verify SBPT_MasterPlayer
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${expectedM1}=${EMPTY}    ${expectedIm1}=${EMPTY}
+    ...    ${expectedUm1}=${EMPTY}
+    @{ac_controlLst}    Get Sportsbook PT Controls    MasterPlayer    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    # Check M1
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    @{ac_controlLst}[1]    ${cfWaitControl}
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[0]
+    Run keyword if    '${expectedM1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedM1}
+    # Check Im1
+    ${actualValue}    Get Value    @{ac_controlLst}[1]
+    Run keyword if    '${expectedIm1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedIm1}
+    # Check Um1
+    ${actualValue}    Get Selected List Label    @{ac_controlLst}[2]
+    Run keyword if    '${expectedUm1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${actualValue}    ${expectedUm1}
+    Unselect Frame
+
+Verify SBPT_AgentPlayer
+    [Arguments]    ${sporttype}=${EMPTY}    ${bettypename}==${EMPTY}    ${bettype}=${EMPTY}    ${isLive}=${EMPTY}    ${expectedA1}=${EMPTY}
+    @{ac_controlLst}    Get Sportsbook PT Controls    AgentPlayer    ${sporttype}    ${bettype}    ${isLive}
+    Expand SportType of SBPT    ${bettypename}
+    # Check A1
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    @{ac_controlLst}[0]    ${cfWaitControl}
+    ${ac_A1}    Get Selected List Label    @{ac_controlLst}[0]
+    Run keyword if    '${expectedA1}'!='${EMPTY}'    Run Keyword And Continue On Failure    Should Be Equal    ${ac_A1}    ${expectedA1}
+    Unselect Frame
+
+Get LogID by JS
+    [Arguments]    ${date}    ${variance}
+    Select Frame    main
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //table[@id='DataLog']/tbody/tr    ${cfWaitControl}
+    ${LenTbl}    Get Matching Xpath Count    //table[@id='DataLog']/tbody/tr
+    ${index}    Set Variable    1
+    : FOR    ${index}    IN RANGE    1    ${LenTbl}
+    \    ${cell}    Set Variable    //table[@id='DataLog']/tbody/tr[${index}]//span[3]
+    \    ${datelog}    Get Text    ${cell}
+    \    ${outputLogID}    Execute Javascript    var logID,idate,date,variance; \ \    \    date = ${date}; \ \    ${EMPTY}
+    \    ...    variance = ${variance}; \    \    idate = '${datelog}'; \    \    tbl = document.getElementById("DataLog"); \ \ \
+    \    ...    \    cells = tbl.rows[1].cells; \ \    \    idate = new Date(idate); \ \ \    ${EMPTY}
+    \    ...    idate = (idate.getTime())/1000; \    \    gap = idate - date; \    \    if(gap >= 0 && gap <= variance) { \ \
+    \    ...    \    \    logID = getText(cells[0]); \    \    } \
+    \    ...    \    return logID; \    \ \ \    \    function getText(e){ \ \
+    \    ...    \    \    return (e.innerText != undefined) ? e.innerText : e.textContent; \ \    \    }
+    \    ${IsNone}=    Run Keyword And Return Status    Should Be Equal As Strings    ${outputLogID}    None
+    \    Exit For Loop If    ${IsNone} == False
+    @{ac_tmplst}    Run Keyword And Continue On Failure    Split String    ${outputLogID}    \#
+    ${len}    Run Keyword And Continue On Failure    Evaluate    len(@{ac_tmplst})
+    ${logID}    Run Keyword And Continue On Failure    Set Variable If    ${len} > 0    @{ac_tmplst}[1]
+    ${logID}    Convert To Integer    ${logID}
+    [Return]    ${logID}
+
+Get Row Index
+    [Arguments]    ${TotalRows}    ${BetTypeName}    ${ac_tbl}
+    ${Count}    Set Variable    1
+    : FOR    ${Count}    IN RANGE    ${Count}    ${TotalRows}
+    \    ${IsStop}=    Run Keyword And Return Status    Element Should Be Visible    ${ac_tbl}[${Count}]/td[text()='${BetTypeName}']
+    \    Exit For Loop If    ${IsStop} == True
+    [Return]    ${Count}
+
+Get Rows To Be Scanned
+    [Arguments]    ${BetTypeName}    ${ac_tbl}
+    ${TotalRow}    Get Matching Xpath Count    ${ac_tbl}
+    ${No}    Get Row Index    ${TotalRow}    ${BetTypeName}    ${ac_tbl}
+    ${Count}    Set Variable    ${No}
+    : FOR    ${Count}    IN RANGE    ${Count}    ${TotalRow}
+    \    ${NoEnd}    Evaluate    ${Count} + 1
+    \    ${IsHeader}=    Run Keyword And Return Status    Element Should Be Visible    ${ac_tbl}[${Count+1}]/td[2]
+    \    Continue For Loop If    ${IsHeader} == True
+    \    Exit For Loop If    ${IsHeader} == False
+    [Return]    ${No}    ${NoEnd}
+
+AP View Log Changed PT Value
+    [Arguments]    ${ac_BetTypeName}=${EMPTY}    ${ac_Section}={EMPTY}    ${ac_date}=${EMPTY}    ${ac_New}=${EMPTY}    ${ac_Old}={EMPTY}
+    [Documentation]    ${ac_BetTypeName}: Bet Type Name
+    ...    ${ac_Section}: role edit PT (Agent Position Taking, Master Position Taking, Super Auto Position Taking, ...)
+    ...    ${ac_date}: time to check log
+    ...    ${ac_New}: New Value
+    ...    ${ac_Old}: Old Value
+    ${variance}    Set Variable    60
+    Select Frame    accountinfo-content
+    Click Element By Xpath js    //div[@id='left_submenu']//table//a
+    Unselect Frame
+    ${ac_logID}    Get LogID by JS    ${ac_date}    ${variance}
+    ${ac_table_detail}    Set Variable    //span[@class='logid' and text()='#${ac_logID}']/parent::td/parent::tr
+    Click Element By Xpath js    ${ac_table_detail}//td[text()='${ac_Section}']
+    ${No}    ${NoEnd}    Get Rows To Be Scanned    ${ac_BetTypeName}    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[4]//tbody/tr
+    : FOR    ${No}    IN RANGE    ${No}    ${NoEnd}
+    \    ${IsDisplay}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//td[text()='${ac_Section}'] /parent::tr/parent::tbody/tr[4]//tbody/tr[${No}]//span
+    \    Continue For Loop If    ${IsDisplay} == False
+    \    ${OldVal}    Get Text    ${ac_table_detail}//td[text()='${ac_Section}'] /parent::tr/parent::tbody/tr[4]//tbody/tr[${No}]//span[@class='valueold']
+    \    ${NewVal}    Get Text    ${ac_table_detail}//td[text()='${ac_Section}'] /parent::tr/parent::tbody/tr[4]//tbody/tr[${No}]//span[@class='valuechanged']
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${OldVal}    (${ac_Old})
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${NewVal}    ${ac_New}
+    Unselect Frame
+
+AP Update and Check SB Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    ${actionlog}    Set Variable    Update Sportsbook Position Taking for member
+    ${variance}    Set Variable    60
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original A1
+    ${OldA1}    Get Selected List Value    a1$${SportType}$${BetType}$${IsLive}
+    ${NewA1}    Evaluate    ${OldA1} + 0.01
+    ${NewA1}    Convert To String    ${NewA1}
+    ## Update New A1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_AgentPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${NewA1}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_AgentPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${NewA1}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    AP View Log Changed PT Value    ${BetTypeName}    Agent Position Taking    ${startTime}    ${NewA1}
+    ...    ${OldA1}
+    ## Reset to Original A1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_AgentPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldA1}
+
+MA View Log Changed PT Value
+    [Arguments]    ${ac_BetTypeName}=${EMPTY}    ${ac_Section}={EMPTY}    ${ac_date}=${EMPTY}    ${ac_New}=${EMPTY}    ${ac_Old}={EMPTY}
+    [Documentation]    ${ac_BetTypeName}: Bet Type Name
+    ...    ${ac_Section}: role edit PT (Agent Position Taking, Master Position Taking, Super Auto Position Taking, ...)
+    ...    ${ac_date}: time to check log
+    ...    ${ac_New}: New Value
+    ...    ${ac_Old}: Old Value
+    ${variance}    Set Variable    60
+    Select Frame    accountinfo-content
+    Click Element By Xpath js    //div[@id='left_submenu']//table//a
+    Unselect Frame
+    ${ac_logID}    Get LogID by JS    ${ac_date}    ${variance}
+    ${ac_table_detail}    Set Variable    //span[@class='logid' and text()='#${ac_logID}']/parent::td/parent::tr
+    Click Element By Xpath js    ${ac_table_detail}//td[contains(text(),'${ac_Section}')]
+    ${No}    ${NoEnd}    Get Rows To Be Scanned    ${ac_BetTypeName}    ${ac_table_detail}//td[contains(text(),'${ac_Section}')]/parent::tr/parent::tbody/tr[2]//tbody/tr
+    : FOR    ${No}    IN RANGE    ${No}    ${NoEnd}
+    \    ${IsDisplay}    Run Keyword And Return Status    Element Should Be Visible    ${ac_table_detail}//td[contains(text(),'${ac_Section}')]/parent::tr/parent::tbody/tr[2]//tbody/tr[${No}]//span
+    \    Continue For Loop If    ${IsDisplay} == False
+    \    ${OldVal}    Get Text    ${ac_table_detail}//td[contains(text(),'${ac_Section}')]/parent::tr/parent::tbody/tr[2]//tbody/tr[${No}]//span[@class='valueold']
+    \    ${NewVal}    Get Text    ${ac_table_detail}//td[contains(text(),'${ac_Section}')]/parent::tr/parent::tbody/tr[2]//tbody/tr[${No}]//span[@class='valuechanged']
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${OldVal}    (${ac_Old})
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${NewVal}    ${ac_New}
+    Unselect Frame
+
+MA Update and Check SB Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldM2}    Get Selected List Value    m2$${SportType}$${BetType}$${IsLive}
+    ${OldA2}    Get Selected List Value    a2$${SportType}$${BetType}$${IsLive}
+    ${NewM2}    Evaluate    ${OldM2} + 0.01
+    ${NewM2}    Convert To String    ${NewM2}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_MasterAgent    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${NewM2}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_MasterAgent    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${NewM2}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    MA View Log Changed PT Value    ${BetTypeName}    Master Position Taking    ${startTime}    ${NewM2}
+    ...    ${OldM2}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_MasterAgent    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldM2}    ${OldA2}
+
+MA Update and Check SB Auto Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldM2}    Get Selected List Value    m2$${SportType}$${BetType}$${IsLive}
+    ${OldA2}    Get Selected List Value    a2$${SportType}$${BetType}$${IsLive}
+    ${OldUm2}    Get Selected List Value    um2$${SportType}$${BetType}$${IsLive}
+    ${NewUm2}    Evaluate    ${OldUm2} + 0.01
+    ${NewUm2}    Convert To String    ${NewUm2}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_MasterAgent    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    \    ${EMPTY}
+    ...    1    ${NewUm2}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_MasterAgent    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${NewUm2}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    MA View Log Changed PT Value    ${BetTypeName}    Master Auto Position Taking    ${startTime}    ${NewUm2}
+    ...    ${OldUm2}
+    Comment    Run Keyword And Continue On Failure    MA View Log Changed PT Value    ${BetTypeName}    Is Master Auto Position    ${startTime}    1
+    ...    0
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_MasterAgent    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldM2}    ${OldA2}
+    ...    0
+
+MP View Log Changed PT Value
+    [Arguments]    ${ac_BetTypeName}=${EMPTY}    ${ac_Section}={EMPTY}    ${ac_date}=${EMPTY}    ${ac_New}=${EMPTY}    ${ac_Old}={EMPTY}
+    [Documentation]    ${ac_BetTypeName}: Bet Type Name
+    ...    ${ac_Section}: role edit PT (Agent Position Taking, Master Position Taking, Super Auto Position Taking, ...)
+    ...    ${ac_date}: time to check log
+    ...    ${ac_New}: New Value
+    ...    ${ac_Old}: Old Value
+    ${variance}    Set Variable    60
+    Select Frame    accountinfo-content
+    Click Element By Xpath js    //div[@id='left_submenu']//table[2]//a
+    Unselect Frame
+    ${ac_logID}    Get LogID by JS    ${ac_date}    ${variance}
+    ${ac_table_detail}    Set Variable    //span[@class='logid' and text()='#${ac_logID}']/parent::td/parent::tr
+    Run Keyword If    '${ac_Section}' == 'Master Auto Position Taking' or '${ac_Section}' == 'Is Master Auto Position'    Click Element By Xpath js    ${ac_table_detail}//td[text()='Master Position Taking']
+    Run Keyword If    '${ac_Section}' == 'Master Auto Position Taking'    Click Element By Xpath js    ${ac_table_detail}//td[text()='${ac_Section}']
+    Run Keyword If    '${ac_Section}' == 'Is Master Auto Position'    Click Element By Xpath js    ${ac_table_detail}//td[contains(text(),'${ac_Section}')]
+    ${tbl}    Set Variable If    '${ac_Section}' == 'Master Auto Position Taking'    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[7]    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[3]
+    ${No}    ${NoEnd}    Get Rows To Be Scanned    ${ac_BetTypeName}    ${tbl}//tbody/tr
+    : FOR    ${No}    IN RANGE    ${No}    ${NoEnd}
+    \    ${IsDisplay}    Run Keyword And Return Status    Element Should Be Visible    ${tbl}//tbody/tr[${No}]//span
+    \    Continue For Loop If    ${IsDisplay} == False
+    \    ${OldVal}    Get Text    ${tbl}//tbody/tr[${No}]//span[@class='valueold']
+    \    ${NewVal}    Get Text    ${tbl}//tbody/tr[${No}]//span[@class='valuechanged']
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${OldVal}    (${ac_Old})
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${NewVal}    ${ac_New}
+    Unselect Frame
+
+MP Update and Check SB Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldM1}    Get Selected List Value    m1$${SportType}$${BetType}$${IsLive}
+    ${NewM1}    Evaluate    ${OldM1} + 0.01
+    ${NewM1}    Convert To String    ${NewM1}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_MasterPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${NewM1}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_MasterPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${NewM1}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    MP View Log Changed PT Value    ${BetTypeName}    Master Position Taking    ${startTime}    ${NewM1}
+    ...    ${OldM1}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_MasterPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldM1}
+
+MP Update and Check SB Auto Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldM1}    Get Selected List Value    m1$${SportType}$${BetType}$${IsLive}
+    ${OldUm1}    Get Selected List Value    um1$${SportType}$${BetType}$${IsLive}
+    ${NewUm1}    Evaluate    ${OldUm1} + 0.01
+    ${NewUm1}    Convert To String    ${NewUm1}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_MasterPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${EMPTY}    1
+    ...    ${NewUm1}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_MasterPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${EMPTY}    ${EMPTY}    ${NewUm1}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    MP View Log Changed PT Value    ${BetTypeName}    Master Auto Position Taking    ${startTime}    ${NewUm1}
+    ...    ${OldUm1}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_MasterPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldM1}    0
+
+SM View Log Changed PT Value
+    [Arguments]    ${ac_BetTypeName}=${EMPTY}    ${ac_Section}={EMPTY}    ${ac_date}=${EMPTY}    ${ac_New}=${EMPTY}    ${ac_Old}={EMPTY}
+    [Documentation]    ${ac_BetTypeName}: Bet Type Name
+    ...    ${ac_Section}: role edit PT (Agent Position Taking, Master Position Taking, Super Auto Position Taking, ...)
+    ...    ${ac_date}: time to check log
+    ...    ${ac_New}: New Value
+    ...    ${ac_Old}: Old Value
+    ${variance}    Set Variable    60
+    Select Frame    accountinfo-content
+    Click Element By Xpath js    //div[@id='left_submenu']//table//a
+    Unselect Frame
+    ${ac_logID}    Get LogID by JS    ${ac_date}    ${variance}
+    ${ac_table_detail}    Set Variable    //span[@class='logid' and text()='#${ac_logID}']/parent::td/parent::tr
+    Click Element By Xpath js    ${ac_table_detail}//td[text()='${ac_Section}']
+    ${tbl}    Set Variable If    '${ac_Section}' == 'Super Auto Position Taking'    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[6]    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[4]
+    ${No}    ${NoEnd}    Get Rows To Be Scanned    ${ac_BetTypeName}    ${tbl}//tbody/tr
+    : FOR    ${No}    IN RANGE    ${No}    ${NoEnd}
+    \    ${IsDisplay}    Run Keyword And Return Status    Element Should Be Visible    ${tbl}//tbody/tr[${No}]//span
+    \    Continue For Loop If    ${IsDisplay} == False
+    \    ${OldVal}    Get Text    ${tbl}//tbody/tr[${No}]//span[@class='valueold']
+    \    ${NewVal}    Get Text    ${tbl}//tbody/tr[${No}]//span[@class='valuechanged']
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${OldVal}    (${ac_Old})
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${NewVal}    ${ac_New}
+    Unselect Frame
+
+SM Update and Check SB Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldS3}    Get Selected List Value    s3$${SportType}$${BetType}$${IsLive}
+    ${OldM3}    Get Selected List Value    m3$${SportType}$${BetType}$${IsLive}
+    ${NewS3}    Evaluate    ${OldS3} + 0.01
+    ${NewS3}    Convert To String    ${NewS3}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_SuperMaster    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${NewS3}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Verify SBPT_SuperMaster    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${NewS3}
+    Comment    ## Check View Log after updating
+    Comment    SM View Log Changed PT Value    ${BetTypeName}    Super Position Taking    ${startTime}    ${NewS3}    ${OldS3}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_SuperMaster    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldS3}    ${OldM3}
+
+SM Update and Check SB Auto Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldS3}    Get Selected List Value    s3$${SportType}$${BetType}$${IsLive}
+    ${OldM3}    Get Selected List Value    m3$${SportType}$${BetType}$${IsLive}
+    ${OldUs3}    Get Selected List Value    us3$${SportType}$${BetType}$${IsLive}
+    ${NewUs3}    Evaluate    ${OldUs3} + 0.01
+    ${NewUs3}    Convert To String    ${NewUs3}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_SuperMaster    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    \    ${EMPTY}
+    ...    1    ${NewUs3}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Open Setting From Account Info    ${Username}    Sportsbook
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_SuperMaster    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${EMPTY}    ${EMPTY}    ${EMPTY}    ${NewUs3}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    SM View Log Changed PT Value    ${BetTypeName}    Super Auto Position Taking    ${startTime}    ${NewUs3}
+    ...    ${OldUs3}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_SuperMaster    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldS3}    ${OldM3}
+    ...    0
+
+SP View Log Changed PT Value
+    [Arguments]    ${ac_BetTypeName}=${EMPTY}    ${ac_Section}={EMPTY}    ${ac_date}=${EMPTY}    ${ac_New}=${EMPTY}    ${ac_Old}={EMPTY}
+    [Documentation]    ${ac_BetTypeName}: Bet Type Name
+    ...    ${ac_Section}: role edit PT (Agent Position Taking, Master Position Taking, Super Auto Position Taking, ...)
+    ...    ${ac_date}: time to check log
+    ...    ${ac_New}: New Value
+    ...    ${ac_Old}: Old Value
+    ${variance}    Set Variable    60
+    Select Frame    accountinfo-content
+    Click Element By Xpath js    //div[@id='left_submenu']//table[2]//a
+    Unselect Frame
+    Capture Page Screenshot
+    ${ac_logID}    Get LogID by JS    ${ac_date}    ${variance}
+    ${ac_table_detail}    Set Variable    //span[@class='logid' and text()='#${ac_logID}']/parent::td/parent::tr
+    Run Keyword If    '${ac_Section}' == 'Super Auto Position Taking'    Click Element By Xpath js    ${ac_table_detail}//td[text()='Super Position Taking']
+    Run Keyword If    '${ac_Section}' == 'Super Auto Position Taking'    Click Element By Xpath js    ${ac_table_detail}//td[text()='${ac_Section}']
+    ${tbl}    Set Variable If    '${ac_Section}' == 'Super Auto Position Taking'    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[5]    ${ac_table_detail}//td[text()='${ac_Section}']/parent::tr/parent::tbody/tr[3]
+    ${No}    ${NoEnd}    Get Rows To Be Scanned    ${ac_BetTypeName}    ${tbl}//tbody/tr
+    : FOR    ${No}    IN RANGE    ${No}    ${NoEnd}
+    \    ${IsDisplay}    Run Keyword And Return Status    Element Should Be Visible    ${tbl}//tbody/tr[${No}]//span
+    \    Continue For Loop If    ${IsDisplay} == False
+    \    ${OldVal}    Get Text    ${tbl}//tbody/tr[${No}]//span[@class='valueold']
+    \    ${NewVal}    Get Text    ${tbl}//tbody/tr[${No}]//span[@class='valuechanged']
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${OldVal}    (${ac_Old})
+    \    Run Keyword If    ${IsDisplay} == True    Should Be Equal As Strings    ${NewVal}    ${ac_New}
+    Unselect Frame
+
+SP Update and Check SB Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldS1}    Get Selected List Value    s1$${SportType}$${BetType}$${IsLive}
+    ${NewS1}    Evaluate    ${OldS1} + 0.01
+    ${NewS1}    Convert To String    ${NewS1}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_SuperPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${NewS1}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_SuperPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${NewS1}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    SP View Log Changed PT Value    ${BetTypeName}    Super Position Taking    ${startTime}    ${NewS1}
+    ...    ${OldS1}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_SuperPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldS1}
+
+SP Update and Check SB Auto Position Taking
+    [Arguments]    ${Username}=${EMPTY}    ${SportType}=${EMPTY}    ${BetType}=${EMPTY}    ${IsLive}=${EMPTY}    ${BetTypeName}=${EMPTY}
+    [Documentation]    ${Username}: Member Username
+    ...    ${SportType}: Sport Type ID
+    ...    ${BetType}: Bet Type ID
+    ...    ${IsLive}: Live or Non Live
+    ...    ${BetTypeName}: Bet Type Name
+    # Open Edit Setting from account info Setting
+    Open Setting From Account Info    ${Username}    Sportsbook
+    # Expand PT sections
+    Expand SportType of SBPT    ${BetTypeName}
+    ## Get Original M1
+    ${OldS1}    Get Selected List Value    s1$${SportType}$${BetType}$${IsLive}
+    ${OldUs1}    Get Selected List Value    us1$${SportType}$${BetType}$${IsLive}
+    ${NewUs1}    Evaluate    ${OldUs1} + 0.01
+    ${NewUs1}    Convert To String    ${NewUs1}
+    ## Update New M1
+    ${startTime}    Get Time    epoch    ${cfDBTime}
+    Edit SBPT_SuperPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    \    1
+    ...    ${NewUs1}
+    Comment    ## Verify Basketball PT after updating
+    Comment    Run Keyword And Continue On Failure    Verify SBPT_SuperPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}
+    ...    ${EMPTY}    ${EMPTY}    ${NewUs1}
+    Comment    ## Check View Log after updating
+    Comment    Run Keyword And Continue On Failure    SP View Log Changed PT Value    ${BetTypeName}    Super Position Taking    ${startTime}    ${NewUs1}
+    ...    ${OldUs1}
+    ## Reset to Original M1
+    Open Setting From Account Info    ${Username}    Sportsbook
+    Edit SBPT_SuperPlayer    ${SportType}    ${BetTypeName}    ${BetType}    ${IsLive}    ${OldS1}    0

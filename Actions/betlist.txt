@@ -1,0 +1,415 @@
+*** Settings ***
+Library           Selenium2Library
+Library           String
+Library           Collections
+Library           ExcelLibrary
+Resource          common_actions.txt
+Resource          reports_actions.txt
+Resource          Left_menu/left_menu_actions.txt
+Resource          ../Interfaces/Main/in_m_betlistui.txt
+
+*** Keywords ***
+Get Settled Ticket Values_microsite
+    [Arguments]    ${transId}    ${returnTicket}
+    [Documentation]    This Ticket use to get *Settled Ticket* Info by input TransId and output Ticket value under List
+    Unselect Frame
+    Select Frame    main
+    # Scroll to ticket
+    ${ac_transId}    Get Locator by TransId    ${bl_lblTransId}    ${transId}
+    ${ac_transIdExist}    Run Keyword And Continue On Failure    Element Should Be Visible    ${ac_transId}    Ticket Is not Existing: ${ac_transId}
+    Run Keyword If    '${ac_transIdExist}'!='False'    Scroll To Element    ${ac_transId}
+    #Get settled ticket value
+    Comment    Run Keyword If    '${ac_transIdExist}'!='False'    Get Settled Ticket Value by TransId    ${transId}    ${returnTicket}
+    Run Keyword If    '${ac_transIdExist}'!='False'    Get Table Row value by RowID_SettledTicket_micosite    ${transId}    ${returnTicket}
+    [Return]    ${returnTicket}
+
+Init BetList
+    [Arguments]    ${viewType}    ${filename}    ${sheetname}
+    [Documentation]    Description:
+    ...
+    ...    ${viewType}: this is role to view betlist
+    ...    - SuperPlayer: Super view player
+    ...    - SuperAgent: Super view agent
+    ...    - SuperMaster: Super view master
+    ...
+    ...    ${filename}: file name of excel file including extension (ex: BetList_Betlist_VSBetradar_Local.xls)
+    ...
+    ...    ${sheetname}: this is sheetName in excel file
+    ...
+    ...    History:
+    ...    Casey: Created
+    Config System
+    ${ac_sheetName}    set variable    ${sheetname}
+    ${ac_fileName}    Set variable    ${init_gbWorksSpace}\Data_set\\${filename}
+    Open Excel Current Directory    ${ac_fileName}
+    # Get Defautl Value From Excel File
+    #    Read Cell Data By Coordinates    Notice: Excell Column and row start =0
+    ${ac_localPrefix}    Read Cell Data By Coordinates    ${ac_sheetName}    2    7
+    ${ac_super}    Read Cell Data By Coordinates    ${ac_sheetName}    2    2
+    ${ac_master}    Read Cell Data By Coordinates    ${ac_sheetName}    2    3
+    ${ac_agent}    Read Cell Data By Coordinates    ${ac_sheetName}    2    4
+    ${ac_member}    Read Cell Data By Coordinates    ${ac_sheetName}    2    5
+    ${ac_super}    Set variable if    '${ac_super}'=='default'    ${ds_View01_S}    ${ac_super}
+    ${ac_master}    Set variable if    '${ac_master}'=='default'    ${ds_View01_M}    ${ac_master}
+    ${ac_agent}    Set variable if    '${ac_agent}'=='default'    ${ds_View01_A}    ${ac_agent}
+    ${ac_member}    Set variable if    '${ac_member}'=='default'    ${ds_View01_P}    ${ac_member}
+    Set Global Variable    ${init_gbSuper}    ${ac_super}
+    Set Global Variable    ${init_gbMaster}    ${ac_master}
+    Set Global Variable    ${init_gbAgent}    ${ac_agent}
+    Set Global Variable    ${init_gbMember}    ${ac_member}
+    # Get From Data and To Date
+    ${ac_fromDate}    Read Cell Data By Coordinates    ${ac_sheetName}    5    2
+    ${ac_toDate}    Read Cell Data By Coordinates    ${ac_sheetName}    5    3
+    Set Global Variable    ${init_gbFromDate}    ${ac_fromDate}
+    Set Global Variable    ${init_gbToDate}    ${ac_toDate}
+    # Get Total Rows and TotalCols
+    ${ac_TotalRows}    Read Cell Data By Coordinates    ${ac_sheetName}    5    5
+    ${ac_TotalCols}    Read Cell Data By Coordinates    ${ac_sheetName}    5    6
+    Set Global Variable    ${init_gbTotalRows}    ${ac_TotalRows}
+    Set Global Variable    ${init_gbTotalCols}    ${ac_TotalCols}
+    Set Global Variable    ${init_gbStartRow}    11
+    Set Global Variable    ${init_gbStartCol}    1
+    Set Global Variable    ${init_gbTransIdCol}    1
+    # Using loginUser and viewLogin in Accounts config if 'default' in excel file
+    ${ac_loginUser}    set variable if    '${viewType}'=='SuperPlayer'    ${init_gbSuper}
+    ${ac_loginUser}    set variable if    '${viewType}'=='MasterPlayer'    ${init_gbMaster}    ${ac_loginUser}
+    ${ac_loginUser}    set variable if    '${viewType}'=='AgentPlayer'    ${init_gbAgent}    ${ac_loginUser}
+    Run Keyword If    ('${cfisLocal}'=='1') and '${ac_localPrefix}'!='NOT_RUN'    Run Process    SQL_UpdateBetlistData.bat    ${ac_localPrefix}    ${init_gbFromDate}
+    Comment    LOG    Start Login    console='yes'
+    Comment    init    ${ac_loginUser}
+    Comment    LOG    END Login    console='yes'
+
+Get Locator by TransId
+    [Arguments]    ${locator}    ${transId}
+    ${searchStr}    Set Variable    TransId
+    ${replace}    Trim String    ${transId}
+    ${locator}    Replace String    ${locator}    ${searchStr}    ${replace}
+    [Return]    ${locator}
+
+Open Betlist from AccountInfo
+    [Arguments]    ${viewType}    ${viewUser}
+    [Documentation]    ********Description********** ...
+    ...    This Action is user to Open Betlist of ${viewUser}
+    ...
+    ...    ${viewType}: this is also sheetName in excel file
+    ...    - SuperPlayer: Super view player
+    ...    - SuperAgent: Super view agent
+    ...    - SuperMaster: Super view master
+    ...
+    ...    ********History**************
+    ...    - Created: Casey
+    # Set Variable
+    ${ac_viewType}    Set Variable    ${viewType}
+    # Open Betlist From Account Info
+    Search Account    ${viewUser}
+    Select Frame    menu
+    Click Element    ${in_lm_btnBetList}
+    Unselect Frame
+    # Set Filter and Click Submit
+    Close Announcement Popup
+    select frame    main
+    ${init_gbFromDate}    Convert Date Time with Format    ${init_gbFromDate}    mm/dd/yyyy
+    ${init_gbToDate}    Convert Date Time with Format    ${init_gbToDate}    mm/dd/yyyy
+    Comment    *****1 Select date range fillter and submit*****
+    Smartphone Friendly Select Report Filter    ${init_gbFromDate}    ${init_gbToDate}    ${EMPTY}    ${EMPTY}
+    Click Element    ${in_m_btnSubmit}
+    Unselect Frame
+
+Open Betlist From Report
+    [Arguments]    ${reportName}    ${fromDate}    ${toDate}    ${masterDownline}=${EMPTY}    ${agentDownline}=${EMPTY}    ${memberDownline}=${EMPTY}
+    COMMENT    ==============================>    PRE-CONDITION
+    ${tm_group}    Set Variable    REPORTS
+    ${tm_reportlevel}    Set Variable    Master
+    Select Left Menu    REPORTS    ${reportName}
+    sleep    2
+    Unselect Frame
+    Select Frame    main
+    Capture Page Screenshot
+    ${tc_fromDate}    Convert Date Time with Format    ${fromDate}    mm/dd/yyyy
+    ${tc_toDate}    Convert Date Time with Format    ${toDate}    mm/dd/yyyy
+    Comment    *****1 Select date range fillter and submit*****
+    Smartphone Friendly Select Report Filter    ${tc_fromDate}    ${tc_toDate}    ${EMPTY}    ${EMPTY}
+    sleep    1
+    Click Element    ${in_m_btnSubmit}
+    sleep    2
+    Run Keyword And Return Status    Wait Until Element Is Visible    //table[@id='tbl-report']    60s
+    Run Keyword If    '${masterDownline}'!='${EMPTY}'    Wait Until Element Is Enabled    //table[@id='tbl-report']/tbody//a[@data-custname='${masterDownline}']    10s
+    Run Keyword If    '${masterDownline}'!='${EMPTY}'    click element by xpath js    //table[@id='tbl-report']/tbody//a[@data-custname='${masterDownline}']
+    sleep    10s
+    Run Keyword If    '${masterDownline}'!='${EMPTY}'    Wait Until Element Is Enabled    //table[@id='tbl-report']/tbody//a[@data-custname='${agentDownline}']    10s
+    Run Keyword If    '${agentDownline}'!='${EMPTY}'    click element by xpath js    //table[@id='tbl-report']/tbody//a[@data-custname='${agentDownline}']    #//*[@id='tbl-rpt']/tbody/tr[*]/td[1]/span[contains(text(),'${agentDownline}')]
+    sleep    10s
+    Run Keyword If    '${agentDownline}'!='${EMPTY}'    Wait Until Element Is Enabled    //table[@id='tbl-report']/tbody//a[@data-custname='${memberDownline}']    10s
+    Run Keyword If    '${memberDownline}'!='${EMPTY}'    click element by xpath js    //table[@id='tbl-report']/tbody//a[@data-custname='${memberDownline}']    #//*[@id='tbl-rpt']/tbody/tr[*]/td[1]/span[contains(text(),'${memberDownline}')]
+    Capture Page Screenshot
+    Unselect Frame
+
+Open Betlist Running from AccountInfo
+    [Arguments]    ${viewType}    ${viewUser}
+    [Documentation]    ********Description********** ...
+    ...    This Action is user to *Open Betlist Running* of ${viewUser}
+    ...
+    ...    ${viewType}: this is role to view betlist running
+    ...    - SuperPlayer: Super view player
+    ...    - SuperAgent: Super view agent
+    ...    - SuperMaster: Super view master
+    ...
+    ...    ********History**************
+    ...    - 20161130 : Kingsley Created
+    # Set Variable
+    ${ac_viewType}    Set Variable    ${viewType}
+    # Open Betlist From Account Info
+    Search Account    ${viewUser}
+    Select Frame    menu
+    Click Element    ${in_lm_btnBetList}
+    Unselect Frame
+    # Set Filter and Click Submit
+    select frame    main
+    Select radio button from dropdown list    //button[@class='multiselect dropdown-toggle btn btn-default']    Bet List (Running)
+    ${init_gbFromDate}    Convert Date Time with Format    ${init_gbFromDate}    mm/dd/yyyy
+    ${init_gbToDate}    Convert Date Time with Format    ${init_gbToDate}    mm/dd/yyyy
+    Comment    *****1 Select date range fillter and submit*****
+    Comment    Smartphone Friendly Select Report Filter    ${init_gbFromDate}    ${init_gbToDate}    ${EMPTY}    ${EMPTY}
+    Comment    Click Element    ${in_m_btnSubmit}
+    Unselect Frame
+
+Open Betlist From Report Last Bets
+    [Arguments]    ${Locator_pagesize}    ${Bettype_tab_locator}
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Last Bets
+    COMMENT    -----------------------    MAIN STEPS
+    Close Announcement Popup
+    sleep    30s
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Select Frame    main
+    sleep    2
+    Wait Until Element Is Visible    ${in_m_report_btn_autorefresh}    5
+    Click Element    ${in_m_report_btn_autorefresh}
+    sleep    1
+    Capture Page Screenshot
+    Wait Until Element Is Enabled    ${Locator_pagesize}    30s
+    Click Element    ${Locator_pagesize}
+    Wait Until Element Is Enabled    ${Bettype_tab_locator}
+    Click Element    ${Bettype_tab_locator}
+    Wait Until Element Is Visible    ${in_m_betlist_table_rptLastBets}
+
+Betlist_Get Event Status_microsite
+    [Arguments]    ${transId}
+    [Documentation]    This action to get icon Event status of ticket by input TransId and return a string with format like database
+    ...
+    ...    Ex: 1FL:1-1;FL:1-2;
+    ## Set variable
+    ${homeLocator}    Get Locator by TransId    ${bl_lblChoiceMatchHome_microsite}    ${transId}
+    ${awayLocator}    Get Locator by TransId    ${bl_lblChoiceMatchAway_microsite}    ${transId}
+    ${VsLocator}    Get Locator by TransId    ${bl_lblChoiceMatchVS_microsite}    ${transId}
+    ${divIndex}    set variable    1
+    ${ac_FL_Status}    Set Variable    FL:FirstGoal-LastGoal;
+    ${ac_1FL_Status}    Set Variable    1FL:1stFirstGoal-1stLastGoal;
+    ${EventStatus}    Set Variable    ${EMPTY}
+    # GET HOME STATUS
+    Comment    # Haft Last Ball
+    ${isExits}    Run Keyword And Return Status    Element Should Be Visible    ${VsLocator}/preceding-sibling::div[${divIndex}][@class='fhLastGoal']
+    Run Keyword And Return If    '${isExits}'=='False'    Set Variable    ${EMPTY}
+    ${is_1st_HomeLastGoal}    Run Keyword And Return Status    Get Text    ${VsLocator}/preceding-sibling::div[${divIndex}][@class='fhLastGoal']
+    ${ac_1FL_Status}=    Run Keyword If    ${is_1st_HomeLastGoal}    Replace String    ${ac_1FL_Status}    1stLastGoal    1
+    ...    ELSE    Set Variable    ${ac_1FL_Status}
+    ${divIndex}    Run Keyword If    ${is_1st_HomeLastGoal}    evaluate    ${divIndex}+1
+    ...    ELSE    Set Variable    ${divIndex}
+    Comment    # Haft First Ball
+    ${is_1st_HomeFirstGoal}    Run Keyword And Return Status    Get Text    ${VsLocator}/preceding-sibling::div[${divIndex}][@class='fhFirstGoal']
+    ${ac_1FL_Status}=    Run Keyword If    ${is_1st_HomeFirstGoal}    Replace String    ${ac_1FL_Status}    1stFirstGoal    1
+    ...    ELSE    Set Variable    ${ac_1FL_Status}
+    ${divIndex}    Run Keyword If    ${is_1st_HomeFirstGoal}    evaluate    ${divIndex}+1
+    ...    ELSE    Set Variable    ${divIndex}
+    Comment    # Last Ball
+    ${isHomeLastGoal}    Run Keyword And Return Status    Get Text    ${VsLocator}/preceding-sibling::div[${divIndex}][@class='lastGoal']
+    ${ac_FL_Status}=    Run Keyword If    ${isHomeLastGoal}    Replace String    ${ac_FL_Status}    LastGoal    1
+    ...    ELSE    Set Variable    ${ac_FL_Status}
+    ${divIndex}    Run Keyword If    ${isHomeLastGoal}    evaluate    ${divIndex}+1
+    ...    ELSE    Set Variable    ${divIndex}
+    Comment    # First Ball
+    ${isHomeFirstGoal}    Run Keyword And Return Status    Get Text    ${VsLocator}/preceding-sibling::div[${divIndex}][@class='firstGoal ']
+    ${ac_FL_Status}=    Run Keyword If    ${isHomeFirstGoal}    Replace String    ${ac_FL_Status}    FirstGoal    1
+    ...    ELSE    Set Variable    ${ac_FL_Status}
+    # GET AwaySTATUS
+    ${divIndex}    set variable    1
+    Comment    # First Ball
+    ${isAwayFirstGoal}    Run Keyword And Return Status    Get Text    ${awayLocator}/following-sibling::div[${divIndex}][@class='firstGoal ']
+    ${ac_FL_Status}=    Run Keyword If    ${isAwayFirstGoal}    Replace String    ${ac_FL_Status}    FirstGoal    2
+    ...    ELSE    Set Variable    ${ac_FL_Status}
+    ${divIndex}    Run Keyword If    ${isAwayFirstGoal}    evaluate    ${divIndex}+1
+    ...    ELSE    Set Variable    ${divIndex}
+    Comment    # Last Ball
+    ${isAwayLastGoal}    Run Keyword And Return Status    Get Text    ${awayLocator}/following-sibling::div[${divIndex}][@class='lastGoal']
+    ${ac_FL_Status}=    Run Keyword If    ${isAwayLastGoal}    Replace String    ${ac_FL_Status}    LastGoal    2
+    ...    ELSE    Set Variable    ${ac_FL_Status}
+    ${divIndex}    Run Keyword If    ${isAwayLastGoal}    evaluate    ${divIndex}+1
+    ...    ELSE    Set Variable    ${divIndex}
+    Comment    # Haft First Ball
+    ${is_1st_AwayFirstGoal}    Run Keyword And Return Status    Get Text    ${awayLocator}/following-sibling::div[${divIndex}][@class='fhFirstGoal']
+    ${ac_1FL_Status}=    Run Keyword If    ${is_1st_AwayFirstGoal}    Replace String    ${ac_1FL_Status}    1stFirstGoal    2
+    ...    ELSE    Set Variable    ${ac_1FL_Status}
+    ${divIndex}    Run Keyword If    ${is_1st_AwayFirstGoal}    evaluate    ${divIndex}+1
+    ...    ELSE    Set Variable    ${divIndex}
+    Comment    # Haft Last Ball
+    ${is_1st_AwayLastGoal}    Run Keyword And Return Status    Get Text    ${awayLocator}/following-sibling::div[${divIndex}][@class='fhLastGoal']
+    ${ac_1FL_Status}=    Run Keyword If    ${is_1st_AwayLastGoal}    Replace String    ${ac_1FL_Status}    1stLastGoal    2
+    ...    ELSE    Set Variable    ${ac_1FL_Status}
+    # Set 0 if NoGoal
+    ${ac_FL_Status}=    Replace String    ${ac_FL_Status}    FirstGoal    0
+    ${ac_FL_Status}=    Replace String    ${ac_FL_Status}    LastGoal    0
+    ${ac_1FL_Status}=    Replace String    ${ac_1FL_Status}    1stFirstGoal    0
+    ${ac_1FL_Status}=    Replace String    ${ac_1FL_Status}    1stLastGoal    0
+    ${EventStatus}    Set Variable    ${ac_1FL_Status}${ac_FL_Status}
+    [Return]    ${EventStatus}
+
+Verify Betlist_microsite
+    [Arguments]    ${sheetName}=${EMPTY}
+    [Documentation]    ********Description**************
+    ...
+    ...    This action use to verify betlist with expected data in excel sheet name ${product}
+    ...
+    ...    ********History**************
+    ...    - Created: Casey
+    sleep    30s
+    # Set Variable
+    ${ac_startRow}    set variable    ${init_gbStartRow}
+    ${ac_endRow}    set variable    ${init_gbTotalRows}
+    ${ac_startCol}    set variable    ${init_gbStartCol}
+    ${ac_endCol}    set variable    ${init_gbTotalCols}
+    ${ac_gbTransIdCol}    set variable    ${init_gbTransIdCol}
+    Set Selenium Implicit Wait    0.0005
+    Set Selenium Speed    0.0005
+    # Report Filter
+    : FOR    ${i}    IN RANGE    ${ac_startRow}    ${ac_endRow}
+    \    ${lstActualTiket}    Create List
+    \    ${lstExpected}    Create List
+    \    ${lstExpected}    Get Range Excel In Row    ${sheetName}    ${i}    ${ac_startCol}    ${ac_endCol}
+    \    ${ac_refno}    Read Cell Data By Coordinates    ${sheetName}    ${ac_gbTransIdCol}    ${i}
+    \    ${lstActualTiket}    Get Settled Ticket Values_microsite    ${ac_refno}    ${lstActualTiket}
+    \    ${resultStatus}    Run Keyword And Continue On Failure    Lists Should Be Equal    ${lstActualTiket}    ${lstExpected}    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    log    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    Capture Page Screenshot
+    Set Selenium Implicit Wait    ${cfWaitTime}
+    Set Selenium Speed    ${cfSpeed}
+
+Verify Betlist_microsite_CancelledBet_LastBets
+    [Arguments]    ${sheetName}=${EMPTY}
+    [Documentation]    ********Description**************
+    ...
+    ...    This action use to verify betlist with expected data in excel sheet name ${product}
+    ...
+    ...    ********History**************
+    ...    - Created: Casey
+    sleep    30s
+    # Set Variable
+    ${ac_startRow}    set variable    ${init_gbStartRow}
+    ${ac_endRow}    set variable    ${init_gbTotalRows}
+    ${ac_startCol}    set variable    ${init_gbStartCol}
+    ${ac_endCol}    set variable    ${init_gbTotalCols}
+    ${ac_gbTransIdCol}    set variable    ${init_gbTransIdCol}
+    Set Selenium Implicit Wait    0.0005
+    Set Selenium Speed    0.0005
+    # Report Filter
+    : FOR    ${i}    IN RANGE    ${ac_startRow}    ${ac_endRow}
+    \    ${lstActualTiket}    Create List
+    \    ${lstExpected}    Create List
+    \    ${lstExpected}    Get Range Excel In Row    ${sheetName}    ${i}    ${ac_startCol}    ${ac_endCol}
+    \    ${ac_refno}    Read Cell Data By Coordinates    ${sheetName}    ${ac_gbTransIdCol}    ${i}
+    \    ${lstActualTiket}    Get Void/Reject Ticket Values_Cancelled_LastBets_microsite    ${ac_refno}    ${lstActualTiket}
+    \    ${resultStatus}    Run Keyword And Continue On Failure    Lists Should Be Equal    ${lstActualTiket}    ${lstExpected}    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    log    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    Capture Page Screenshot
+    Set Selenium Implicit Wait    ${cfWaitTime}
+    Set Selenium Speed    ${cfSpeed}
+
+Verify Betlist Running_microsite
+    [Arguments]    ${sheetName}=${EMPTY}
+    [Documentation]    ********Description**************
+    ...
+    ...    This action use to verify *betlist running* with expected data in excel sheet name ${product}
+    ...
+    ...    ********History**************
+    ...    - 20161130 : Kingsley Created
+    Sleep    20s
+    Unselect Frame
+    Select Frame    main
+    # Set Variable
+    ${ac_startRow}    set variable    ${init_gbStartRow}
+    ${ac_endRow}    set variable    ${init_gbTotalRows}
+    ${ac_startCol}    set variable    ${init_gbStartCol}
+    ${ac_endCol}    set variable    ${init_gbTotalCols}
+    ${ac_gbTransIdCol}    set variable    ${init_gbTransIdCol}
+    Set Selenium Implicit Wait    0.0005
+    Set Selenium Speed    0.0005
+    # Report Filter
+    : FOR    ${i}    IN RANGE    ${ac_startRow}    ${ac_endRow}
+    \    ${lstActualTiket}    Create List
+    \    ${lstExpected}    Create List
+    \    ${lstExpected}    Get Range Excel In Row    ${sheetName}    ${i}    ${ac_startCol}    ${ac_endCol}
+    \    ${ac_refno}    Read Cell Data By Coordinates    ${sheetName}    ${ac_gbTransIdCol}    ${i}
+    \    ${lstActualTiket}    Get Table Row value by RowID_RunningTicket_microsite    ${ac_refno}    ${lstActualTiket}
+    \    ${resultStatus}    Run Keyword And Continue On Failure    Lists Should Be Equal    ${lstActualTiket}    ${lstExpected}    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    log    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    Capture Page Screenshot
+    Set Selenium Implicit Wait    ${cfWaitTime}
+    Set Selenium Speed    ${cfSpeed}
+
+Verify Betlist_VSRacing_microsite
+    [Arguments]    ${sheetName}=${EMPTY}
+    [Documentation]    ********Description**************
+    ...
+    ...    This action use to verify betlist with expected data in excel sheet name ${product}
+    ...
+    ...    ********History**************
+    ...    - Created: Casey
+    sleep    30s
+    # Set Variable
+    ${ac_startRow}    set variable    ${init_gbStartRow}
+    ${ac_endRow}    set variable    ${init_gbTotalRows}
+    ${ac_startCol}    set variable    ${init_gbStartCol}
+    ${ac_endCol}    set variable    ${init_gbTotalCols}
+    ${ac_gbTransIdCol}    set variable    ${init_gbTransIdCol}
+    Set Selenium Implicit Wait    0.0005
+    Set Selenium Speed    0.0005
+    # Report Filter
+    : FOR    ${i}    IN RANGE    ${ac_startRow}    ${ac_endRow}
+    \    ${lstActualTiket}    Create List
+    \    ${lstExpected}    Create List
+    \    ${lstExpected}    Get Range Excel In Row    ${sheetName}    ${i}    ${ac_startCol}    ${ac_endCol}
+    \    ${ac_refno}    Read Cell Data By Coordinates    ${sheetName}    ${ac_gbTransIdCol}    ${i}
+    \    ${lstActualTiket}    Get Settled Ticket Values_VSRacing_microsite    ${ac_refno}    ${lstActualTiket}
+    \    ${resultStatus}    Run Keyword And Continue On Failure    Lists Should Be Equal    ${lstActualTiket}    ${lstExpected}    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    log    Wrong Ticket: ${ac_refno}
+    \    Run Keyword If    '${resultStatus}'!='${true}'    Capture Page Screenshot
+    Set Selenium Implicit Wait    ${cfWaitTime}
+    Set Selenium Speed    ${cfSpeed}
+
+Get Settled Ticket Values_VSRacing_microsite
+    [Arguments]    ${transId}    ${returnTicket}
+    [Documentation]    This Ticket use to get *Settled Ticket* Info by input TransId and output Ticket value under List
+    Unselect Frame
+    Select Frame    main
+    # Scroll to ticket
+    ${ac_transId}    Get Locator by TransId    ${bl_lblTransId}    ${transId}
+    ${ac_transIdExist}    Run Keyword And Continue On Failure    Element Should Be Visible    ${ac_transId}    Ticket Is not Existing: ${ac_transId}
+    Run Keyword If    '${ac_transIdExist}'!='False'    Scroll To Element    ${ac_transId}
+    #Get settled ticket value
+    Comment    Run Keyword If    '${ac_transIdExist}'!='False'    Get Settled Ticket Value by TransId    ${transId}    ${returnTicket}
+    Run Keyword If    '${ac_transIdExist}'!='False'    Get Table Row value by RowID_SettledTicket_VSRacing_micosite    ${transId}    ${returnTicket}
+    [Return]    ${returnTicket}
+
+Get Void/Reject Ticket Values_Cancelled_LastBets_microsite
+    [Arguments]    ${transId}    ${returnTicket}
+    [Documentation]    This Ticket use to get *Settled Ticket* Info by input TransId and output Ticket value under List
+    Unselect Frame
+    Select Frame    main
+    # Scroll to ticket
+    ${ac_transId}    Get Locator by TransId    ${bl_lblTransId}    ${transId}
+    ${ac_transIdExist}    Run Keyword And Continue On Failure    Element Should Be Visible    ${ac_transId}    Ticket Is not Existing: ${ac_transId}
+    Run Keyword If    '${ac_transIdExist}'!='False'    Scroll To Element    ${ac_transId}
+    #Get settled ticket value
+    Comment    Run Keyword If    '${ac_transIdExist}'!='False'    Get Settled Ticket Value by TransId    ${transId}    ${returnTicket}
+    Run Keyword If    '${ac_transIdExist}'!='False'    Get Table Row value by RowID_VoidRejectTicket_Cancelled_LastBets_micosite    ${transId}    ${returnTicket}
+    [Return]    ${returnTicket}

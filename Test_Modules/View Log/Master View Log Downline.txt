@@ -1,0 +1,2639 @@
+*** Settings ***
+Suite Setup       Init    ${ds_View01_M04}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../Interfaces/in_top_menu.txt    #**************************************************INTERFACES*****************************************
+Resource          ../../Interfaces/Main/in_main.txt
+Resource          ../../Interfaces/Main/in_m_viewlog.txt
+Resource          ../../Interfaces/in_left_menu.txt
+Resource          ../../Actions/common_actions.txt    #**************************************************ACTIONS*****************************************
+Resource          ../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../Actions/reports_actions.txt
+Resource          ../../Actions/viewlog.txt    #**************************************************VIEW LOG ACTIONS*****************************************
+Resource          ../../Data_set/accounts_ViewLog.txt    #**************************************************DATASETS*****************************************
+Library           ExcelLibrary
+Library           xlrd
+
+*** Variables ***
+${ts_ViewLogFromOct}    2016-10-01
+${ts_ViewLogToOct}    2016-10-31
+${ts_ViewLogFromNov}    2016-11-01
+${ts_ViewLogToNov}    2016-11-30
+${ts_ViewLogFromDec}    2016-12-01
+${ts_ViewLogToDec}    2016-12-31
+${ts_ViewLogFromJan}    2017-01-01
+${ts_ViewLogToJan}    2017-01-31
+${ts_ViewLogFromJun}    2017-06-01
+${ts_ViewLogToJun}    2017-06-13
+
+*** Test Cases ***
+Credit Master
+    [Tags]    Credit
+    [Setup]
+    ## Set Viriable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    ## Search User
+    Select Left Menu    VIEW LOG    Credit
+    Filter View Log    Credit    ${tc_ViewLogMaster}    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Set Credit when Master's created
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    SetCreditMast
+    ## Change Date
+    Select Left Menu    VIEW LOG    Credit
+    Filter View Log    Credit    ${tc_ViewLogMaster}    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Credit
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    UpdCreditMast
+
+Credit Agent
+    [Tags]    Credit
+    [Setup]
+    ## Set Viriable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Select Left Menu    VIEW LOG    Credit
+    Filter View Log    Credit    ${tc_ViewLogAgent}    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Set Credit when Agent's created
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    SetCreditAg
+    ## Change Date
+    Select Left Menu    VIEW LOG    Credit
+    Filter View Log    Credit    ${tc_ViewLogAgent}    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Set Credit when Agent's created
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    UpdCreditAg
+
+Credit Member
+    [Tags]    Credit
+    [Setup]
+    ## Set Viriable
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    ## Search User
+    Select Left Menu    VIEW LOG    Credit
+    Filter View Log    Credit    ${tc_ViewLogMember00}    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Set Credit when Member's created
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    SetCreditMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Member's Credit
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    UpdCreditMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Given Credit
+    ViewLog_Verify Credit    ViewLog${/}ViewLog_Credit.xls    UpdGivenCredit
+    Log    ********************************************* End Credit *********************************************
+
+Login Master
+    [Tags]    Login
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    ## Search User
+    Select Left Menu    VIEW LOG    Login
+    Filter View Log    Login    ${tc_ViewLogMaster}    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Login via Agent's Site
+    ViewLog_Verify Log Login    ViewLog${/}ViewLog_Login.xls    LoginMaster
+    Log    ********************************************* End Login *********************************************
+
+Login Agent
+    [Tags]    Login
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ## Search User
+    Select Left Menu    VIEW LOG    Login
+    Filter View Log    Login    ${tc_ViewLogAgent}    \    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Login via Agent's Site
+    ViewLog_Verify Log Login    ViewLog${/}ViewLog_Login.xls    LoginAgent
+    Log    ********************************************* End Login *********************************************
+
+SB Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Position Taking for master
+    Add SBPT Master    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    AddSbPtMast1    AddSbPtMast2    AddSbPtMast3
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Position Taking for master
+    Update SBPT for Master    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    UpdSbPtMast1    UpdSbPtMast2    UpdSbPtMast3    UpdSbPtMast4    UpdSbPtMast5
+    Log    ********************************************* End PT *********************************************
+
+SB Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Position Taking for agent
+    Add SBPT Agent    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    AddSbPtAg1    AddSbPtAg2    AddSbPtAg3    AddSbPtAg4
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Position Taking for agent
+    Update SBPT for Agent    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    UpdSbPtAg1    UpdSbPtAg2    UpdSbPtAg3    UpdSbPtAg4    UpdSbPtAg5
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Min/Max Position Taking
+    Update SBPT for Member    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    UpdSbMinMaxPt1    UpdSbMinMaxPt2
+    Log    ********************************************* End PT *********************************************
+
+SB Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start PT *********************************************
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Position Taking for member
+    Add SBPT Mem    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    AddPtMem
+    Log    ******************************************************
+    Log    Change User
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Sportsbook Position Taking at member
+    Master Update SBPT Member    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    MastUpdSbPtMem1    MastUpdSbPtMem2    MastUpdSbPtMem3    MastUpdSbPtMem4
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Sportsbook Position Taking at member
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Super Update SBPT Member    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    SuperUpdSbPtMem1    SuperUpdSbPtMem2    SuperUpdSbPtMem3    SuperUpdSbPtMem4
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Position Taking for member
+    Update SBPT for Member    ViewLogPT${/}ViewLog_Setting_PT_SB.xls    UpdSbPtMem1    UpdSbPtMem2
+    Log    ********************************************* End PT *********************************************
+
+SB Commission Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Commission for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_SB.xls    AddCommMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Commission for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_SB.xls    UpdSbCommMast
+    Log    ********************************************* End Comm *********************************************
+
+SB Commission Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Commission for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_SB.xls    AddCommAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Commission for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_SB.xls    UpdSbCommAg
+    Log    ********************************************* End Comm *********************************************
+
+SB Commission Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start Comm *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Commission for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_SB.xls    AddCommMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Commission for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_SB.xls    UpdSbCommMem
+    Log    ********************************************* End Comm *********************************************
+
+SB Bet Setting Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    Add Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB.xls    AddBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB.xls    UpdSbBsMast
+    Log    ********************************************* End BS *********************************************
+
+SB Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Bet Setting for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB.xls    AddBsAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Bet Setting for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB.xls    UpdSbBsAg
+    Log    ********************************************* End BS *********************************************
+
+SB Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start BS *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Add Bet Setting for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB.xls    AddBsMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Bet Setting for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB.xls    UpdSbBsMem
+    Log    ********************************************* End BS *********************************************
+
+SB Status Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${tc_ViewLogMaster}    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add the initial statuses for master
+    Add Initial Status Master    ViewLogStatus${/}ViewLog_Status_SB.xls    AddIniSttMast
+    Log    ********************************************* End Status *********************************************
+
+SB Status Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${tc_ViewLogAgent}    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add the initial statuses for agent
+    Add Initial Status AgMem    ViewLogStatus${/}ViewLog_Status_SB.xls    AddIniSttAg
+    Log    ********************************************* End Status *********************************************
+
+SB Status Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    Log    ********************************************* Start Status *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${tc_ViewLogMember00}    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Add the initial statuses for member
+    Add Initial Status AgMem    ViewLogStatus${/}ViewLog_Status_SB.xls    AddIniSttMem
+    Log    ********************************************* End Status *********************************************
+
+Racing Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Position Taking for master
+    Update Race PT Master    ViewLogPT${/}ViewLog_Setting_PT_Racing.xls    UpdRacePtMast1    UpdRacePtMast2    UpdRacePtMast3    UpdRacePtMast4    UpdRacePtMast5
+    Log    ********************************************* End PT *********************************************
+
+Racing Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_A04}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Position Taking for agent
+    Update Race PT Agent    ViewLogPT${/}ViewLog_Setting_PT_Racing.xls    UpdRacePtAg1    UpdRacePtAg2    UpdRacePtAg3    UpdRacePtAg4    UpdRacePtAg5
+    ## Agent
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_A04}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Min/Max Position Taking
+    Update Race Min Max PT    ViewLogPT${/}ViewLog_Setting_PT_Racing.xls    UpdRaceMinMaxPt1    UpdRaceMinMaxPt2
+    Log    ********************************************* End PT *********************************************
+
+Racing Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    Log    ********************************************* Start PT *********************************************
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Position Taking for member
+    Update Race PT Member    ViewLogPT${/}ViewLog_Setting_PT_Racing.xls    UpdRacePtMem1    UpdRacePtMem2
+    Log    ********************************************* End PT *********************************************
+
+Racing Commission Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Commission for master
+    Update Data 2 Columns and 2 Last Rows 6 Columns    ViewLogComm${/}ViewLog_Setting_Comm_Race.xls    UpdRaceCommMast
+    Log    ********************************************* End Comm *********************************************
+
+Racing Commission Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ## Agent
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Commission for agent
+    Update Data 2 Columns and 2 Last Rows 6 Columns    ViewLogComm${/}ViewLog_Setting_Comm_Race.xls    UpdRaceCommAg
+    Log    ********************************************* End Comm *********************************************
+
+Racing Commission Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start Comm *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Racing Commission for member
+    Update Data 2 Columns and 2 Last Rows 6 Columns    ViewLogComm${/}ViewLog_Setting_Comm_Race.xls    UpdRaceCommMem
+    Log    ********************************************* End Comm *********************************************
+
+Racing Bet Setting Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update SA Racing Bet Setting for master
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceSaBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update UK/Irish Racing Bet Setting for master
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceUkBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Racing Bet Setting for master
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceAustBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update UK/Irish Greyhounds Bet Setting for master
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceUkGBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Greyhound Bet Setting for master
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceAustGBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Harness Bet Setting for master
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceHarBsMast
+    Log    ********************************************* End BS *********************************************
+
+Racing Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update SA Racing Bet Setting for agent
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceSaBsAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update UK/Irish Racing Bet Setting for agent
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceUkBsAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Racing Bet Setting for agent
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceAustBsAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update UK/Irish Greyhounds Bet Setting for agent
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceUkGBsAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Greyhound Bet Setting for agent
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceAustGBsAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Harness Bet Setting for agent
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaceHarBsAg
+    Log    ********************************************* End BS *********************************************
+
+Racing Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start BS *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update UK/Irish Racing Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRukBsMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update SA Racing Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRsaBsMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update UK/Irish Greyhounds Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRgreyBsMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Racing Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaustBsMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Harness Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRharBsMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Aust Greyhound Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Racing.xls    UpdRaustgreyBsMem
+    Log    ********************************************* End BS *********************************************
+
+Racing Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable SA Racing status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRaugrAg
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enable/Disable SA Racing status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRaugrMem
+    Log    ********************************************* End Status *********************************************
+
+Racing Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enable/Disable SA Racing status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRaugrAg
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable SA Racing status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRaugrMem
+    Log    ********************************************* End Status *********************************************
+
+Live Casino Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live casino Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    UpdLcMinPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino Position Taking for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    UpdLcPtMast
+    Log    ********************************************* End PT *********************************************
+
+Live Casino Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live casino Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    UpdLcMinPtAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino Position taking for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    UpdLcPtAg
+    Log    ********************************************* End PT *********************************************
+
+Live Casino Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    Log    ********************************************* Start PT *********************************************
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino Position taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    UpdLcPtMem
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Live Casino Position Taking at member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    SuperUpdLcPtMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Live Casino Position Taking at member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_LC.xls    MastUpdLcPtMem
+    Log    ********************************************* End PT *********************************************
+
+Live Casino Commission Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live casino commission for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_LC.xls    UpdLcCommMast
+    Log    ********************************************* End Comm *********************************************
+
+Live Casino Commission Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live casino commission for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_LC.xls    UpdLcCommAg
+    Log    ********************************************* End Comm *********************************************
+
+Live Casino Commission Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start Comm *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live casino commission for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_LC.xls    UpdLcCommMem
+    Log    ********************************************* End Comm *********************************************
+
+Live Casino Bet Setting Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster4}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster4}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Automate add Live Casino betting limit for Master
+    Update Data 6 Columns and 4 Last Rows 2 Columns    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    AddLcBetLimMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Member Win Limit    ## LC
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    MastUpdMemWL
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino Member Win Limit
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    MastUpdLcMemWL
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino betting limit for Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    UpdLcBetLimMast
+    Log    ********************************************* End BS *********************************************
+
+Live Casino Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino Member Win Limit
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    UpdLcMemWLAg
+    Log    --------------------------------------------------------------------------------
+    Log    Add Live Casino betting limit for Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    AddLcBetLimAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino betting limit for Agent
+    Update Data 6 Columns and 1 Last Row 4 Columns    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    UpdLcBetLimAg
+    Log    ********************************************* End BS *********************************************
+
+Live Casino Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start BS *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Automate add Live Casino betting limit for Member from existing member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    CopyLcBetLimMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Live Casino betting limit for Member
+    Update Data 6 Columns and 1 Last Row 4 Columns    ViewLogBetSetting${/}ViewLog_Setting_BS_LC.xls    UpdLcBetLimMem
+    Log    ********************************************* End BS *********************************************
+
+Live Casino Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Add the initial live casino status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_LiveCasino.xls    AddIniLcSttAg
+    Comment    ## Member
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Add the initial live casino status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_LiveCasino.xls    AddIniLcSttMem
+    Log    ********************************************* End Status *********************************************
+
+Live Casino Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Agent
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Add the initial live casino status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_LiveCasino.xls    AddIniLcSttAg
+    ## Member
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Add the initial live casino status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_LiveCasino.xls    AddIniLcSttMem
+    Log    ********************************************* End Status *********************************************
+
+Casino Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enabled/Disabled Casino's status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoStt
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enabled/Disabled Casino's status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoSttAg
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enabled/Disabled Casino's status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoSttMem
+    Log    ********************************************* End Status *********************************************
+
+Casino Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enabled/Disabled Casino's status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoStt
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enabled/Disabled Casino's status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoSttAg
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enabled/Disabled Casino's status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoSttMem
+    Log    ********************************************* End Status *********************************************
+
+Virtual Sports Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - Soccer
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtSocMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - HR
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtHrMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - Tennis
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtTenMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - Speedway
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtSpeedMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - Greyhounds
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtGreyMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - Moto
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtMotoMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for master - Cycling
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtCycMast
+    Log    ********************************************* End PT *********************************************
+
+Virtual Sports Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtAg
+    Log    ********************************************* End PT *********************************************
+
+Virtual Sports Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    UpdVsPtMem
+    ## Member
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Virtual Sports Position Taking at member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    SuperUpdVsPtMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Virtual Sports Position Taking at member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VS.xls    MastUpdVsPtMem
+    Log    ********************************************* End PT *********************************************
+
+Virtual Sports Bet Setting Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - Soccer
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsSocMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - HR
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsHrMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - Tennis
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsTenMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - Speedway
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsSpeedMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - Greyhounds
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsGreyMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - Moto
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsMotoMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for master - Cycling
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsCycMast
+    Log    ********************************************* End BS *********************************************
+
+Virtual Sports Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsAg
+    Log    ********************************************* End BS *********************************************
+
+Virtual Sports Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start BS *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Virtual Sports Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_VS.xls    UpdVsBsMem
+    Log    ********************************************* End BS *********************************************
+
+Keno Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnMinPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Australia
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnAusPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Slovakia
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnSloPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Canada
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnCanPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - West Canada
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnWestPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Massachusetts
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnMassPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Ohio
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnOhPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Malta
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnMalPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Kentucky
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnKenPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Michigan
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnMicPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for master - Korea
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnKorPtMast
+    Log    ********************************************* End PT *********************************************
+
+Keno Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnPtAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnMinPtAg
+    Log    ********************************************* End PT *********************************************
+
+Keno Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    Log    ********************************************* Start PT *********************************************
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    UpdKnPtMem
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Keno Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    SuperUpdKenoPtMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Keno Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Keno.xls    MastUpdKenoPtMem
+    Log    ********************************************* End PT *********************************************
+
+Keno Bet Setting Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnAusBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnSloBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnCanBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnWestBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnMassBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnOhioBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnMalBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnKenBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnMicBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnKorBsMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnMaxkBsMast
+    Log    ********************************************* End BS *********************************************
+
+Keno Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnBsAg
+    Log    ********************************************* End BS *********************************************
+
+Keno Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start BS *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Keno Bet Setting for member
+    Update Data 6 Columns and Skip Row 3    ViewLogBetSetting${/}ViewLog_Setting_BS_Keno.xls    UpdKnBsMem
+    Log    ********************************************* End BS *********************************************
+
+Keno Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Keno status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Keno.xls    UpdKenoSttAg
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enable/Disable Keno status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Keno.xls    UpdKenoSttMem
+    Log    ********************************************* End Status *********************************************
+
+Keno Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enable/Disable Keno status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Keno.xls    UpdKenoSttAg
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Keno status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Keno.xls    UpdKenoSttMem
+    Log    ********************************************* End Status *********************************************
+
+Gold Deluxe Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Position Taking for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdMinPtMast
+    Log    ********************************************* End PT *********************************************
+
+Gold Deluxe Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Position Taking for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdPtAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdMinPtAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Position Taking for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdPtAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Min Position Taking
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdMinPtAg
+    Log    ********************************************* End PT *********************************************
+
+Gold Deluxe Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    Log    ********************************************* Start PT *********************************************
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    UpdGdPtMem
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Gold Deluxe Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    SuperUpdGdPtMem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Gold Deluxe Position Taking for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_GD.xls    MastUpdGdPtMem
+    Log    ********************************************* End PT *********************************************
+
+Gold Deluxe Commission Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Commission for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_GD.xls    UpdGdCommMast
+    Log    ********************************************* End Comm *********************************************
+
+Gold Deluxe Commission Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start Comm *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Commission for agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_GD.xls    UpdGdCommAg
+    Log    ********************************************* End Comm *********************************************
+
+Gold Deluxe Commission Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember01}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start Comm *********************************************
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember01}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Commission for member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_GD.xls    UpdGdCommMem
+    Log    ********************************************* End Comm *********************************************
+
+Gold Deluxe Bet Setting Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Bet Setting
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_GD.xls    UpdGdBsMast
+    Log    ********************************************* End BS *********************************************
+
+Gold Deluxe Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update GD Member Win Limit
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_GD.xls    UpdGdMemWLAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Bet Setting
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_GD.xls    UpdGdBsAg
+    Log    ********************************************* End BS *********************************************
+
+Gold Deluxe Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember}    Set Variable    ${ds_View01_P0401}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember}    All Types    2017-09-01    2017-09-29
+    Log    --------------------------------------------------------------------------------
+    Log    Update GD Member Win Limit
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_GD.xls    UpdGdMemWLmem
+    Log    --------------------------------------------------------------------------------
+    Log    Update Gold Deluxe Bet Setting
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_GD.xls    UpdGdBsMem
+    Log    ********************************************* End BS *********************************************
+
+Gold Deluxe Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update enable/disable Gold Deluxe status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_GD.xls    UpdGdSttAg
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enable/disable Gold Deluxe status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_GD.xls    UpdGdSttMem
+    Log    ********************************************* End Status *********************************************
+
+Gold Deluxe Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enable/disable Gold Deluxe status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_GD.xls    UpdGdSttAg
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update enable/disable Gold Deluxe status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_GD.xls    UpdGdSttMem
+    Log    ********************************************* End Status *********************************************
+
+Macau Games Position Taking Master
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Macau.xls    MCUpdDcsPtMast1    MCUpdDcsPtMast2
+    Log    ********************************************* End PT *********************************************
+
+Macau Games Position Taking Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    Log    ********************************************* Start PT *********************************************
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Log    Change User
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Agent    ## Macau
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Macau.xls    MCUpdDcsPtAg1    MCUpdDcsPtAg2
+    Log    ********************************************* End PT *********************************************
+
+Macau Games Position Taking Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400}
+    Log    ********************************************* Start PT *********************************************
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Macau.xls    MCSuperUpdDcsPtMem1    MCSuperUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Macau.xls    MCMastUpdDcsPtMem1    MCMastUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for member    ## AgentUpd Mem
+    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_Macau.xls    MCUpdDcsPtMem1    MCUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+
+Macau Games Commission Master
+    [Setup]
+    Log    ********************************************* Start Comm *********************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Commission for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommCust1    MCUpdDcsCommCust2
+    Log    ********************************************* End Comm *********************************************
+
+Macau Games Commission Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start Comm *********************************************
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Commission for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommCust1    MCUpdDcsCommCust2
+    ## Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Commission for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommAgent1    MCUpdDcsCommAgent2
+    Comment    ## Member
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Commission for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommMem1    MCUpdDcsCommMem2
+    Log    ********************************************* End Comm *********************************************
+
+Macau Games Commission Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M04}
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start Comm *********************************************
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${tc_ViewLogMaster}    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Commission for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommCust1    MCUpdDcsCommCust2
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Commission for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommAgent1    MCUpdDcsCommAgent2
+    ## Member
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Commission for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_Macau.xls    MCUpdDcsCommMem1    MCUpdDcsCommMem2
+    Log    ********************************************* End Comm *********************************************
+
+Macau Games Bet Limit Master
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Macau.xls    MCUpdDcsWLMast1    MCUpdDcsWLMast2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Macau.xls    MCUpdDcsBetLim1    MCUpdDcsBetLim2
+    Log    ********************************************* End BS *********************************************
+
+Macau Games Bet Limit Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogAgent}    All Types    2017-09-01    2017-09-29
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Macau.xls    MCUpdDcsWLAgent1    MCUpdDcsWLAgent2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Macau.xls    MCUpdDcsBetLimAgent1    MCUpdDcsBetLimAgent2
+    Log    ********************************************* End BS *********************************************
+
+Macau Games Bet Limit Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start BS *********************************************
+    ## Member
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    2017-09-01    2017-09-29
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Macau.xls    MCUpdDcsWLmem1    MCUpdDcsWLmem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Macau.xls    MCUpdDcsBetLimMem1    MCUpdDcsBetLimMem2
+    Log    ********************************************* End BS *********************************************
+
+Macau Games Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Macau.xls    MCUpdDcsSttAg1    MCUpdDcsSttAg2
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Macau.xls    MCUpdDcsSttMem1    MCUpdDcsSttMem2
+    Log    ********************************************* End Status *********************************************
+
+Macau Games Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Macau.xls    MCUpdDcsSttAg1    MCUpdDcsSttAg2
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Macau.xls    MCUpdDcsSttMem1    MCUpdDcsSttMem2
+    Log    ********************************************* End Status *********************************************
+
+Horse Racing Position Taking
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SUPERTESTAUTO000400000    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Horse racing Position Taking at member
+    Super Update HRPT Member    ViewLogPT${/}ViewLog_Setting_PT_HorseRacing.xls    SuperUpdHrMem1    SuperUpdHrMem2    SuperUpdHrMem3    SuperUpdHrMem4    SuperUpdHrMem5
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Horse racing Position Taking at member
+    Super Update HRPT Member    ViewLogPT${/}ViewLog_Setting_PT_HorseRacing.xls    MastUpdHrPtMem1    MastUpdHrPtMem2    MastUpdHrPtMem3    MastUpdHrPtMem4    MastUpdHrPtMem5
+    Log    ********************************************* End PT *********************************************
+
+SB2 Position Taking Master
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtMast1    SB2UpdDcsPtMast2    SB2UpdDcsPtMast3
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtAge1    SB2UpdDcsPtAge2    SB2UpdDcsPtAge3
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2SupUpdDcsPtMem1    SB2SupUpdDcsPtMem2    SB2SupUpdDcsPtMem3
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2MastUpdDcsPtMem1    SB2MastUpdDcsPtMem2    SB2MastUpdDcsPtMem3
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Member
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtMem1    SB2UpdDcsPtMem2    SB2UpdDcsPtMem3
+    Log    ********************************************* End PT *********************************************
+
+SB2 Position Taking Agent
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtMast1    SB2UpdDcsPtMast2    SB2UpdDcsPtMast3
+    ## Agent
+    Log    Test Agent Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtAge1    SB2UpdDcsPtAge2    SB2UpdDcsPtAge3
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2SupUpdDcsPtMem1    SB2SupUpdDcsPtMem2    SB2SupUpdDcsPtMem3
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2MastUpdDcsPtMem1    SB2MastUpdDcsPtMem2    SB2MastUpdDcsPtMem3
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Member
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtMem1    SB2UpdDcsPtMem2    SB2UpdDcsPtMem3
+    Log    ********************************************* End PT *********************************************
+
+SB2 Position Taking Member
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtMast1    SB2UpdDcsPtMast2    SB2UpdDcsPtMast3
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtAge1    SB2UpdDcsPtAge2    SB2UpdDcsPtAge3
+    ## Member
+    Log    Test Member Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Other Products Position Taking for Member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2SupUpdDcsPtMem1    SB2SupUpdDcsPtMem2    SB2SupUpdDcsPtMem3
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Other Products Position Taking for Member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2MastUpdDcsPtMem1    SB2MastUpdDcsPtMem2    SB2MastUpdDcsPtMem3
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Member
+    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_SB2.xls    SB2UpdDcsPtMem1    SB2UpdDcsPtMem2    SB2UpdDcsPtMem3
+    Log    ********************************************* End PT *********************************************
+
+SB2 Bet Setting Master
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    2017-09-01    2017-09-29
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Bet Setting for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB2.xls    SB2UpdDcsBsMaster1    SB2UpdDcsBsMaster2
+    Log    ********************************************* End BS *********************************************
+
+SB2 Bet Setting Agent
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400    All Types    2017-09-01    2017-09-29
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Bet Setting for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB2.xls    SB2UpdDcsBsAg1    SB2UpdDcsBsAg2
+    Log    ********************************************* End BS *********************************************
+
+SB2 Bet Setting Member
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Bet Setting for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_SB2.xls    SB2UpdDcsBsMem1    SB2UpdDcsBsMem2
+    Log    ********************************************* End BS *********************************************
+
+Colossus Bet Commission Master
+    [Setup]
+    Log    ********************************************* Start Comm *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Colossus Bets Cash-In Share For Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbCashMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update Colossus Bets Commission For Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbCommMast
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Colossus Bets Commission For Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbCommAg
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Colossus Bets Cash-In Share For Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbShareAg
+    Log    ********************************************* End Comm *********************************************
+
+Colossus Bet Commission Agent
+    [Setup]
+    Log    ********************************************* Start Comm *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Colossus Bets Cash-In Share For Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbCashMast
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Colossus Bets Commission For Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbCommMast
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Colossus Bets Commission For Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbCommAg
+    Log    --------------------------------------------------------------------------------
+    Log    Update Colossus Bets Cash-In Share For Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogComm${/}ViewLog_Setting_Comm_CB.xls    UpdCbShareAg
+    Log    ******************************************************
+    Log    ********************************************* End Comm *********************************************
+
+Colossus Bet Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Colossus Bets status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_CB.xls    UpdCbSttAg
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enable/Disable Colossus Bets status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_CB.xls    UpdCbSttMem
+    Log    ********************************************* End Status *********************************************
+
+Colossus Bet Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000402    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Enable/Disable Colossus Bets status
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_CB.xls    UpdCbSttAg
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Colossus Bets status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_CB.xls    UpdCbSttMem
+    Log    ********************************************* End Status *********************************************
+
+Allbet PT Master
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtMast1    ABUpdDcsPtMast2
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtAg1    ABUpdDcsPtAg2
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400000    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABSupUpdDcsPtMem1    ABSupUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABMastUpdDcsPtMem1    ABMastUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Sportsbook Position Taking for Member
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtMem1    ABUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+
+Allbet PT Agent
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtMast1    ABUpdDcsPtMast2
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtAg1    ABUpdDcsPtAg2
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400000    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABSupUpdDcsPtMem1    ABSupUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Products Position Taking for Member
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABMastUpdDcsPtMem1    ABMastUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Sportsbook Position Taking for Member
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtMem1    ABUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+
+Allbet PT Member
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtMast1    ABUpdDcsPtMast2
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtAg1    ABUpdDcsPtAg2
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400000    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Other Products Position Taking for Member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABSupUpdDcsPtMem1    ABSupUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Other Products Position Taking for Member
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABMastUpdDcsPtMem1    ABMastUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Sportsbook Position Taking for Member
+    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_Allbet.xls    ABUpdDcsPtMem1    ABUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+
+Allbet Commission Master
+    [Setup]
+    Log    ********************************************* Start Comm *********************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Commission for customers
+    ViewLog_Verify Allbet Commission    ViewLogComm${/}ViewLog_Setting_Comm_Allbet.xls    ABUpdDcsCommCust1    ABUpdDcsCommCust2
+    Log    ********************************************* End Comm *********************************************
+
+Allbet Commission Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start Comm *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_A04}    All Types    2017-09-01    2017-09-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Commission for customers
+    ViewLog_Verify Allbet Commission    ViewLogComm${/}ViewLog_Setting_Comm_Allbet.xls    ABUpdDcsCommAgent1    ABUpdDcsCommAgent2
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Commission for customers
+    Comment    ViewLog_Verify Allbet Commission    ViewLogComm${/}ViewLog_Setting_Comm_Allbet.xls    ABUpdDcsCommMem1    ABUpdDcsCommMem2
+    Log    ********************************************* End Comm *********************************************
+
+Allbet Commission Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start Comm *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${ds_View01_A04}    All Types    2017-09-01    2017-09-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Commission for customers
+    Comment    ViewLog_Verify Allbet Commission    ViewLogComm${/}ViewLog_Setting_Comm_Allbet.xls    ABUpdDcsCommAgent1    ABUpdDcsCommAgent2
+    ## Member
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${tc_ViewLogMember00}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Commission for customers
+    ViewLog_Verify Allbet Commission    ViewLogComm${/}ViewLog_Setting_Comm_Allbet.xls    ABUpdDcsCommMem1    ABUpdDcsCommMem2
+    Log    ********************************************* End Comm *********************************************
+
+Allbet Bet Setting Master
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLMast1    ABUpdDcsWLMast2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLim1    ABUpdDcsBetLim2    ABUpdDcsBetLim3
+    Log    ********************************************* End BS *********************************************
+
+Allbet Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_A04}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLAgent1    ABUpdDcsWLAgent2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimAgent1    ABUpdDcsBetLimAgent2
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${ds_View01_P0400_02}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Member Win/Loss Limit for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLmem1    ABUpdDcsWLmem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products betting limit for customers
+    Comment    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2    ABUpdDcsBetLimMem3
+    Log    ********************************************* End BS *********************************************
+
+Allbet Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start BS *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${ds_View01_A04}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Member Win/Loss Limit for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLAgent1    ABUpdDcsWLAgent2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products betting limit for customers
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimAgent1    ABUpdDcsBetLimAgent2
+    ## Member
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_P0400_02}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLmem1    ABUpdDcsWLmem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2    ABUpdDcsBetLimMem3
+    Log    ********************************************* End BS *********************************************
+
+Allbet Status Master
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0004    \    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsStt1    ABUpdDcsStt2    ABUpdDcsStt3
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_A04}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsSttAgent1    ABUpdDcsSttAgent2
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsSttMem1    ABUpdDcsSttMem2    ABUpdDcsSttMem3
+    Log    ********************************************* End Status *********************************************
+
+Allbet Status Agent
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto0004    \    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsStt1    ABUpdDcsStt2    ABUpdDcsStt3
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_A04}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsSttAgent1    ABUpdDcsSttAgent2
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsSttMem1    ABUpdDcsSttMem2    ABUpdDcsSttMem3
+    Log    ********************************************* End Status *********************************************
+
+Allbet Status Member
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto0004    \    ${ts_ViewLogFromJan}    ${ts_ViewLogToJan}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsStt1    ABUpdDcsStt2    ABUpdDcsStt3
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    ${ds_View01_A04}    \    2017-09-01    2017-09-30
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsSttAgent1    ABUpdDcsSttAgent2
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${ds_View01_P0400_02}    \    2017-09-01    2017-09-30
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Allbet.xls    ABUpdDcsSttMem1    ABUpdDcsSttMem2    ABUpdDcsSttMem3
+    Log    ********************************************* End Status *********************************************
+
+Virutal Sports DCS Position Taking Master
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtMast1    VSUpdDcsPtMast2
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Log    Change User
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtAg1    VSUpdDcsPtAg2
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400000    All Types    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSSuperUpdDcsPtMem1    VSSuperUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSMastUpdDcsPtMem1    VSMastUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for member    ## Agent Upd Mem
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtMem1    VSUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+    Comment    Close All Browsers
+
+Virutal Sports DCS Position Taking Agent
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtMast1    VSUpdDcsPtMast2
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Log    Change User
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400    All Types    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtAg1    VSUpdDcsPtAg2
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400000    All Types    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSSuperUpdDcsPtMem1    VSSuperUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSMastUpdDcsPtMem1    VSMastUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for member    ## Agent Upd Mem
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtMem1    VSUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+    Comment    Close All Browsers
+
+Virutal Sports DCS Position Taking Member
+    [Setup]
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto0004    All Types    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtMast1    VSUpdDcsPtMast2
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Log    Change User
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    supertestauto000400    All Types    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtAg1    VSUpdDcsPtAg2
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto000400000    All Types    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSSuperUpdDcsPtMem1    VSSuperUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSMastUpdDcsPtMem1    VSMastUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for member    ## Agent Upd Mem
+    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_VSdcs.xls    VSUpdDcsPtMem1    VSUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+    Comment    Close All Browsers
+
+Virtual Sports DCS Bet Setting Master
+    [Setup]
+    Log    ********************************************* Start BS *********************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    supertestauto0004    All Types    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_VSdcs.xls    VSUpdDcsBetLim1    VSUpdDcsBetLim2
+    Log    ********************************************* End BS *********************************************
+
+Virtual Sports DCS Bet Setting Agent
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start BS *********************************************
+    ## Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_A04}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLAgent1    ABUpdDcsWLAgent2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimAgent1    ABUpdDcsBetLimAgent2
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${ds_View01_P0400_02}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Member Win/Loss Limit for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLmem1    ABUpdDcsWLmem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products betting limit for customers
+    Comment    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2    ABUpdDcsBetLimMem3
+    Log    ********************************************* End BS *********************************************
+
+Virtual Sports DCS Bet Setting Member
+    [Setup]
+    ## Set variable
+    ${tc_ViewLogAgent}    Set Variable    ${ds_View01_A04}
+    ${tc_ViewLogMember00}    Set Variable    ${ds_View01_P0400_02}
+    Log    ********************************************* Start BS *********************************************
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    ${ds_View01_A04}    All Types    2017-09-01    2017-09-26
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Member Win/Loss Limit for customers
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLAgent1    ABUpdDcsWLAgent2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products betting limit for customers
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimAgent1    ABUpdDcsBetLimAgent2
+    ## Member
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    ${ds_View01_P0400_02}    All Types    2017-09-01    2017-09-26
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Win/Loss Limit for customers
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsWLmem1    ABUpdDcsWLmem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products betting limit for customers
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2
+    ViewLog_Verify Log 3 Pairs Item    ViewLogBetSetting${/}ViewLog_Setting_BS_Allbet.xls    ABUpdDcsBetLimMem1    ABUpdDcsBetLimMem2    ABUpdDcsBetLimMem3
+    Log    ********************************************* End BS *********************************************
+
+Virtual Sports DCS Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000400000    \    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttMem1    VSUpdDcsSttMem2
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0004    \    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttM1    VSUpdDcsSttM2
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000400    \    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttA1    VSUpdDcsSttA2
+    Log    ********************************************* End Status *********************************************
+
+Virtual Sports DCS Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000400000    \    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttMem1    VSUpdDcsSttMem2
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto0004    \    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttM1    VSUpdDcsSttM2
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000400    \    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttA1    VSUpdDcsSttA2
+    Log    ********************************************* End Status *********************************************
+
+Virtual Sports DCS Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto000400000    \    2017-07-24    2017-07-24
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttMem1    VSUpdDcsSttMem2
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto0004    \    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttM1    VSUpdDcsSttM2
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    supertestauto000400    \    2017-07-24    2017-07-24
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_VSdcs.xls    VSUpdDcsSttA1    VSUpdDcsSttA2
+    Log    ********************************************* End Status *********************************************
+    Close All Browsers
+
+Fishing World Position Taking Master
+    [Setup]    Init    SupertestFw0501
+    Log    ********************************************* Start PT *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestFw0501    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Master
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtMast1    FWUpdDcsPtMast2
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Log    Change User
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtAg1    FWUpdDcsPtAg2
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWSuperUpdDcsPtMem1    FWSuperUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWMastUpdDcsPtMem1    FWMastUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for member    ## Agent Upd Mem
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtMem1    FWUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+    Comment    Close All Browsers
+
+Fishing World Position Taking Agent
+    [Setup]    Init    SupertestFw0501
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw0501    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtMast1    FWUpdDcsPtMast2
+    ## Agent
+    Log    Test Agent Level
+    Log    ******************************************************
+    Log    Change User
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestFw050101    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Product Position Taking for Agent
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtAg1    FWUpdDcsPtAg2
+    Comment    ## Member
+    Comment    Log    Test Member Level
+    Comment    Log    ******************************************************
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWSuperUpdDcsPtMem1    FWSuperUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWMastUpdDcsPtMem1    FWMastUpdDcsPtMem2
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Position Taking for member    ## Agent Upd Mem
+    Comment    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtMem1    FWUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+    Comment    Close All Browsers
+
+Fishing World Position Taking Member
+    [Setup]    Init    SupertestFw0501
+    Log    ********************************************* Start PT *********************************************
+    Comment    ## Master
+    Comment    Log    Test Master Level
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw0501    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Master
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtMast1    FWUpdDcsPtMast2
+    Comment    ## Agent
+    Comment    Log    Test Agent Level
+    Comment    Log    ******************************************************
+    Comment    Log    Change User
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Product Position Taking for Agent
+    Comment    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtAg1    FWUpdDcsPtAg2
+    ## Member
+    Log    Test Member Level
+    Log    ******************************************************
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestFw050101001    All Types    ${ts_ViewLogFromDec}    ${ts_ViewLogToDec}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Super's Other Product Position Taking for member    ## Super Upd Mem
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWSuperUpdDcsPtMem1    FWSuperUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Master's Other Product Position Taking for member    ## Master Upd Mem
+    ViewLog_Verify Log 3 Pairs Item    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWMastUpdDcsPtMem1    FWMastUpdDcsPtMem2
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Position Taking for member    ## Agent Upd Mem
+    Update DCS Status    ViewLogPT${/}ViewLog_Setting_PT_FW.xls    FWUpdDcsPtMem1    FWUpdDcsPtMem2
+    Log    ********************************************* End PT *********************************************
+    Comment    Close All Browsers
+
+Fishing World Loss Limit Master
+    [Setup]
+    Log    ********************************************* Start Loss Limit *********************************************
+    Comment    Comment    Member
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101001    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Member Loss Limit for customers
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitMem1    FWUpdLossLimitMem2
+    Comment    Comment    Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitA1    FWUpdLossLimitA2
+    Comment    Master
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestFw0501    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitM1    FWUpdLossLimitM2
+    Log    ********************************************* End Loss Limit *********************************************
+    [Teardown]
+
+Fishing World Loss Limit Agent
+    [Setup]
+    Log    ********************************************* Start Loss Limit *********************************************
+    Comment    Comment    Member
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101001    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update Other Products Member Loss Limit for customers
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitMem1    FWUpdLossLimitMem2
+    Comment    Agent
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestFw050101    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitA1    FWUpdLossLimitA2
+    Comment    Comment    Master
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw0501    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitM1    FWUpdLossLimitM2
+    Log    ********************************************* End Loss Limit *********************************************
+    [Teardown]
+
+Fishing World Loss Limit Member
+    [Setup]
+    Log    ********************************************* Start Loss Limit *********************************************
+    Comment    Member
+    Select Left Menu    VIEW LOG    Setting
+    Filter View Log    Setting    SupertestFw050101001    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Other Products Member Loss Limit for customers
+    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitMem1    FWUpdLossLimitMem2
+    Comment    Comment    Agent
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw050101    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitA1    FWUpdLossLimitA2
+    Comment    Comment    Master
+    Comment    Select Left Menu    VIEW LOG    Setting
+    Comment    Filter View Log    Setting    SupertestFw0501    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Betting Limit    ViewLogBetSetting${/}ViewLog_Setting_BS_FW.xls    FWUpdLossLimitM1    FWUpdLossLimitM2
+    Log    ********************************************* End Loss Limit *********************************************
+    [Teardown]
+
+Fishing World Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    SupertestFw050101001    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttMem1    FWUpdDcsSttMem2
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    SupertestFw0501    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttM1    FWUpdDcsSttM2
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    SupertestFw050101    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttA1    FWUpdDcsSttA2
+    Log    ********************************************* End Status *********************************************
+    Comment    Close All Browsers
+
+Fishing World Status Agent
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    Comment    ## Member
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    SupertestFw050101001    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttMem1    FWUpdDcsSttMem2
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    SupertestFw0501    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttM1    FWUpdDcsSttM2
+    ## Agent
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    SupertestFw050101    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttA1    FWUpdDcsSttA2
+    Log    ********************************************* End Status *********************************************
+    Comment    Close All Browsers
+
+Fishing World Status Member
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Member
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    SupertestFw050101001    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttMem1    FWUpdDcsSttMem2
+    Comment    ## Master
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    SupertestFw0501    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttM1    FWUpdDcsSttM2
+    Comment    ## Agent
+    Comment    Select Left Menu    VIEW LOG    Status
+    Comment    Filter View Log    Status    SupertestFw050101    \    ${ts_ViewLogFromJun}    ${ts_ViewLogToJun}
+    Comment    Log    --------------------------------------------------------------------------------
+    Comment    Log    Update enabled/disabled Other Products status
+    Comment    Update DCS Status    ViewLogStatus${/}ViewLog_Status_FW.xls    FWUpdDcsSttA1    FWUpdDcsSttA2
+    Log    ********************************************* End Status *********************************************
+    Close All Browsers
+
+Account Status Master
+    [Setup]    Init    ${ds_View01_M03}
+    ## Set variable
+    ${tc_ViewLogMaster}    Set Variable    ${ds_View01_M03}
+    Log    ********************************************* Start Account Status *********************************************
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    ${tc_ViewLogMaster}    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Closed status
+    ViewLog_Verify Log 3 Pairs Item    ViewLog${/}ViewLog_Status.xls    UpdClosed
+    Log    --------------------------------------------------------------------------------
+    Log    Update Suspended status
+    ViewLog_Verify Log 3 Pairs Item    ViewLog${/}ViewLog_Status.xls    UpdSuspended
+    Log    --------------------------------------------------------------------------------
+    Log    Update to Allow/Disallow Auto Position Taking for master
+    ViewLog_Verify Log 3 Pairs Item    ViewLog${/}ViewLog_Status.xls    UpdAutoPtMast
+    Log    --------------------------------------------------------------------------------
+    Log    Update to Allow/Disallow Outright
+    ViewLog_Verify Log 3 Pairs Item    ViewLog${/}ViewLog_Status.xls    UpdOutright
+    Log    --------------------------------------------------------------------------------
+    Log    Update Double Commission for Losing Tickets
+    ViewLog_Verify Log 3 Pairs Item    ViewLog${/}ViewLog_Status.xls    UpdDouComm
+    Log    ********************************************* End Account Status *********************************************
+
+Racing Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable SA Racing status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRsa
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable UK/Irish Racing status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRuk
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Aust Racing status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRaust
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable UK/Irish Greyhounds status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRgrey
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Aust Greyhound status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRaugr
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Aust Harness status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Racing.xls    UpdRhar
+    Log    ********************************************* End Status *********************************************
+
+Live Casino Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Add the initial live casino status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_LiveCasino.xls    AddIniLcStt
+    Log    ********************************************* End Status *********************************************
+
+Casino Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Log    Test Master Level
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromOct}    ${ts_ViewLogToOct}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enabled/Disabled Casino's status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Casino.xls    UpdCasinoStt
+    Log    ********************************************* End Status *********************************************
+
+Keno Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Keno status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_Keno.xls    UpdKenoStt
+    Log    ********************************************* End Status *********************************************
+
+Gold Deluxe Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enable/disable Gold Deluxe status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_GD.xls    UpdGdStt
+    Log    ********************************************* End Status *********************************************
+
+Macau Games Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update enabled/disabled Other Products status
+    Update DCS Status    ViewLogStatus${/}ViewLog_Status_Macau.xls    MCUpdDcsStt1    MCUpdDcsStt2
+    Log    ********************************************* End Status *********************************************
+
+Colossus Bet Status Master
+    [Setup]
+    Log    ********************************************* Start Status *********************************************
+    ## Master
+    Select Left Menu    VIEW LOG    Status
+    Filter View Log    Status    supertestauto0003    \    ${ts_ViewLogFromNov}    ${ts_ViewLogToNov}
+    Log    --------------------------------------------------------------------------------
+    Log    Update Enable/Disable Colossus Bets status
+    ViewLog_Verify Log 3 Pairs Item    ViewLogStatus${/}ViewLog_Status_CB.xls    UpdCbStt
+    Log    ********************************************* End Status *********************************************

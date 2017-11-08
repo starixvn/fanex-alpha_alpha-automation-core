@@ -1,0 +1,42 @@
+*** Variables ***
+#
+#CASINO
+@{in_status_chkStatusCasino}    //*[@id='enable-208-2101']
+@{in_status_chkStatusDLCasino}    //*[@id='enableDownlines-208-2101']
+#
+#VIRTUAL SPORT
+@{in_status_chkStatusVirtual Sports}    //*[@id='enable-180-1201']
+@{in_status_chkStatusDLVirtual Sports}    //*[@id='enableDownlines-180-1201']
+#
+# RACING          Racing-SA Tote    Racing-UK/Irish Tote    Racing-Aust Tote    Greyhounds-UK/Irish Tote    Greyhounds-Aust Tote    Harness-Aust Tote
+@{in_status_chkStatusRacing}    //*[@id='enable-151-31']    //*[@id='enable-151-41']    //*[@id='enable-151-51']    //*[@id='enable-152-41']    //*[@id='enable-152-51']    //*[@id='enable-153-51']
+@{in_status_chkStatusDLRacing}    //*[@id='enableDownlines-151-31']    //*[@id='enableDownlines-151-41']    //*[@id='enableDownlines-151-51']    //*[@id='enableDownlines-152-41']    //*[@id='enableDownlines-152-51']    //*[@id='enableDownlines-153-51']
+#
+#KENO             Australia|Slovakia|Canada|West Canada|Ohio    Kentucky|Michigan|Korea|Max Keno|Max Keno 2
+@{in_status_chkStatusKeno}    //*[@id='enable-202-1501']    //*[@id='enable-202-1503']    //*[@id='enable-202-1504']    //*[@id='enable-202-1505']    //*[@id='enable-202-1508']    //*[@id='enable-202-1511']    //*[@id='enable-202-1513']
+...               //*[@id='enable-202-1514']    //*[@id='enable-202-1515']    //*[@id='enable-202-1516']
+@{in_status_chkStatusDLKeno}    //*[@id='enableDownlines-202-1501']    //*[@id='enableDownlines-202-1503']    //*[@id='enableDownlines-202-1504']    //*[@id='enableDownlines-202-1505']    //*[@id='enableDownlines-202-1508']    //*[@id='enableDownlines-202-1511']    //*[@id='enableDownlines-202-1513']
+...               //*[@id='enableDownlines-202-1514']    //*[@id='enableDownlines-202-1515']    //*[@id='enableDownlines-202-1516']
+#
+# COLOSSUS BETS
+@{in_status_chkStatusColossusBets}    //*[@id='enable-204-18000']
+@{in_status_chkStatusDLColossusBets}    //*[@id='enableDownlines-204-18000']
+#
+# Macau Games
+@{in_status_chkStatusMacauGames}    //*[@id='enable-212-4001']
+@{in_status_chkStatusDLMacauGames}    //*[@id='enableDownlines-212-4001']
+#
+# Fishing World
+@{in_status_chkStatusFishingWorld}    //*[@id='enable-219-1011']
+@{in_status_chkStatusDLFishingWorld}    //*[@id='enableDownlines-219-1011']
+#
+# Allbet
+@{in_status_chkStatusAllbet}    //*[@id='enable-211-2401']    //*[@id='enable-211-2402']
+@{in_status_chkStatusDLAllbet}    //*[@id='enableDownlines-211-2401']    //*[@id='enableDownlines-211-2402']
+#
+# Loterry
+@{in_status_chkStatusLottery}    //*[@id='enable-220-1021']
+@{in_status_chkStatusDLLottery}    //*[@id='enableDownlines-220-1021']
+# Lucky 3
+@{in_status_chkStatusLucky3}    //*[@id='enable-160-1601']
+@{in_status_chkStatusDLLucky3}    //*[@id='enableDownlines-160-1601']

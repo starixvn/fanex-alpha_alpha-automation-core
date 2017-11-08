@@ -1,0 +1,12 @@
+*** Variables ***
+#Security Code section
+${in_core_scd_txtSE}    //input[@id='txtSecCode']
+${in_core_scd_iconErrorSE}    //span[@id='spnNewPwdIcon']
+${in_core_scd_txtSEConfirm}    //input[@id='txtConfirmSecCode']
+${in_core_scd_iconErrorSEConfirm}    / //span[@id='spnConfirmSecCodeIcon']
+${in_core_scd_btnSubmit}    //*[@class='btn-submit' and @value ='Submit']    # //input[contains(@class,'Submit') and @type='submit']
+${in_core_scd_btnReset}    //*[@type='reset' and @value = 'Reset']    # //input[@class='btn' and @type='reset']
+${in_core_scd_lnkLearnMore}    //div[@class='rules']/a    # //div[contains(@class,'learn-more')]/a
+${in_core_scd_lnkSE}    //*[@id='securityCodeNav']/a    # //*[@class='nav nav-tabs']//a[contains(text(),'Security Code')]
+${in_core_scd_txtSEOld}    //input[@id='txtOldSecCode']
+${in_core_scd_divMsg}    //div[@id='status-message-content']    # //div[@id='errorSection']

@@ -1,0 +1,49 @@
+*** Settings ***
+Documentation     This Module is used to verify Betlist in Winloss Details Report with Super Login
+Suite Setup       Init    ${ds_View01_A}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Library           ExcelLibrary
+Resource          ../../Actions/common_actions.txt
+Resource          ../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../Actions/Setting/status_actions.txt
+Resource          ../../Interfaces/in_top_menu.txt
+Resource          ../../Interfaces/Main/in_main.txt
+Resource          ../../Interfaces/in_left_menu.txt
+Resource          ../../Interfaces/menu/accountInfo_setting.txt
+Resource          ../../Data_set/accounts.txt
+Resource          ../../Interfaces/Main/in_m_betlist.txt
+Resource          ../../Actions/betlist.txt
+Resource          ../../Actions/Left_menu/left_menu_actions.txt
+
+*** Test Cases ***
+TC01_BL_rptCancelledBets_AgentPlayer
+    [Documentation]    This Module is used to verify Betlist in WinLoss Details Report with Super Login then View Player(Member) Betlist:
+    ...
+    ...    Step:
+    ...
+    ...    1. Go to Betlist from Winloss Details Report
+    ...
+    ...    2. View settled ticket
+    ...
+    ...    3. Compare ticket show on web and excel file data. (Excel file data will get from db)
+    [Setup]    Init BetList    AgentPlayer    BetList_rptCancelledBets_LastBets.xls    AgentPlayer_Betlist_Rpt_CancelledBets
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_group}    Set Variable    REPORTS
+    ${tc_rptName}    Set Variable    Cancelled Bets
+    COMMENT    -----------------------    MAIN STEPS
+    Close Announcement Popup
+    Select Left Menu    ${tc_group}    ${tc_rptName}
+    Verify Betlist_microsite_CancelledBet_LastBets    AgentPlayer_Betlist_Rpt_CancelledBets
+    [Teardown]

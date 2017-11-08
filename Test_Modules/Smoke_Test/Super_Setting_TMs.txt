@@ -1,0 +1,1647 @@
+*** Settings ***
+Suite Setup       Init    ${ds_Line03_S}
+Suite Teardown    Teardown Test Suite
+Test Setup
+Test Teardown
+Force Tags        Level_Super    Funct_Setting
+Test Timeout
+Library           Selenium2Library
+Library           Process
+Library           OperatingSystem
+Library           Screenshot
+Library           Collections
+Library           String
+Library           Dialogs
+Resource          ../../Interfaces/in_top_menu.txt    #**********************************INTERFACES*****************************
+Resource          ../../Interfaces/Main/in_main.txt
+Resource          ../../Interfaces/in_left_menu.txt
+Resource          ../../Interfaces/Main/in_m_securitycode_password.txt
+Resource          ../../Data_set/accounts.txt    #**********************************DATA SETS*****************************
+Resource          ../../Data_set/bet_setting.txt
+Resource          ../../Data_set/pt_setting.txt
+Resource          ../../Data_set/transfer_condition.txt
+Resource          ../../Actions/common_actions.txt    #**********************************ACTIONS*****************************
+Resource          ../../Actions/memberinfo.txt
+Resource          ../../Actions/Top_right_menu/top_right_actions.txt
+Resource          ../../Actions/Left_menu/left_menu_actions.txt
+Resource          ../../Actions/Setting/status_actions.txt
+Resource          ../../Actions/PT/pt_sportsbook.txt
+Resource          ../../Actions/PT/pt_virtualsports.txt
+Resource          ../../Actions/PT/pt_keno.txt
+Resource          ../../Actions/Setting/bet_setting.txt
+Resource          ../../Actions/PT/pt_racing.txt
+Resource          ../../Actions/PT/pt_bingo.txt
+Resource          ../../Actions/PT/pt_livecasino.txt
+Resource          ../../Actions/PT/pt_casino.txt
+Resource          ../../Actions/PT/pt_goldDeluxe.txt
+Resource          ../../Actions/PT/pt_dcs.txt
+Resource          ../../Actions/Setting/account_Info.txt
+Resource          ../../Actions/Setting/commission.txt
+Resource          ../../Actions/Setting/transfer_condition.txt
+Resource          ../../Actions/settingAll.txt
+Resource          ../../Actions/reports_actions.txt
+Resource          ../../Interfaces/Main/in_m_OTP.txt
+Resource          ../../Actions/PT/pt_sportsbook_functionalTest.txt
+
+*** Test Cases ***
+TC_SM_Edit Sportsbook
+    [Documentation]    *Verify Setting tab: Super Edit Master - Edit Sportsbook*
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    ...    - Modified by: Ping (23 May 2017)
+    ...
+    ...    *------------CHANGES-------------------*
+    ...    - Add step "Check View Log after Update"
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_MUserName}    Set Variable    ${ds_Line03_M01}
+    ${tc_SportType}    Set Variable    2
+    ${tc_IsLive}    Set Variable    0
+    ${tc_Bettype}    Set Variable    1
+    ${tc_BetTypeName}    Set Variable    Basketball
+    COMMENT    ==============================>    MAIN STEPS
+    Comment    # Open Edit Setting from account info Setting
+    Comment    Open Setting From Account Info    ${tc_MUserName}    Sportsbook
+    SM Update and Check SB Position Taking    ${tc_MUserName}    ${tc_SportType}    ${tc_Bettype}    ${tc_IsLive}    ${tc_BetTypeName}
+    SM Update and Check SB Auto Position Taking    ${tc_MUserName}    ${tc_SportType}    ${tc_Bettype}    ${tc_IsLive}    ${tc_BetTypeName}
+
+TC_SP_Edit Sportbook
+    [Documentation]    *Verify Setting tab: Super Edit Player - Edit Sport book *
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    ...    - Modified by: Ping (23 May 2017)
+    ...
+    ...    *------------CHANGES-------------------*
+    ...    - Add step "Check View Log after Update"
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_PUserName}    Set Variable    ${ds_Line03_P0101001}
+    ${tc_SportType}    Set Variable    2
+    ${tc_IsLive}    Set Variable    0
+    ${tc_Bettype}    Set Variable    1
+    ${tc_BetTypeName}    Set Variable    Basketball
+    COMMENT    ==============================>    MAIN STEPS
+    Comment    Open Setting From Account Info    ${tc_PUserName}    Sportsbook
+    SP Update and Check SB Position Taking    ${tc_PUserName}    ${tc_SportType}    ${tc_Bettype}    ${tc_IsLive}    ${tc_BetTypeName}
+    SP Update and Check SB Auto Position Taking    ${tc_PUserName}    ${tc_SportType}    ${tc_Bettype}    ${tc_IsLive}    ${tc_BetTypeName}
+
+TC_SM_Edit Live Casino
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    # Agent UserName
+    ${tc_link}    Set Variable    Live Casino
+    @{tc_reset}    set variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit LiveCasino PT_SuperMaster    save    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify LiveCasino PT_SuperMaster    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit LiveCasino PT_SuperMaster    save    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Live Casino
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}    # Member UserName
+    ${tc_link}    Set Variable    Live Casino
+    @{tc_reset}    set variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit LiveCasino PT_SuperPlayer    save    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify LiveCasino PT_SuperPlayer    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit LiveCasino PT_SuperPlayer    save    @{tc_reset}[0]
+
+TC_SM_Edit Casino
+    [Documentation]    *Verify Setting tab: Super Edit Master - Edit Casino*
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    # Agent UserName
+    ${tc_link}    Set Variable    Casino
+    @{tc_reset}    set variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Casino PT_SuperMaster    save    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Casino PT_SuperMaster    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Casino PT_SuperMaster    save    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Casino
+    [Documentation]    *Verify Setting tab: Super Edit Player - Edit Casino*
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}    # Member UserName
+    ${tc_link}    Set Variable    Casino
+    @{tc_reset}    set variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Casino PT_SuperPlayer    save    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Casino PT_SuperPlayer    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Casino PT_SuperPlayer    save    @{tc_reset}[0]
+
+TC_SM_Edit Gold Deluxe
+    [Documentation]    *Verify Setting tab: Super Edit Master - Edit Gold Deluxe*
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    # Agent UserName
+    ${tc_link}    Set Variable    Gold Deluxe
+    @{tc_reset}    set variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit GoldDeluxe PT_SuperMaster    save    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Gold Deluxe PT_SuperMaster    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit GoldDeluxe PT_SuperMaster    save    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Gold Deluxe
+    [Documentation]    *Verify Setting tab: Super Edit Player - Edit Gold Deluxe *
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}    # Member UserName
+    ${tc_link}    Set Variable    Gold Deluxe
+    @{tc_reset}    set variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit GoldDeluxe PT_SuperPlayer    save    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify GoldDeluxe PT_SuperPlayer    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit GoldDeluxe PT_SuperPlayer    save    @{tc_reset}[0]
+
+TC_SM_Edit Racing
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    # Agent UserName
+    ${tc_link}    Set Variable    Racing
+    ${tc_Race}    Set Variable    Racing
+    ${tc_Tote}    Set Variable    SA
+    ${tc_Bettype}    Set Variable    Win
+    @{tc_reset}    Set Variable    @{ds_PT02_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT02_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Racing PT_SuperMaster    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Racing PT_SuperMaster    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Racing PT_SuperMaster    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Racing
+    [Documentation]    *Verify Setting tab: Super Edit Player - Edit Racing*
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}    # Member UserName
+    ${tc_link}    Set Variable    Racing
+    ${tc_Race}    Set Variable    Racing
+    ${tc_Tote}    Set Variable    SA
+    ${tc_Bettype}    Set Variable    Win
+    @{tc_reset}    set variable    @{ds_PT02_SupPla_Default}
+    @{tc_edit}    set variable    @{ds_PT02_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Racing PT_SuperPlayer    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Racing PT_SuperPlayer    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Racing PT_SuperPlayer    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_reset}[0]
+
+TC_SM_Edit Virtual Sport
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Virtual Sports
+    ${tc_Product}    Set Variable    5
+    ${tc_SportName}    Create List    Virtual Soccer    Virtual Horse Racing    Virtual Greyhounds    Virtual Speedway    Virtual Motorsports
+    ...    Virtual Cycling    Virtual Tennis    Virtual Soccer League    Virtual Soccer Nation
+    ${tc_Sporttype}    Create List    180    181    182    183    184
+    ...    185    186    190    191
+    ${tc_Bettype}    Create List    1201    1231    1231    1231    1231
+    ...    1231    1220    2701    2701
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]-(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]+(0.01*${i})
+    \    Edit DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}
+    \    ...    ${m3}
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Click Link Setting Tab by Text    ${tc_link}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]-(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]+(0.01*${i})
+    \    Verify DCS PT_SuperMaster    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}    ${m3}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    \    ...    @{tc_reset}[1]
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+
+TC_SP_Edit Virtual Sport
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}
+    ${tc_link}    Set Variable    Virtual Sports
+    ${tc_Product}    Set Variable    5
+    ${tc_SportName}    Create List    Virtual Soccer    Virtual Horse Racing    Virtual Greyhounds    Virtual Speedway    Virtual Motorsports
+    ...    Virtual Cycling    Virtual Tennis    Virtual Soccer League    Virtual Soccer Nation
+    ${tc_Sporttype}    Create List    180    181    182    183    184
+    ...    185    186    190    191
+    ${tc_Bettype}    Create List    1201    1231    1231    1231    1231
+    ...    1231    1220    2701    2701
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[${0}]+(0.01*${i})
+    \    Edit DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Click Link Setting Tab by Text    ${tc_link}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[${0}]+(0.01*${i})
+    \    Verify DCS PT_SuperPlayer    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+
+TC_SM_Edit Lottery
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Lottery
+    ${tc_Product}    Set Variable    28
+    ${tc_SportName}    Create List    Max5D    Max3D    Max11x5    MaxDice
+    ${tc_Sporttype}    Create List    220    220    220    220
+    ${tc_Bettype}    Create List    1021    1022    1023    1024
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]-(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]+(0.01*${i})
+    \    Edit DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}
+    \    ...    ${m3}
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Click Link Setting Tab by Text    ${tc_link}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]-(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]+(0.01*${i})
+    \    Verify DCS PT_SuperMaster    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}    ${m3}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    \    ...    @{tc_reset}[1]
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+
+TC_SP_Edit Lottery
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}
+    ${tc_link}    Set Variable    Lottery
+    ${tc_Product}    Set Variable    28
+    ${tc_SportName}    Create List    Max5D    Max3D    Max11x5    MaxDice
+    ${tc_Sporttype}    Create List    220    220    220    220
+    ${tc_Bettype}    Create List    1021    1022    1023    1024
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[${0}]+(0.01*${i})
+    \    Edit DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Click Link Setting Tab by Text    ${tc_link}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[${0}]+(0.01*${i})
+    \    Verify DCS PT_SuperPlayer    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+
+TC_SM_Edit Keno
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    # Member UserName
+    ${tc_link}    Set Variable    Keno
+    ${tc_market}    Set Variable    Canada
+    @{tc_reset}    set variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Keno PT_SuperMaster    save    ${tc_market}    @{tc_edit}[0]    @{tc_edit}[1]    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    Yes
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Keno PT_SuperMaster    ${tc_market}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Keno PT_SuperMaster    save    ${tc_market}    @{tc_reset}[0]    @{tc_reset}[1]    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    Yes
+
+TC_SP_Edit Keno
+    [Documentation]    *Verify Setting tab: Super Edit Player - Edit Keno*
+    ...
+    ...    *------------HISTORY-------------------*
+    ...    - Created by: Casey
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}    # Member UserName
+    ${tc_link}    Set Variable    Keno
+    ${tc_market}    Set Variable    Canada
+    @{tc_reset}    set variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Keno PT_SuperPlayer    save    ${tc_market}    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Keno PT_SuperPlayer    ${tc_market}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Keno PT_SuperPlayer    save    ${tc_market}    @{tc_reset}[0]
+
+TC_SM_Edit Info
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Info
+    ${tc_FN_Default}    Set Variable    FN
+    ${tc_FN_Edit}    Set Variable    FN Update
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Account Info    save    ${tc_FN_Edit}
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Account Info    ${tc_FN_Edit}
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Account Info    save    ${tc_FN_Default}
+
+TC_SM_Edit Commission
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Commission
+    ${tc_groupA_Default}    Set Variable    0.0025
+    ${tc_groupA_Edit}    Set Variable    0.002
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Commission    save    ${tc_groupA_Edit}
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Commission    ${tc_groupA_Edit}
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Commission    save    ${tc_groupA_Default}
+
+TC_SM_Edit Bet Setting
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Bet Setting
+    ${tc_sport}    Set Variable    Soccer
+    @{tc_Bet_Default}    Set Variable    @{ds_Bet01_MasterDefault}
+    @{tc_Bet_Edit}    Set Variable    @{ds_Bet01_MasterEdit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit SB Bet Setting    ${tc_sport}    @{tc_Bet_Edit}[0]    @{tc_Bet_Edit}[1]    @{tc_Bet_Edit}[2]    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    yes
+    Click Link Setting Tab by Text    ${tc_link}
+    Check SB Bet Setting    ${tc_sport}    @{tc_Bet_Edit}[0]    @{tc_Bet_Edit}[1]    @{tc_Bet_Edit}[2]    ${EMPTY}    ${EMPTY}
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit SB Bet Setting    ${tc_sport}    @{tc_Bet_Default}[0]    @{tc_Bet_Default}[1]    @{tc_Bet_Default}[2]    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    yes
+
+TC_SM_Edit Transfer Condition
+    [Tags]    NoRun
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line02_M}
+    ${tc_link}    Set Variable    Transfer
+    @{tc_Trans_Default}    Set Variable    @{ds_TF01_Default}
+    @{tc_Trans_Edit}    Set Variable    @{ds_TF01_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Transfer Condition    save    ok    @{tc_Trans_Edit}[0]    @{tc_Trans_Edit}[1]    @{tc_Trans_Edit}[2]    @{tc_Trans_Edit}[3]
+    ...    @{tc_Trans_Edit}[4]    @{tc_Trans_Edit}[5]    @{tc_Trans_Edit}[6]    @{tc_Trans_Edit}[7]
+    Verify Transfer Condition_Weekly Selected    @{tc_Trans_Edit}[0]    @{tc_Trans_Edit}[1]    @{tc_Trans_Edit}[2]    @{tc_Trans_Edit}[3]    @{tc_Trans_Edit}[4]    @{tc_Trans_Edit}[5]
+    ...    @{tc_Trans_Edit}[6]    @{tc_Trans_Edit}[7]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Transfer Condition    save    ok    @{tc_Trans_Default}[0]    @{tc_Trans_Default}[1]    @{tc_Trans_Default}[2]    @{tc_Trans_Default}[3]
+    ...    @{tc_Trans_Default}[4]    @{tc_Trans_Default}[5]    @{tc_Trans_Default}[6]    @{tc_Trans_Default}[7]
+
+TC_SM_Edit Security Code
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Reset Sec...
+    ${tc_newSE}    Set Variable    123458
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_viewUser}
+    ## Input new SE
+    Unselect Frame
+    Select Frame    main
+    Input Text    ${in_m_SE_txtSE}    ${tc_newSE}
+    Input Text    ${in_m_SE_txtSEConfirm}    ${tc_newSE}
+    Click Element    ${in_m_SE_btnSubmit}
+    ## Check update successfuly
+    Wait Until Element Contains    ${in_m_SE_divMsg}    Your Security Code has been changed.    ${cfWaitControl}
+
+TC_SM_View SB Min PT
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    # Agent UserName
+    ${tc_link}    Set Variable    s Min PT
+    COMMENT    ==============================>    MAIN STEPS
+    Search Account    ${tc_editUser}
+    Click Link Setting Tab Contains Text    ${tc_link}
+    Page should contain    Sportsbook's Min PT
+
+TC_SM_ Reset Password
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M02}
+    ${tc_link}    Set Variable    Reset Password
+    ${tc_newpwd}    Set variable    1234aaBB
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    ## Input new password
+    Reset password    ${tc_editUser}    ${tc_newpwd}
+    ## Check icon
+    ## Click Update button
+    Click Element    ${in_m_Pwd_btnSubmit}
+    ## Check msg
+    Run Keyword And Continue On Failure    Wait Until Element Contains    ${in_m_Pwd_divMsg}    Your password has been changed successfully.
+    ## Reset pwd to old pwd
+    Reset password    ${tc_editUser}    ${cfPwd}
+
+TC_SP_ Reset Password
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101002}
+    ${tc_link}    Set Variable    Reset Password
+    ${tc_newpwd}    Set variable    1234aaBB
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    ## Input new password
+    Reset password    ${tc_editUser}    ${tc_newpwd}
+    ## Click Update button
+    Click Element    ${in_m_Pwd_btnSubmit}
+    ## Check msg
+    Run Keyword And Continue On Failure    Wait Until Element Contains    ${in_m_Pwd_divMsg}    Your password has been changed successfully.
+    ## Reset pwd to old pwd
+    Reset password    ${tc_editUser}    ${cfPwd}
+    ## Check icon
+    Comment    Run Keyword And Continue On Failure    Element Should Be Visible    //span[@id='spnConfirmPwdIcon' and @class='PwdSuccess']
+    Comment    Run Keyword And Continue On Failure    Element Should Be Visible    //span[@id='spnNewPwdIcon' and @class='PwdSuccess']
+    Comment    ## Click Update button
+    Comment    Click Element    ${in_m_Pwd_btnSubmit}
+    Comment    ## Check msg
+    Comment    Run Keyword And Continue On Failure    Wait Until Element Contains    ${in_m_Pwd_divMsg}    Your password has been changed successfully.
+    Comment    ## Reset pwd to old pwd
+    Comment    Reset password    ${tc_editUser}    ${cfPwd}
+
+TC_SM_Edit Sportsbook 2
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    #    ${ds_Line03_M01}    SuperTestAuto0401
+    ${tc_link}    Set Variable    Sportsbook 2
+    ${tc_Product}    Set Variable    16
+    ${tc_Sporttype}    Set Variable    44
+    ${tc_Bettype}    Set Variable    1
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Sportsbook 2
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}    #    ${ds_Line03_P0101001}    SuperTestAuto040101001
+    ${tc_link}    Set Variable    Sportsbook 2
+    ${tc_Product}    Set Variable    16
+    ${tc_Sporttype}    Set Variable    44
+    ${tc_Bettype}    Set Variable    1
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+
+TC_MA_Edit Colosus Bets
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Colossus Bets
+    ${tc_status}    Set Variable    check
+    ${tc_statusDL}    Set Variable    check
+    ${tc_comm}    Set variable    3
+    ${tc_cashShare}    Set variable    3
+    ${tc_comm_reset}    Set variable    4
+    ${tc_cashShare_reset}    Set variable    5
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit Setting ColossusBets    save    ${EMPTY}    ${EMPTY}    ${tc_comm}    ${tc_cashShare}
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify Setting ColossusBets    ${tc_status}    ${tc_statusDL}    ${tc_comm}    ${tc_cashShare}
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Setting ColossusBets    save    ${EMPTY}    ${EMPTY}    ${tc_comm_reset}    ${tc_cashShare_reset}
+
+TC_SM_Edit Macau Games
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    #    ${ds_Line03_M01}    SuperTestAuto0401
+    ${tc_link}    Set Variable    Macau Games
+    ${tc_Product}    Set Variable    22
+    ${tc_Sporttype}    Set Variable    212
+    ${tc_Bettype}    Set Variable    4001
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Macau Games
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}
+    ${tc_link}    Set Variable    Macau Games
+    ${tc_Product}    Set Variable    22
+    ${tc_Sporttype}    Set Variable    212
+    ${tc_Bettype}    Set Variable    4001
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+
+TC_SM_Edit Fishing World
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    #    ${ds_Line03_M01}    SuperTestAuto0401
+    ${tc_link}    Set Variable    Fishing World
+    ${tc_Product}    Set Variable    24
+    ${tc_Sporttype}    Set Variable    219
+    ${tc_Bettype}    Set Variable    1011
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Fishing World
+    [Tags]
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}
+    ${tc_link}    Set Variable    Fishing World
+    ${tc_Product}    Set Variable    24
+    ${tc_Sporttype}    Set Variable    219
+    ${tc_Bettype}    Set Variable    1011
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+
+TC_SM_Edit Allbet
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}    #    ${ds_Line03_M01}    SuperTestAuto0401
+    ${tc_link}    Set Variable    Allbet
+    ${tc_Product}    Set Variable    21
+    ${tc_Sporttype}    Set Variable    211
+    ${tc_Bettype}    Set Variable    2401
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+
+TC_SP_Edit Allbet
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101001}
+    ${tc_link}    Set Variable    Allbet
+    ${tc_Product}    Set Variable    21
+    ${tc_Sporttype}    Set Variable    211
+    ${tc_Bettype}    Set Variable    2401
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Click Link Setting Tab by Text    ${tc_link}
+    Verify DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+
+TC_SM_Edit Lucky 3
+    [Tags]    NoRun
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Lucky 3
+    ${tc_Product}    Set Variable    26
+    ${tc_Sporttype}    Set Variable    160
+    ${tc_Bettype}    Set Variable    1601
+    ${tc_MasterGiveComm}    Set Variable    10%
+    ${tc_AgentCommUpdate}    Set Variable    9
+    ${tc_MasterRemainComm}    Set Variable    1%
+    ${tc_AgentComm_Reset}    Set Variable    8
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Edit DCS Ticket Commision    1    main    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_AgentCommUpdate}
+    Verify DCS Ticket Commission_MasterAgent    main    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_MasterGiveComm}    ${tc_AgentCommUpdate}
+    ...    ${tc_MasterRemainComm}    [FAILED: RedmineID]
+    COMMENT    ==============================>    Pre-condition
+    Edit DCS Ticket Commision    1    main    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_AgentComm_Reset}
+
+TC_SP_Edit Lucky 3
+    [Tags]    NoRun
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0201001}
+    ${tc_link}    Set Variable    Lucky 3
+    ${tc_Product}    Set Variable    26
+    ${tc_Sporttype}    Set Variable    160
+    ${tc_Bettype}    Set Variable    1601
+    ${tc_expCommForMasterValue}    Set Variable    8%
+    ${tc_expCommForAgentValue}    Set Variable    5%
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Verify DCS Ticket Commission_SuperMember    main    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_expCommForMasterValue}    ${tc_expCommForAgentValue}
+    ...    [FAILED: RedmineID]
+    COMMENT    ==============================>    Pre-condition
+    #N/A
+
+TC_SM_Edit Multiple Sportsbook
+    [Documentation]    Verify update multiple Sportsbook from Super to Master success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Select SupertestAuto0301 and SupertestAuto0302
+    ...
+    ...    4. Open Edit Multiple Sportsbook page
+    ...
+    ...    5. Set Soccer Odd/Even PT values: S3: 0.21 \ M3:0.61
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset Soccer Odd/Even PT values: S3: 0.2 \ M3:0.6
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_link}    Set Variable    Sportsbook
+    ${tc_Sporttype}    Set Variable    1
+    ${tc_Bettype}    Set Variable    2
+    ${tc_isLive}    Set Variable    0
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Sportsbook
+    COMMENT    ==============================>    MAIN STEPS
+    Reload Page    #Need to reload page cause lost element exception
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Sportsbook PT_SuperMaster    save    ${tc_Sporttype}    ${tc_Bettype}    ${tc_isLive}    @{tc_edit}[0]    @{tc_edit}[1]
+    ...    # Edit Soccer \ Odd/Even PT S3: 0.21 \ M3:0.61
+    Wait Data Processing    6s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Sportsbook PT_SuperMaster    ${tc_Sporttype}    ${tc_Bettype}    ${tc_isLive}    @{tc_edit}[0]    @{tc_edit}[1]    # Check Soccer Odd/Even PT S3: 0.21 \ M3:0.61
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Sportsbook PT_SuperMaster    save    ${tc_Sporttype}    ${tc_Bettype}    ${tc_isLive}    @{tc_reset}[0]    @{tc_reset}[1]
+    ...    # Reset \ Soccer Odd/Even PT S3: 0.2 \ M3:0.6
+    Wait Data Processing    6s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Sportsbook
+    [Documentation]    Verify update multiple Sportsbook from Super to Player success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Drilldown to Player List and select multiple Players
+    ...
+    ...    4. Open Edit Multiple Sportsbook page
+    ...
+    ...    5. Set Soccer Odd/Even PT values: S3: 0.21 \ M3:0.61
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset Soccer Odd/Even PT values: S3: 0.2 \ M3:0.6
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_link}    Set Variable    Sportsbook
+    ${tc_Sporttype}    Set Variable    1
+    ${tc_Bettype}    Set Variable    2
+    ${tc_isLive}    Set Variable    0
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Sportsbook
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Sportsbook PT_SuperPlayer    save    ${tc_Sporttype}    ${tc_Bettype}    ${tc_isLive}    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Sportsbook PT_SuperPlayer    ${tc_Sporttype}    ${tc_Bettype}    ${tc_isLive}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Sportsbook PT_SuperPlayer    save    ${tc_Sporttype}    ${tc_Bettype}    ${tc_isLive}    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Racing
+    [Documentation]    Verify update multiple Racing from Super to Masters success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Select SupertestAuto0301 and SupertestAuto0302
+    ...
+    ...    4. Open Edit Multiple Racing page
+    ...
+    ...    5. Set SA TOTE \ PT S3: 0.2\ M3:0.2
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset SA TOTE \ PT S3: 0.1\ M3:0.3
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Race}    Set Variable    Racing
+    ${tc_Tote}    Set Variable    SA
+    ${tc_Bettype}    Set Variable    Win
+    @{tc_reset}    Set Variable    @{ds_PT02_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT02_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Racing
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Racing PT_SuperMaster    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    ...    # Edit SA TOTE \ PT S3: 0.2\ M3:0.2
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Racing PT_SuperMaster    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]    # Check SA TOTE \ PT S3: 0.2\ M3:0.2
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Racing PT_SuperMaster    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+    ...    # Reset SA TOTE \ PT S3: 0.1\ M3:0.3
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Racing
+    [Documentation]    Verify update multiple Racing from Super to Players success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Drilldown to Player List and select multiple Players
+    ...
+    ...    4. Open Edit Multiple Racing page
+    ...
+    ...    5. Set SA TOTE \ PT S3: 0.2\ M3:0.2
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset SA TOTE \ PT S3: 0.1\ M3:0.3
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Race}    Set Variable    Racing
+    ${tc_Tote}    Set Variable    SA
+    ${tc_Bettype}    Set Variable    Win
+    @{tc_reset}    Set Variable    @{ds_PT02_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT02_SupPla_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Racing
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Racing PT_SuperPlayer    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    ...    # Edit SA TOTE \ PT S3: 0.2\ M3:0.2
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Racing PT_SuperPlayer    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]    # Check SA TOTE \ PT S3: 0.2\ M3:0.2
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Racing PT_SuperPlayer    save    ${tc_Race}    ${tc_Tote}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+    ...    # Reset SA TOTE \ PT S3: 0.1\ M3:0.3
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Casino
+    [Documentation]    Verify update multiple Casino from Super to Master success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Select SupertestAuto0301 and SupertestAuto0302
+    ...
+    ...    4. Open Edit Multiple Casino page
+    ...
+    ...    5. Set Soccer Odd/Even PT values: S3: 0.21 \ M3:0.61
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset Soccer Odd/Even PT values: S3: 0.2 \ M3:0.6
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Sporttype}    Set Variable    1
+    ${tc_Bettype}    Set Variable    2
+    ${tc_isLive}    Set Variable    0
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Casino
+    COMMENT    ==============================>    MAIN STEPS
+    Reload Page    #Need to reload page cause lost element exception
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Casino PT_SuperMaster    save    @{tc_edit}[0]    @{tc_edit}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Casino PT_SuperMaster    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Casino PT_SuperMaster    save    @{tc_reset}[0]    @{tc_reset}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Casino
+    [Documentation]    Verify update multiple Casino from Super to Player success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Drilldown to Player List and select multiple Players
+    ...
+    ...    4. Open Edit Multiple Casino page
+    ...
+    ...    5. Set Soccer Odd/Even PT values: S3: 0.21 \ M3:0.61
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset Soccer Odd/Even PT values: S3: 0.2 \ M3:0.6
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Sporttype}    Set Variable    1
+    ${tc_Bettype}    Set Variable    2
+    ${tc_isLive}    Set Variable    0
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Casino
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Casino PT_SuperPlayer    save    @{tc_edit}[0]
+    Wait Data Processing    6s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Casino PT_SuperPlayer    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Casino PT_SuperPlayer    save    @{tc_reset}[0]
+    Wait Data Processing    6s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Keno
+    [Documentation]    *Verify Setting tab: Super Edit Master - Keno_ Canada*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_market}    Set Variable    Canada
+    @{tc_reset}    set variable    @{ds_PT01_SupMas_Default}    # 0.2    0.6
+    @{tc_edit}    set variable    @{ds_PT01_SupMas_Edit}    # 0.21    0.61
+    ${tc_link}    Set Variable    Edit Multiple Keno
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Keno PT_SuperMaster    save    ${tc_market}    @{tc_edit}[0]    @{tc_edit}[1]    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    Yes
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Keno PT_SuperMaster    ${tc_market}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Comment    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Keno PT_SuperMaster    save    ${tc_market}    @{tc_reset}[0]    @{tc_reset}[1]    ${EMPTY}    ${EMPTY}
+    ...    ${EMPTY}    ${EMPTY}    Yes
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Keno
+    [Documentation]    *Verify Setting tab: Super Edit Master - Keno_ Canada*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_market}    Set Variable    Canada
+    @{tc_reset}    set variable    @{ds_PT01_SupPla_Default}    # 0.2    0.6
+    @{tc_edit}    set variable    @{ds_PT01_SupPla_Edit}    # 0.21    0.61
+    ${tc_link}    Set Variable    Edit Multiple Keno
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Keno PT_SuperPlayer    save    ${tc_market}    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Keno PT_SuperPlayer    ${tc_market}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Comment    Select Multiple Setting    Edit Multiple Keno    # Reopen Edit Multiple Keno setting
+    Edit Multiple Keno PT_SuperPlayer    save    ${tc_market}    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Live Casino
+    [Documentation]    Verify update multiple Live Casino from Super to Master success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Select SupertestAuto0301 and SupertestAuto0302
+    ...
+    ...    4. Open Edit Multiple Live Casino page
+    ...
+    ...    5. Set Soccer Odd/Even PT values: S3: 0.21 \ M3:0.61
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset Soccer Odd/Even PT values: S3: 0.2 \ M3:0.6
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Sporttype}    Set Variable    1
+    ${tc_Bettype}    Set Variable    2
+    ${tc_isLive}    Set Variable    0
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Live Casino
+    COMMENT    ==============================>    MAIN STEPS
+    Reload Page    #Need to reload page cause lost element exception
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Live Casino PT_SuperMaster    save    @{tc_edit}[0]    @{tc_edit}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Live Casino PT_SuperMaster    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Live Casino PT_SuperMaster    save    @{tc_reset}[0]    @{tc_reset}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Live Casino
+    [Documentation]    Verify update multiple Live Casino from Super to Player success
+    ...
+    ...    *Steps:*
+    ...
+    ...    1. Login alpha with super account
+    ...
+    ...    2. Navigate to Master Agent List (select Left Menu: Member Information--> Master Agent List)
+    ...
+    ...    3. Drilldown to Player List and select multiple Players
+    ...
+    ...    4. Open Edit Multiple Live Casino page
+    ...
+    ...    5. Set Soccer Odd/Even PT values: S3: 0.21 \ M3:0.61
+    ...
+    ...    6 Verify new Pt values is saved
+    ...
+    ...    7. Reset Soccer Odd/Even PT values: S3: 0.2 \ M3:0.6
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_link}    Set Variable    Edit Multiple Live Casino
+    ${tc_Sporttype}    Set Variable    1
+    ${tc_Bettype}    Set Variable    2
+    ${tc_isLive}    Set Variable    0
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple Live Casino PT_SuperPlayer    save    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Live Casino PT_SuperPlayer    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple Live Casino PT_SuperPlayer    save    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Virtual Sport
+    [Documentation]    *Verify Setting tab: Super Edit Master - Virtual Sport*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Product}    Set Variable    5
+    ${tc_SportName}    Create List    Virtual Soccer    Virtual Horse Racing    Virtual Greyhounds    Virtual Speedway    Virtual Motorsports
+    ...    Virtual Cycling    Virtual Tennis    Virtual Soccer League    Virtual Soccer Nation
+    ${tc_Sporttype}    Create List    180    181    182    183    184
+    ...    185    186    190    191
+    ${tc_Bettype}    Create List    1201    1231    1231    1231    1231
+    ...    1231    1220    2701    2701
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Virtual Sports
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]+(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]-(0.01*${i})
+    \    Edit Multiple DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}
+    \    ...    ${m3}
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Wait Data Processing    6s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select Left Menu    MEMBER INFORMATION    Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]+(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]-(0.01*${i})
+    \    Verify Multiple DCS PT_SuperMaster    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}    ${m3}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit Multiple DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    \    ...    @{tc_reset}[1]
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Wait Data Processing    6s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Virtual Sport
+    [Documentation]    *Verify Setting tab: Super Edit Players- Virtual Sport*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Product}    Set Variable    5
+    ${tc_SportName}    Create List    Virtual Soccer    Virtual Horse Racing    Virtual Greyhounds    Virtual Speedway    Virtual Motorsports
+    ...    Virtual Cycling    Virtual Tennis    Virtual Soccer League    Virtual Soccer Nation
+    ${tc_Sporttype}    Create List    180    181    182    183    184
+    ...    185    186    190    191
+    ${tc_Bettype}    Create List    1201    1231    1231    1231    1231
+    ...    1231    1220    2701    2701
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Virtual Sports
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[0]+(0.01*${i})
+    \    Edit Multiple DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${EMPTY}
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[0]+(0.01*${i})
+    \    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${EMPTY}
+    Capture Page Screenshot
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit Multiple DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${EMPTY}
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Lottery
+    [Documentation]    *Verify Setting tab: Super Edit Master - Lottery*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Product}    Set Variable    28
+    ${tc_SportName}    Create List    Max5D    Max3D    Max11x5    MaxDice
+    ${tc_Sporttype}    Create List    220    220    220    220
+    ${tc_Bettype}    Create List    1021    1022    1023    1024
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Lottery
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]-(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]+(0.01*${i})
+    \    Edit Multiple DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}
+    \    ...    ${m3}
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select Left Menu    MEMBER INFORMATION    Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s3}    Evaluate    @{tc_edit}[${0}]-(0.01*${i})
+    \    ${m3}    Evaluate    @{tc_edit}[${1}]+(0.01*${i})
+    \    Verify Multiple DCS PT_SuperMaster    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s3}    ${m3}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit Multiple DCS PT_SuperMaster    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    \    ...    @{tc_reset}[1]
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Lottery
+    [Documentation]    *Verify Setting tab: Super Edit Players- Lottery*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Product}    Set Variable    28
+    ${tc_SportName}    Create List    Max5D    Max3D    Max11x5    MaxDice
+    ${tc_Sporttype}    Create List    220    220    220    220
+    ${tc_Bettype}    Create List    1021    1022    1023    1024
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Lottery
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    ${n}    Get Length    ${tc_SportName}
+    ${plusValue}    Set variable    0.01
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[0]+(0.01*${i})
+    \    Edit Multiple DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${EMPTY}
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    ${s1}    Evaluate    @{tc_edit}[0]+(0.01*${i})
+    \    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${s1}
+    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${EMPTY}
+    COMMENT    -----------------------    POST-CONDITIONS
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    : FOR    ${i}    IN RANGE    0    ${n}
+    \    Edit Multiple DCS PT_SuperPlayer    no    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    @{tc_reset}[0]
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    @{tc_Sporttype}[${i}]    @{tc_Bettype}[${i}]    ${EMPTY}
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Gold Deluxe
+    [Documentation]    *Verify Setting tab: Super Edit Master - Edit Gold Deluxe*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_link}    Set Variable    Edit Multiple Gold Deluxe
+    @{tc_reset}    set variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupMas_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple GoldDeluxe PT_SuperMaster    save    @{tc_edit}[0]    @{tc_edit}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Gold Deluxe PT_SuperMaster    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Comment    Select Multiple Setting    Edit Multiple Gold Deluxe    # Reopen Edit Multiple setting
+    Edit Multiple GoldDeluxe PT_SuperMaster    save    @{tc_reset}[0]    @{tc_reset}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Gold Deluxe
+    [Documentation]    *Verify Setting tab: Super Edit Master - Edit Gold Deluxe*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_link}    Set Variable    Edit Multiple Gold Deluxe
+    @{tc_reset}    set variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    set variable    @{ds_PT01_SupPla_Edit}
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple GoldDeluxe PT_SuperPlayer    save    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple Gold Deluxe PT_SuperPlayer    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Comment    Select Multiple Setting    Edit Multiple Gold Deluxe    # Reopen Edit Multiple setting
+    Edit Multiple GoldDeluxe PT_SuperPlayer    save    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Sportsbook 2
+    [Documentation]    *Verify Setting tab: Super Edit Master - Over/Under SB2*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Product}    Set Variable    16
+    ${tc_Sporttype}    Set Variable    44
+    ${tc_Bettype}    Set Variable    1
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Sportsbook 2
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Sportsbook 2
+    [Documentation]    *Verify Setting tab: Super Edit Players- Over/Under SB2*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Product}    Set Variable    16
+    ${tc_Sporttype}    Set Variable    44
+    ${tc_Bettype}    Set Variable    1
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Sportsbook 2
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Macau Games
+    [Documentation]    *Verify Setting tab: Super Edit Master - Macau Games*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Product}    Set Variable    22
+    ${tc_Sporttype}    Set Variable    212
+    ${tc_Bettype}    Set Variable    4001
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Macau Games
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Macau Games
+    [Documentation]    *Verify Setting tab: Super Edit Players- Macau Games*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Product}    Set Variable    22
+    ${tc_Sporttype}    Set Variable    212
+    ${tc_Bettype}    Set Variable    4001
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Macau Games
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_Edit Multiple Fishing World
+    [Documentation]    *Verify Setting tab: Super Edit Master - Fishing World*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_Product}    Set Variable    24
+    ${tc_Sporttype}    Set Variable    219
+    ${tc_Bettype}    Set Variable    1011
+    @{tc_reset}    Set Variable    @{ds_PT01_SupMas_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupMas_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Fishing World
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple DCS PT_SuperMaster    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]    @{tc_edit}[1]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple DCS PT_SuperMaster    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]    @{tc_reset}[1]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SP_Edit Multiple Fishing World
+    [Documentation]    *Verify Setting tab: Super Edit Players- Fishing World*
+    [Tags]    Debug
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M01}    ${ds_Line03_A0101}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0101003}    ${ds_Line03_P0101004}
+    ${tc_Product}    Set Variable    24
+    ${tc_Sporttype}    Set Variable    219
+    ${tc_Bettype}    Set Variable    1011
+    @{tc_reset}    Set Variable    @{ds_PT01_SupPla_Default}
+    @{tc_edit}    Set Variable    @{ds_PT01_SupPla_Edit}
+    ${tc_link}    Set Variable    Edit Multiple Fishing World
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Multiple DCS PT_SuperPlayer    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_edit}[0]
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Multiple DCS PT_SuperPlayer    save    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    @{tc_reset}[0]
+    Wait Data Processing    4s
+    Run Keyword And Continue On Failure    Close Popup By JS
+
+TC_SM_DC01_Disable Multiple DoubleComm
+    [Documentation]    *Verify super Disable double comm of master success*
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_commstatus}    Set Variable    Disallowed
+    ${tc_link}    Set Variable    Edit Multiple Double Comm
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    ##Uncheck double comm checkbox
+    Unselect Frame
+    select frame    ${in_main_framePopup}
+    Set Checkbox    dcomDisallow    check
+    Click Control    btnDCommMultiEdit
+    Unselect Frame
+    Wait Until Element Is Visible    ${in_main_btnOk}    ${cfWaitControlLong}
+    Click Element    ${in_main_btnOk}
+    select frame    ${in_main_framePopup}
+    Wait Until Page Not Contains Element    ${in_main_iconLoading}    ${cfWaitControlLong}    #wait for loading complete
+    Unselect Frame
+    Click Element    ${in_main_btnClosePopup}
+    Run Keyword And Continue On Failure    Wait Until Page Does Not Contain Element    ${in_main_btnClosePopup}    ${cfWaitControl}
+    ##Verify Multiple double comm are updated
+    select frame    main
+    : FOR    ${tc_i}    IN    @{tc_editUser}
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    xpath=//*[@value='${tc_i}']/following::a[text()='${tc_commstatus}']
+    Unselect Frame
+    COMMENT    -----------------------    POST-CONDITIONS    N/A
+
+TC_SM_DC02_Enable Multiple DoubleComm
+    [Documentation]    *Verify super Enable double comm of master success*
+    COMMENT    -----------------------    SET VARIABLES
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_commstatus}    Set Variable    Allowed
+    ${tc_link}    Set Variable    Edit Multiple Double Comm
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Master Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    ##Uncheck double comm checkbox
+    Unselect Frame
+    select frame    ${in_main_framePopup}
+    Set Checkbox    dcomAllow    check
+    Click Control    btnDCommMultiEdit
+    Unselect Frame
+    Click Element    ${in_main_btnOk}
+    select frame    ${in_main_framePopup}
+    Wait Until Page Not Contains Element    ${in_main_iconLoading}    ${cfWaitControlLong}    #wait for loading complete
+    Unselect Frame
+    Click Element    ${in_main_btnClosePopup}
+    Run Keyword And Continue On Failure    Wait Until Page Does Not Contain Element    ${in_main_btnClosePopup}    ${cfWaitControl}
+    ##Verify Multiple double comm are updated
+    select frame    main
+    : FOR    ${tc_i}    IN    @{tc_editUser}
+    \    Run Keyword And Continue On Failure    Element Should Be Visible    xpath=//*[@value='${tc_i}']/following::a[text()='${tc_commstatus}']
+    Unselect Frame
+    COMMENT    -----------------------    POST-CONDITIONS    N/A
+
+TC_SM_Edit Multiple Colossus Bets
+    [Documentation]    *Verify super update colossus Bet of masters success*
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_status}    Set Variable    check
+    ${tc_statusDL}    Set Variable    check
+    ${tc_comm}    Set variable    1
+    ${tc_cashShare}    Set variable    2
+    ${tc_comm_reset}    Set variable    2
+    ${tc_cashShare_reset}    Set variable    3
+    ${tc_link}    Set Variable    Edit Multiple Colossus Bets
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list    SupertestAuto020101    SupertestAuto020102
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit Setting Multiple ColossusBets    save    ${EMPTY}    ${EMPTY}    ${tc_comm}    ${tc_cashShare}
+    Select List User Checkbox    ${tc_editUser}    check
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify Setting Multiple ColossusBets    ${tc_status}    ${tc_statusDL}    ${tc_comm}    ${tc_cashShare}
+    COMMENT    -----------------------    POST-CONDITIONS
+    Edit Setting Multiple ColossusBets    save    ${EMPTY}    ${EMPTY}    ${tc_comm_reset}    ${tc_cashShare_reset}
+
+TC_SM_RemoveOPT_UnSuccessfully
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M01}
+    ${tc_link}    Set Variable    Remove OTP
+    COMMENT    ==============================>    MAIN STEPS
+    Open Setting Page from Account Info    ${tc_link}    ${tc_editUser}
+    Remove OTP    OK
+    COMMENT    -----------------------    POST-CONDITIONS
+    Element Should Contain    ${in_m_OTP_lblError}    This user has no registered device to be removed.
+
+TC_SM_Edit Multiple Lucky 3
+    [Tags]    NoRun
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_editUser}    Set Variable    ${ds_Line03_M03}    ${ds_Line03_M04}
+    ${tc_link}    Set Variable    Lucky 3
+    ${tc_Product}    Set Variable    26
+    ${tc_Sporttype}    Set Variable    160
+    ${tc_Bettype}    Set Variable    1601
+    ${tc_MasterGiveComm}    Set Variable    10%
+    ${tc_AgentCommUpdate}    Set Variable    9
+    ${tc_MasterRemainComm}    Set Variable    1%
+    ${tc_AgentComm_Reset}    Set Variable    8
+    ${tc_link}    Set Variable    Edit Multiple Lucky 3
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Agent List
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Edit DCS Ticket Commision    1    ${in_main_framePopup}    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_AgentCommUpdate}
+    Close Popup By JS
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify DCS Ticket Commission_MasterAgent    ${in_main_framePopup}    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_MasterGiveComm}    ${tc_AgentCommUpdate}
+    ...    ${tc_MasterRemainComm}    [FAILED: RedmineID]
+    Edit DCS Ticket Commision    1    ${in_main_framePopup}    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_AgentComm_Reset}
+    Close Popup By JS
+
+TC_SP_Edit Multiple Lucky 3
+    [Tags]    NoRun
+    COMMENT    ==============================>    SET VARIABLE
+    ${tc_viewdownlist}    Create List    ${ds_Line03_M02}    ${ds_Line03_A0201}
+    ${tc_editUser}    Set Variable    ${ds_Line03_P0201001}    ${ds_Line03_P0201002}
+    ${tc_link}    Set Variable    Lucky 3
+    ${tc_Product}    Set Variable    26
+    ${tc_Sporttype}    Set Variable    160
+    ${tc_Bettype}    Set Variable    1601
+    ${tc_expCommForMasterValue}    Set Variable    8%
+    ${tc_expCommForAgentValue}    Set Variable    5%
+    ${tc_link}    Set Variable    Edit Multiple Lucky 3
+    COMMENT    ==============================>    MAIN STEPS
+    Select Left Menu    MEMBER INFORMATION    Agent List
+    View Down User List    ${tc_viewdownlist}
+    Select List User Checkbox    ${tc_editUser}    check    # Select users check box in list
+    Wait Until Keyword Succeeds    2s    0.1s    Select Multiple Setting    ${tc_link}    # select Multiple options
+    Verify DCS Ticket Commission_SuperMember    ${in_main_framePopup}    ${tc_Product}    ${tc_Sporttype}    ${tc_Bettype}    ${tc_expCommForMasterValue}    ${tc_expCommForAgentValue}
+    ...    [FAILED: RedmineID]
+    Close Popup By JS

@@ -1,0 +1,42 @@
+*** Setting ***
+Library           Selenium2Library
+Library           ../Libary/Selenium2Extend.py
+Library           ../ExternalLibrary.py
+Resource          common_actions.txt
+Resource          Left_menu/left_menu_actions.txt
+Resource          ../Interfaces/Main/in_m_sub_account.txt
+
+*** Keywords ***
+Verify Sub Account Page
+    Comment    =================    Add Sub Account Popup
+    Select Left Menu    MEMBER INFORMATION    Sub Account
+    Unselect frame
+    select frame    main
+    Click Element    ${in_m_subAcc_btnAddSubAccount}
+    Unselect Frame
+    Select Frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //select[@id='number1']    ${cfWaitControl}
+    Close Popup By JS
+    Comment    =================    Edit Sub Account
+    select frame    main
+    Click Element    ${in_m_subAcc_firstColMemberInformation}
+    Comment    =================    Reset Password
+    Click Element    ${in_m_subAcc_firstColPassword}
+    Unselect Frame
+    Select Frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //input[@id='txtConfirmPwd']    ${cfWaitControl}
+    Close Popup By JS
+    Comment    =================    Reset Security Code -
+    select frame    main
+    Click Element    ${in_m_subAcc_firstColSecurity}
+    Unselect Frame
+    Select Frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //input[@id='txtSecCode']    ${cfWaitControl}
+    Close Popup By JS
+    Comment    =================    Remove OTP -
+    select frame    main
+    Click Element    ${in_m_subAcc_firstColRemoveOTP}
+    Unselect Frame
+    Select Frame    ${in_main_framePopup}
+    Run Keyword And Continue On Failure    Wait Until Element Is Visible    //button[@id='btn-change-status']    ${cfWaitControl}
+    Close Popup By JS
