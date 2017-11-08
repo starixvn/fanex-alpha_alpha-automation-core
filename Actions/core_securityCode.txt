@@ -13,6 +13,6 @@ Resource          core_common.txt    #============================ACTIONS=======
 Confirm Security Code
     Unselect Frame
     Select Frame    main
-    Wait Until Element Is Visible    ${in_core_scd_txtSE}    ${cfWaitTime}
+    Wait Until Element Is Visible    ${in_core_scd_txtSE}    ${cfWaitControl}
     Input Text    ${in_core_scd_txtSE}    ${cfSeCode}
     click element    ${in_core_scd_btnSubmit}
