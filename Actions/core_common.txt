@@ -242,6 +242,7 @@ Get Min Date Suport Range
 
 Init
     [Arguments]    ${username}
+    LOG    Test Module: Login by ${username}
     Config System
     #################    Local Evironment: Update Account SC and Password
     #################    Open Browser and navigate to login page
@@ -382,12 +383,8 @@ SubTrack Month Years
 Verify Dropdown List Checkbox by Item Index
     [Arguments]    ${locator}    ${index}    ${expValue}    ${errMsg}
     ${checkboxItemLocator}    set variable    ${locator}/following-sibling::div[1]/ul/li[${index}]//label/input
-    Run Keyword If    ${expValue}==1    Run Keyword And Continue On Failure    Checkbox Should Be Selected    ${checkboxItemLocator}    ${errMsg}
-    Run Keyword If    ${expValue}==0    Run Keyword And Continue On Failure    Checkbox Should Not Be Selected    ${checkboxItemLocator}    ${errMsg}
-    Comment    ${statusSelected}    Run Keyword And Return Status    Checkbox Should Be Selected    ${checkboxItemLocator}
-    Comment    ${statusUnselected}    Run Keyword And Return Status    Checkbox Should Not Be Selected    ${checkboxItemLocator}
-    Comment    Run Keyword If    ${value}==1    Run Keyword And Continue On Failure    Should be True    ${statusSelected}==True    ${errMsg}
-    Comment    Run Keyword If    ${value}==0    Run Keyword And Continue On Failure    Should be True    ${statusUnselected}==True    ${errMsg}
+    Run Keyword If    ${expValue}==1    Run Keyword And Continue On Failure    Checkbox Should Be Selected    ${checkboxItemLocator}
+    Run Keyword If    ${expValue}==0    Run Keyword And Continue On Failure    Checkbox Should Not Be Selected    ${checkboxItemLocator}
 
 Verify Dropdown List Checkbox by Item Text
     [Arguments]    ${locator}    ${itemName}    ${value}    ${errMsg}
