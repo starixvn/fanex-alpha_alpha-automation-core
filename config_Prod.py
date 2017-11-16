@@ -1,5 +1,5 @@
 Browser="ff"
-IsLogin=1
+IsLogin=0
 SeCode="123457"
 Pwd="1234aaAA"
 Url="https://mbc.gatonic.com/"
@@ -7,3 +7,4 @@ isLocal=0
 AType=1
 DsBetlistFile="Data_set\\BetList_rptWinLostDetail_Pro.xls"
 DsResultsPage="Data_set\\ResultsPage_Pro.xls"
+productList="Sportsbook,Racing,Number Game,Live Casino,Virtual Sports,Casino,Keno,Gold Deluxe,Colossus Bets,Allbet,Macau Games,Fishing World,Lottery"

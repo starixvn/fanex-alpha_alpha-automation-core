@@ -54,9 +54,10 @@ Config System
     Set Global Variable    ${cfDsResultsPage}    ${DsResultsPage}    #    ${DsResultsPage}    Data_set\\ResultsPage_Local.xls
     Set Global Variable    ${cfReportDownloadFolder}    C:\\reportfolder    #    ${ReportDownloadFolder}    C:\\reportfolder
     #################    ALPHA Avariables
-    ${cfProductList}    Create List    Sportsbook    Racing    Number Game    Virtual Sports    Casino
-    ...    Keno    Gold Deluxe    Colossus Bets    Allbet    Macau Games    Fishing World
-    ...    Lottery
+    ${cfProductList}    Split String    ${productList}    ,
+    Comment    ${cfProductList}    Create List    Sportsbook    Racing    Number Game    Virtual Sports
+    ...    Casino    Keno    Gold Deluxe    Colossus Bets    Allbet    Macau Games
+    ...    Fishing World    Lottery    Live Casino
     Set Global Variable    ${cfProductList}
     Set Global Variable    ${cfDBTime}    UTC - 4 hour
     Comment    Create Sporttype Bettype Tote Dictionary
