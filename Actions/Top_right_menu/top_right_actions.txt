@@ -248,3 +248,19 @@ Select Personal Menu
     click element    ${in_tm_iconHeaderMenu}
     sleep    0.1s
     click element    ${in_tm_dropdownHeadMenu}//*[text()='${itemName}']
+
+Verify HelpOTPContact in Menu
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconHelp}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconOTP}
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconContactUs}
+
+Verify Contact Us info page
+    Select Personal Menu    Contact Us
+    ${ac_skypeID}    Set Variable    maxcsd_agent
+    Unselect Frame
+    Select Frame    main
+    ## Check Skype name
+    Run Keyword And Continue On Failure    Element Text Should Be    //span[@class='skype-name']    ${ac_skypeID}
+    Run Keyword And Continue On Failure    Element Should Not Be Visible    //div[@class='hotline']
+    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-account-plus']/..    Add Now
+    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-phone']/..    Call Now

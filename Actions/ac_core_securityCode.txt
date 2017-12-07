@@ -7,7 +7,6 @@ Library           Collections
 Library           String
 Library           Dialogs
 Resource          ../Interfaces/in_core_scd_SecurityCode.txt    #============================INTERFACES====================
-Resource          core_common.txt    #============================ACTIONS====================
 
 *** Keywords ***
 Confirm Security Code

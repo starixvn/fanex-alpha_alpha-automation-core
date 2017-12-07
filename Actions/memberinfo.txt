@@ -161,7 +161,8 @@ Verify NewTBF Title Filter UI
     Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_newTBFC_btnRefresh}    ${cfWaitControl}
 
 Verify NewTBF Column Header UI
-    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_newTBFC_tdHeaderTime}    ${cfWaitControlLong}
+    ${isHasData}    Run Keyword And Return Status    Wait Until Element Is Visible    ${in_newTBFC_tdHeaderTime}    ${cfWaitControlLong}
+    Return From Keyword If    ${isHasData}==False
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_newTBFC_tdHeaderEvent}
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_newTBFC_tdHeaderBettype}
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_newTBFC_tdHeaderBetCount}
@@ -801,3 +802,24 @@ Open Position Taking Percentage by Product
     sleep    1s
     Select From List By Label    //*[@id='dropdown-product']    ${productName}
     Capture Page Screenshot
+
+Verify Product list in Customer Setting
+    [Arguments]    ${ac_SettingType}
+    [Documentation]    This action is used to verify Product list in Customer setting. Compare product list with data in data set ProductList
+    ...
+    ...    ${ac_SettingType} : the setting type in list {PT, Comm, WinLimit}
+    ## Set variable
+    ${ac_ProductDdlControl}    Set Variable    //select[@id='dropdown-product' or @id='Products' or @id='product']
+    ## Get Product list from data set Product list
+    ${ac_lstExpectedProducts}    Get Variable Value    ${ds_strProductIn${ac_SettingType}}
+    ${ac_lstExpectedProducts}    Split String    ${ac_lstExpectedProducts}    ,
+    ## Open Product list to view list Product
+    Wait Until Element Is Visible    ${ac_ProductDdlControl}
+    Click Element    ${ac_ProductDdlControl}
+    ${ac_No}    Get Matching Xpath Count    ${ac_ProductDdlControl}/option
+    ${ac_No}    Evaluate    ${ac_No} + 1
+    ${ac_lstProduct}    Create List
+    : FOR    ${ac_index}    IN RANGE    1    ${ac_No}
+    \    ${ac_text}    Get Text    ${ac_ProductDdlControl}/option[${ac_index}]
+    \    Append To List    ${ac_lstProduct}    ${ac_text}
+    Compare Lists    ${ac_lstExpectedProducts}    ${ac_lstProduct}

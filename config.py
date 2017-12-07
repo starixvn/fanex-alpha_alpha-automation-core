@@ -1,11 +1,10 @@
+isLocal=1
 Browser="ff"
 IsLogin=1
 SeCode="123457"
 Pwd="1234aaAA"
-Url="http://ha.nexdev.net:7402/Local07/"
-isLocal=1
 AType=1
-DsBetlistFile="Data_set\\BetList_rptWinLostDetail_Pro.xls"
-DsResultsPage="Data_set\\ResultsPage_Pro.xls"
-productList="Sportsbook,Racing,Number Game,Live Casino,Virtual Sports,Casino,Keno,Gold Deluxe,Colossus Bets,Allbet,Macau Games,Fishing World,Lucky 3,Lottery"
-
+Url="http://ha.nexdev.net:7411/ex-main/(S(uqyd2xo2owtdmz0gfr5vsyn5))/_Authorization/SignIn.aspx"
+DsBetlistFile="Data_set\\BetList_rptWinLostDetail_Pro_Betlist.xls"
+DsResultsPage="Data_set\\ResultsPage_Local.xls"
+productList="Sportsbook,Racing,Number Game,Live Casino,Virtual Sports,Casino,Keno,Gold Deluxe,Colossus Bets,Allbet,Macau Games,Fishing World,Lottery"

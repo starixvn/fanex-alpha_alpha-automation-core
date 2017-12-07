@@ -1,0 +1,6 @@
+*** Variables ***
+${ds_strProductInReport}  Sportsbook,Racing,Number Game,Virtual Sports,Casino,Keno,Gold Deluxe,Colossus Bets,Allbet,Macau Games,Fishing World,Lottery
+${ds_strProductInReportMatchWL}  Sportsbook,Racing,Number Game,Virtual Sports
+${ds_strProductInPT}  Sportsbook,Racing,Number Game,Live Casino,Virtual Sports,Keno,Gold Deluxe,Sportsbook 2,Allbet,Macau Games,Fishing World,Lottery
+${ds_strProductInComm}  Sportsbook,Racing,Live Casino,Casino,Gold Deluxe,Allbet,Macau Games
+${ds_strProductInWinLimit}  Live Casino,Gold Deluxe,RNG Casino,Lottery,Allbet,Macau Games

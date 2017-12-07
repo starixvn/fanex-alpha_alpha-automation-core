@@ -68,5 +68,5 @@ ${ds_Line13_M00}    SUPERTESTAUTO1300
 ${ds_Line13_M01}    SupertestAuto1301
 ${ds_Line13_A0101}    SupertestAuto130101
 ${ds_Line13_A0100}    SUPERTESTAUTO130100
-${ds_Line13_P0101000}    SUPERTESTAUTO130101000
-${ds_Line13_P0101001}    Auto130101Member002
+${ds_Line13_P0101001}    Auto130101Member001
+${ds_Line13_P0101002}    Auto130101Member002

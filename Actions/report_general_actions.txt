@@ -136,8 +136,9 @@ Verify Report Smoke Test
     Run Keyword If    '${expBreakcumb}'!='${EMPTY}'    Run Keyword And Continue On Failure    Verify Report Breadcrumb    ${expBreakcumb}    ${issueID}
     Return From Keyword If    '${isInfo}'=='0'
     Wait Until Element Is Visible    ${in_m_report_icoInfo}    ${cfWaitControl}
-    Sleep    0.5s
     Click Element By Xpath js    ${in_m_report_icoInfo}
+    ${isOpenInfoPopup}    Run Keyword And Return Status    Wait Until Element Is Visible    ${in_m_report_icoInfoPopupContent}    ${cfWaitControl}
+    Run Keyword If    '${isOpenInfoPopup}'=='False'    Click Element By Xpath js    ${in_m_report_icoInfo}
     Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_m_report_icoInfoPopupContent}    ${cfWaitControl}
     Click Element By Xpath js    ${in_m_report_btnClose}
     Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}

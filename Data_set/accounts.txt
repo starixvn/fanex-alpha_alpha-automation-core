@@ -39,7 +39,7 @@ ${ds_Line02_P0101003}    SUPERTESTAUTO020101003    # Master Edit Members: Multip
 ${ds_Line02_P0101004}    SUPERTESTAUTO020101004    # Master Edit Members: Multiple
 ${ds_Line02_A0102}    SupertestAuto020102    # Specail for Close/Suspend Status
 ${ds_Line02_P0102001}    SupertestAuto020102001    # Edit Lucky 3 Ticket Comm
-${ds_Line02_P0102003}    SupertestAuto020102003    # Edit Lucky 3 Ticket Comm
+${ds_Line02_P0102002}    SupertestAuto020102002    # Edit Lucky 3 Ticket Comm
 ${ds_Line02_A0103}    SUPERTESTAUTO020103    # Master Edit Agent: Multiple
 ${ds_Line02_A0104}    SUPERTESTAUTO020104    # Master Edit Agent: Multiple
 ${ds_Line02_A0105}    SUPERTESTAUTO020105    # Product Staus
@@ -55,7 +55,7 @@ ${ds_Line03_P0102001}    SupertestAuto030102001    # Specail for Close/Suspend S
 ${ds_Line03_M02}    SupertestAuto0302    # Specail for Close/Suspend Status: Super Update Master
 ${ds_Line03_A0201}    SupertestAuto030201    # Specail for Close/Suspend Status: Super Update Master: Verify Agent
 ${ds_Line03_P0201001}    SupertestAuto030201001    # Specail for Close/Suspend Status: Super Update Master: Verify member
-${ds_Line03_P0201002}    SupertestAuto030201002    # Multiple Comm Lucky 3
+${ds_Line03_P0201002}    SupertestAuto030102001    # Multiple Comm Lucky 3
 ${ds_Line03_M03}    SUPERTESTAUTO0303    # Super Edit Masters: Multiple
 ${ds_Line03_M04}    SUPERTESTAUTO0304    # Super Edit Masters: Multiple
 ${ds_Line03_M05}    SUPERTESTAUTO0305    # Super Edit Masters: Product Status
