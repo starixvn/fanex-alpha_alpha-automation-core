@@ -8,6 +8,7 @@ Resource          ../Interfaces/Main/in_m_report_old.txt
 Resource          ../Data_Set/resultheader.txt
 Resource          common_actions.txt
 Resource          ../Interfaces/Main/in_m_report_smartphone.txt
+Resource          ../Interfaces/Main/in_main_totalbet_report_forecast.txt
 
 *** Keywords ***
 Calculate data of every bettype in match
@@ -6615,20 +6616,24 @@ Verfiy ForeCast HDP_OU Popup
     Select Frame    ${in_main_framePopup}
     Run Keyword And Continue On Failure    Wait Until Element Is Visible    //table[contains(@class,'tblRp')][1]    ${cfWaitControl}
     Run Keyword And Continue On Failure    Wait Until Element Is Visible    //table[contains(@class,'tblRp')][2]    ${cfWaitControl}
-    ${isHandicap}    Run Keyword And Return Status    Wait Until Element Is Visible    //table[contains(@class,'tblRp')][2]//a[contains(text(),'Under Forecast')]    ${cfWaitControl}
-    ${defautLink}    Set Variable If    ${isHandicap}==True    //table[contains(@class,'tblRp')][2]//a[contains(text(),'Under Forecast')]    //table[contains(@class,'tblRp')][2]//a[contains(text(),'Handicap Forecast')]
-    ${secondLink}    Set Variable If    ${isHandicap}==True    //table[contains(@class,'tblRp')][2]//a[contains(text(),'Handicap Forecast')]    //table[contains(@class,'tblRp')][2]//a[contains(text(),'Under Forecast')]
-    Click Element    ${defautLink}    #//table[contains(@class,'tblRp')][2]//a[contains(text(),'Over Under Forecast')]
-    Wait Until Element Is Visible    ${secondLink}    ${cfWaitControl}    #//table[contains(@class,'tblRp')][2]//a[contains(text(),'Handicap Forecast')]
+    Wait Until Element Is Visible    //a[@class="forecast_toggle_link"]    ${cfWaitControl}
+    ${linkText}    Get Text    //a[@class="forecast_toggle_link"]
+    ${isHandicap}    Run Keyword And Return Status    Should Contain    ${linkText}    Under Forecast
+    ${defautLink}    Set Variable If    ${isHandicap}==True    //a[@class='forecast_toggle_link'][contains(text(),'Under Forecast')]    //a[@class='forecast_toggle_link'][contains(text(),'Handicap Forecast')]
+    ${secondLink}    Set Variable If    ${isHandicap}==True    //a[@class='forecast_toggle_link'][contains(text(),'Handicap Forecast')]    //a[@class='forecast_toggle_link'][contains(text(),'Under Forecast')]
     Click Element    //table[contains(@class,'tblRp')][2]//a[contains(@href,'GetFCAH') and text()='1']
-    Click Element    ${secondLink}    #//table[contains(@class,'tblRp')][2]//a[contains(text(),'Handicap Forecast')]
-    Click Element By Xpath    ${in_ForeCast_lnkOpenBetlistPopup}
+    sleep     1s
+    Click Element    ${defautLink}
+    Wait Until Element Is Visible    ${secondLink}    ${cfWaitControl}
+    Click Element    ${secondLink}
+    Is Element Visible    ${in_ForeCast_lnkOpenBetlistPopup}    ${cfWaitControl}
+    Click Element By Xpath js    ${in_ForeCast_lnkOpenBetlistPopup}
     Unselect Frame
     Wait Until Element Is Visible    //div[contains(@id,'page-popup-')][last()]//iframe    ${cfWaitControl}
     Select Frame    //div[contains(@id,'page-popup-')][last()]//iframe
-    Wait Until Element Is Visible    //*[@id='exporttoexcel']    ${cfWaitControl}
-    Click Element    //*[@id='exporttoexcel']
-    Run Keyword And Continue On Failure    Element Should not Contain    //*[@id='hor-minimalist-a']    No information is available
+    Wait Until Element Is Visible    ${in_TotalBets_icoExcel}    ${cfWaitControl}
+    Click Element    ${in_TotalBets_icoExcel}
+    Run Keyword And Continue On Failure    Element Should not Contain    ${in_TotalBets_tblData}    No information is available
 
 Verify Total Bet_Bet List
     Unselect Frame
@@ -6640,10 +6645,10 @@ Verify Total Bet_Bet List
     Verify Bet List and Export Excel Smoke Text
 
 Verify Bet List and Export Excel Smoke Text
-    Wait Until Element Is Visible    //input[@id='exporttoexcel']    ${cfWaitControl}
-    Click Element    //input[@id='exporttoexcel']
-    ${header}    Get Text    //table[@id='hor-minimalist-a']/thead/tr[1]
-    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@id='hor-minimalist-a']/tbody/tr[1]/td[1]
+    Wait Until Element Is Visible    ${in_TotalBets_icoExcel}    ${cfWaitControl}
+    Click Element    ${in_TotalBets_icoExcel}
+    ${header}    Get Text    ${in_TotalBets_tblData}/thead/tr[1]
+    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_TotalBets_tblData}/tbody/tr[1]/td[1]
 
 Verify Report_Win loss_Main Page_SmokeTest
     [Arguments]    ${reportName}
@@ -6741,9 +6746,10 @@ Verify Forecast Popup_Odd/Even + 1x2 + DND
     Unselect Frame
     Wait Until Element Is Visible    //div[contains(@id,'page-popup-')]//*[@id='result-detail-title']/span[@id='popup-title']    ${cfWaitControl}
     Run Keyword And Continue On Failure    Wait Until Keyword Succeeds    ${cfWaitControl}    1s    Element Should Contain    //div[contains(@id,'page-popup-')]//*[@id='result-detail-title']/span[@id='popup-title']    Forecast
-    Select Frame    //div[contains(@id,'page-popup-')][last()]//iframe
-    Wait Until Element Is Visible    //*[@id='sContent']/table/tbody/tr[4]/td[2]    ${cfWaitControl}
-    Click Element    //*[@id='sContent']/table/tbody/tr[4]/td[2]
+    Unselect Frame
+    Select Frame    //div[contains(@id,'page-popup-')][last()]//iframe[@id='popup-iframe']    #//div[contains(@id,'page-popup-')][last()]//iframe[@id='popup-iframe']
+    Wait Until Element Is Visible    //div[@id='sContent']/table/tbody/tr[@class='even_row'][2]/td[2]    ${cfWaitControl}
+    Click Element By Xpath js    //div[@id='sContent']/table/tbody/tr[@class='even_row'][2]/td[2]/a
     Unselect Frame
     Select Frame    //div[contains(@id,'page-popup-')][last()]//iframe
     Verify Bet List and Export Excel Smoke Text
@@ -6794,3 +6800,30 @@ Verify View Down Consolidaion_Smoke Test
     \    ${expBreakcumb}    Set Variable If    '${downline}'!='${None}'    ${expBreakcumb}${SPACE}${downline}    ${expBreakcumb}
     \    Verify Report Smoke Test    ${expTitle}    ${expBreakcumb}    ${isExportExcel}    ${expDataTable}    1
     \    ...    IssueID
+
+Verify Product list in Report
+    [Arguments]    ${ac_ReportName}
+    [Documentation]    This action is used to verify Product list in Report. Compare product list with data in data set ProductList
+    ...
+    ...    ${ac_Reportname}: Report name
+    ## Set variable
+    ${ac_ProductControl}    Set Variable    //button[@data-toggle='dropdown']
+    ${ac_ProductDdlControl}    Set Variable    //div[@class='btn-group open']/ul[@class='multiselect-container dropdown-menu']
+    ## Get Product list from Data set Product list
+    ${ac_lstExpectedProducts}    Set Variable If    '${ac_ReportName}'=='Match Win Loss Detail'    ${ds_strProductInReportMatchWL}    ${ds_strProductInReport}
+    ${ac_lstExpectedProducts}    Split String    ${ac_lstExpectedProducts}    ,
+    Append To List    ${ac_lstExpectedProducts}    Select all
+    ${ac_lstReportWithLCS}    Set Variable    Win Loss Analysis, Win Loss Analysis Chart, Master Outstanding, Agent \ Outstanding, Member \ Outstanding
+    ${ac_isLCS}    Evaluate    "${ac_lstReportWithLCS}".find("${ac_ReportName}")
+    Run Keyword If    ${ac_isLCS}>=0    Append To List    ${ac_lstExpectedProducts}    Live Casino
+    ## Open Product list to view list Product
+    Wait Until Element Is Visible    ${ac_ProductControl}
+    Click Element    ${ac_ProductControl}
+    Wait Until Element Is Visible    ${ac_ProductDdlControl}
+    ${ac_No}    Get Matching Xpath Count    ${ac_ProductDdlControl}/li
+    ${ac_No}    Evaluate    ${ac_No} + 1
+    ${ac_lstProduct}    Create List
+    : FOR    ${ac_index}    IN RANGE    1    ${ac_No}
+    \    ${ac_text}    Get Text    ${ac_ProductDdlControl}/li[${ac_index}]
+    \    Append To List    ${ac_lstProduct}    ${ac_text}
+    Compare Lists    ${ac_lstExpectedProducts}    ${ac_lstProduct}

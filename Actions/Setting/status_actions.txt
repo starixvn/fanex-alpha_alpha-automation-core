@@ -23,9 +23,6 @@ Open Setting Page
     Click Element    ${in_lm_lnk${caption}}
     Unselect Frame
 
-Reload Account Info Left Menu
-    [Arguments]    ${username}
-
 Update Product Status
     [Arguments]    ${action}    ${product}=${EMPTY}    ${statusValue}=${EMPTY}    ${statusDLValue}=${EMPTY}
     ${productControl}    Replace String    ${product}    ${SPACE}    ${EMPTY}
@@ -45,7 +42,7 @@ Update Product Status
     \    Run Keyword if    '@{statusValue}[${i}]'!='${EMPTY}'    Set Checkbox    @{statusControl}[${i}]    @{statusValue}[${i}]
     \    Run Keyword if    '@{statusDLValue}[${i}]'!='${EMPTY}'    Set Checkbox    @{statusDLControl}[${i}]    @{statusDLValue}[${i}]
     Run Keyword if    '${action}'=='save'    Click Element    ${in_main_btnSubmit}
-    Run Keyword if    '${action}'=='save'    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_main_lblMessage}
+    Run Keyword if    '${action}'=='save'    Run Keyword And Continue On Failure    Wait Until Element Is Visible    ${in_main_lblMessage}    ${cfWaitControlLong}
     sleep    4s
     unselect frame
 
@@ -290,9 +287,9 @@ Update Status with Confirm Message
     sleep    1s
     Set Checkbox    ${locator}    ${value}
     Unselect Frame
-    Run Keyword if    '${action}'=='cancel'    Wait Until Element Is Visible    ${in_main_btnConfirmPopupCancel}    ${cfWaitTime}
+    Run Keyword if    '${action}'=='cancel'    Wait Until Element Is Visible    ${in_main_btnConfirmPopupCancel}    ${cfWaitControl}
     Run Keyword if    '${action}'=='cancel'    Click Element    ${in_main_btnConfirmPopupCancel}
-    Run Keyword if    '${action}'=='save'    Wait Until Element Is Visible    ${in_main_btnConfirmPopupOk}    ${cfWaitTime}
+    Run Keyword if    '${action}'=='save'    Wait Until Element Is Visible    ${in_main_btnConfirmPopupOk}    ${cfWaitControl}
     Run Keyword if    '${action}'=='save'    Click Element    ${in_main_btnConfirmPopupOk}
 
 Verify Product Status
@@ -533,7 +530,8 @@ Verify Status Single Popup
     Wait Until Element Is Visible    ${in_lm_btnSubmit}    ${cfWaitControl}
     # Verify value
     Verify Control    ${in_lm_chkStatus}    checkbox    ${expectedAppear}    ${expectedStatus}    ${expectedValue}
-    Verify Control    ${in_lm_chkStatusDL}    checkbox    ${expectedAppearDL}    ${expectedStatusDL}    ${expectedValueDL}
+    Run Keyword If    '${expectedAppearDL}'<>'EMPTY'    Verify Control    ${in_lm_chkStatusDL}    checkbox    ${expectedAppearDL}    ${expectedStatusDL}
+    ...    ${expectedValueDL}
     unselect frame
     Click Element    ${in_main_btnClosePopupStatus}
 

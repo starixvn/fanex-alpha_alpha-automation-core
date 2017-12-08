@@ -1554,6 +1554,7 @@ TC_SM_DC02_Enable Multiple DoubleComm
     Set Checkbox    dcomAllow    check
     Click Control    btnDCommMultiEdit
     Unselect Frame
+    Wait Until Element Is Visible    ${in_main_btnOk}    ${cfWaitControlLong}
     Click Element    ${in_main_btnOk}
     select frame    ${in_main_framePopup}
     Wait Until Page Not Contains Element    ${in_main_iconLoading}    ${cfWaitControlLong}    #wait for loading complete

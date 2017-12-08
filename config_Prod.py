@@ -1,5 +1,5 @@
 Browser="ff"
-IsLogin=0
+IsLogin=1
 SeCode="123457"
 Pwd="1234aaAA"
 Url="https://mbc.gatonic.com/"

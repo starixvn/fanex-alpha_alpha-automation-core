@@ -112,7 +112,8 @@ TC_MM_Reports_Master Win Loss
     ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
     ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
     ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
-    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    Run Keyword If    '${master}'!='${None}'    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1
+    ...    0    IssueID
     ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
     Run Keyword If    '${master}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
 
@@ -165,7 +166,8 @@ TC_MM_Reports_Master Win Loss Detail
     ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${master}    ${expBreadcrumbString}
     ${agent}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
     ${expBreadcrumbString}    Set Variable If    '${master}'!='${None}'    ${expBreadcrumbString}${SPACE}${agent}    ${expBreadcrumbString}
-    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1    0    IssueID
+    Run Keyword If    '${master}'!='${None}'    Verify Report Smoke Test    MEMBER ${tc_rptTitleName}    ${expBreadcrumbString}    1    1
+    ...    0    IssueID
     ${member}    View Down Report If Data Existing    ${in_m_report_table_Smartphone}    ${in_m_report_table_Smartphone}/tbody/tr[1]/td[1]/a
     Run Keyword If    '${master}'!='${None}'    Verify Betlist_Smoke Test    MEMBER BET LIST    ${member}
 
@@ -305,9 +307,12 @@ TC_MM_Reports_Cancelled Bets
     Unselect frame
     Select Frame    main
     Wait Until Page Not Contains Element    ${in_m_report_blockUI}    ${cfWaitControl}    0.5s
-    Hide Filter
-    Show Filter
-    Verify Bet List Smoke Test    ${tc_betListName}    ${EMPTY}    1
+    Wait Until Element Is Visible    //tbody/tr[1]/td[1]    ${cfWaitControl}
+    ${isNoData}    Run Keyword And Return Status    Element Should Contain    //tbody/tr[1]/td[1]    No information is available
+    Run Keyword If    '${isNoData}'=='False'    Hide Filter
+    Run Keyword If    '${isNoData}'=='False'    Show Filter
+    ${exportExcell}    Set Variable If    '${isNoData}'=='False'    1    0
+    Verify Bet List Smoke Test    ${tc_betListName}    ${EMPTY}    ${exportExcell}
 
 TC_MM_Reports_Consolidation
     COMMENT    -----------------------    SET VARIABLES
@@ -1078,6 +1083,7 @@ TC_MM_MemberInfo_Bet Choice Limit_All Bet
     \    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@class='bet-choice-limit']
 
 TC_MM_BetAndForecast_Soccer
+    [Tags]    A1
     ## Check New Total Bet Forecast UI
     Verify NewTBF UI
 
@@ -1089,6 +1095,7 @@ TC_MM_TotalBets_Handicap/Over Under/Live
     ...    - 4. Open 1st-Time Over/Under then View down to Bet List
     ...    *History*
     ...    - [2019-09-26]-Casey: Created
+    Reload Page
     Verify TotalBets Header Data New    TOTAL BETS    Handicap/Over Under/Live    Handicap/Over Under/Live    ${in_TotalBets_tblData}
     Verify TotalBet Forecast_Handicap/Over Under/Live
 
@@ -1109,12 +1116,8 @@ TC_MM_TotalBets_FT & HT Total Goal
     Verify Total Bet_Bet List
 
 TC_MM_TotalBets_Parlay
-    Verify TotalBets Header Data New    TOTAL BETS    Parlay    Mix Parlay    ${in_TotalBets_tblData}
+    Verify TotalBets Header Data New    TOTAL BETS    Parlay    Parlay    ${in_TotalBets_tblData}
     Verify Bet List and Export Excel Smoke Text
-    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@id='hor-minimalist-a']/thead/tr/th[text()='Choice']
-    Click Element    //*[@id='tab_hr']/ul/li[2]/a/span
-    Verify Bet List and Export Excel Smoke Text
-    Run Keyword And Continue On Failure    Element Should Be Visible    //table[@id='hor-minimalist-a']/thead/tr/th[text()='Choice']
 
 TC_MM_TotalBets_Outright
     Verify TotalBets Header Data New    TOTAL BETS    Outright    Outright    ${in_TotalBets_tblData}
@@ -1501,9 +1504,10 @@ TC_OT_Top Bar_Personal Menu Option
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconProfilePicture}
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconPassword}
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconSecurityCode}
-    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconHelp}
-    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconOTP}
-    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconContactUs}
+    Comment    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconHelp}
+    Comment    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconOTP}
+    Comment    Run Keyword And Continue On Failure    Element Should Be Visible    ${in_tm_iconContactUs}
+    Run Keyword If    '${cfAtype}'=='1'    Verify HelpOTPContact in Menu
     click element    ${in_tm_iconHeaderMenu}
     ##    - Nick Name
     Select Personal Menu    Nickname
@@ -1558,15 +1562,16 @@ TC_OT_Top Bar_Personal Menu Option
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_chkOTPStatus}
     Run Keyword And Continue On Failure    Element Should Be Visible    ${in_m_OTP_sta_btnSubmitOTPStatus}
     ##    - Contact Us
-    Select Personal Menu    Contact Us
-    ${tc_skypeID}    Set Variable    maxcsd_agent
-    Unselect Frame
-    Select Frame    main
-    ## Check Skype name
-    Run Keyword And Continue On Failure    Element Text Should Be    //span[@class='skype-name']    ${tc_skypeID}
-    Run Keyword And Continue On Failure    Element Should Not Be Visible    //div[@class='hotline']
-    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-account-plus']/..    Add Now
-    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-phone']/..    Call Now
+    Comment    Select Personal Menu    Contact Us
+    Comment    ${tc_skypeID}    Set Variable    maxcsd_agent
+    Comment    Unselect Frame
+    Comment    Select Frame    main
+    Comment    ## Check Skype name
+    Comment    Run Keyword And Continue On Failure    Element Text Should Be    //span[@class='skype-name']    ${tc_skypeID}
+    Comment    Run Keyword And Continue On Failure    Element Should Not Be Visible    //div[@class='hotline']
+    Comment    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-account-plus']/..    Add Now
+    Comment    Run Keyword And Continue On Failure    Element Text Should Be    //a[@class='btn']/span[@class='icon-phone']/..    Call Now
+    Run Keyword If    '${cfAtype}'=='1'    Verify Contact Us info page
 
 TC_OT_Top Bar_Super_Left Profile Option
     ## Set variable
@@ -1634,6 +1639,7 @@ TC_OT_Top Bar_Log Out
     Wait Until Element Is Not Visible    ${in_tm_iconlogout}
 
 TC_MM_Transfer New
+    [Tags]    A1
     Login    ${ds_Line13Login_S}    ${cfPwd}
     COMMENT    -----------------------    SET VARIABLES
     ${tc_master00}    Set Variable    ${ds_Line13_M00}

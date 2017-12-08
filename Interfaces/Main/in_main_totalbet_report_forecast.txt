@@ -16,7 +16,9 @@ ${in_TotalBets_ToWinToNil_ReportName}    //div[@class='bl_title' and contains (t
 ${in_TotalBets_3WayHandicap_ReportName}    //div[@class='bl_title' and contains (text(),'3-WAY HANDICAP')]
 ${in_TotalBets_NumberGame_ReportName}    //div[@id='header_main' and contains(text(),'Number Game')]
 ${in_TotalBets_Racing_ReportName}    //div[@id='header_main' and contains(text(),'Racing')]
-${in_TotalBets_tblData}    //div[@id='spData' or @id ='sContent']/table
+##${in_TotalBets_tblData}    //div[@id='spData' or @id ='sContent']/table
+${in_TotalBets_tblData}    //table[contains(@class,'tblRpt ')]
+${in_TotalBets_icoExcel}    //a[@id='icon-excel']
 ##
 ${in_ForeCast_lnkOpenForeCastPopupList}    //table[contains(@class,'tblRpt')]//a[contains(@href,'openForecast')]
 ${in_ForeCast_lnkOpenBetlistPopup}    //table[contains(@class,'tblRpt')]//a[contains(@href,'openBetListPopup')]
