@@ -183,7 +183,6 @@ Click Element A and Wait Element B Appear
 
 Click Element By Xpath js
     [Arguments]    ${locator}
-    Comment    Execute Javascript    var x =document.getElementByXpath("${locator}").children[0]; x.click();
     Execute Javascript    var x =document.evaluate("${locator}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; x.click();
 
 Close All Popups
